@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { notifications, saveNotifications } = require('../data/notificationData');
+const { notifications, saveNotifications } = require('./notificationData');
 const { authenticateToken, requireAdmin } = require('../middleware/authMiddleware');
 const { v4: uuidv4 } = require('uuid');
 
