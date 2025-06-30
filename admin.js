@@ -19,4 +19,22 @@ router.get('/test', (req, res) => {
   res.json({ success: true, message: 'Admin route is working' });
 });
 
+// Dashboard stats endpoint
+router.get('/dashboard', (req, res) => {
+  const totalOrders = orders.length;
+  const totalProducts = products.length;
+  const totalUsers = users.length;
+  const totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+  const recentOrders = orders.slice(-5).reverse();
+  res.json({
+    stats: {
+      totalOrders,
+      totalProducts,
+      totalUsers,
+      totalRevenue,
+      recentOrders
+    }
+  });
+});
+
 module.exports = router; 
