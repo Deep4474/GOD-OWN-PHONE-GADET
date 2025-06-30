@@ -47,6 +47,9 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Serve all files in the root directory as static assets
+app.use(express.static(__dirname));
+
 // Static files
 app.use('/uploads', express.static('uploads'));
 
