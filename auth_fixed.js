@@ -103,9 +103,13 @@ router.post('/register', validateRegistration, async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    const userToReturn = sanitizeUser(newUser);
+    console.log('--- DEBUG: User object sent on successful registration ---');
+    console.log(JSON.stringify(userToReturn, null, 2));
+
     res.status(201).json({
       message: 'User registered successfully. Verification code sent to your email.',
-      user: sanitizeUser(newUser),
+      user: userToReturn,
       token,
     });
   } catch (error) {
@@ -134,9 +138,13 @@ router.post('/login', validateLogin, async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    const userToSend = sanitizeUser(user);
+    console.log("--- DEBUG: User object being sent on login ---");
+    console.log(JSON.stringify(userToSend, null, 2));
+
     res.json({
       message: 'Login successful',
-      user: sanitizeUser(user),
+      user: userToSend,
       token,
     });
   } catch (error) {
@@ -167,11 +175,15 @@ router.post('/verify', async (req, res) => {
     { expiresIn: '24h' }
   );
 
+  const userToReturn = sanitizeUser(user);
+  console.log('--- DEBUG: User object sent on successful verification ---');
+  console.log(JSON.stringify(userToReturn, null, 2));
+
   res.json({
     success: true,
     message: 'Email verified successfully',
     token,
-    user: sanitizeUser(user)
+    user: userToReturn
   });
 });
 
