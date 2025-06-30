@@ -670,25 +670,16 @@ function hideAllSections() {
 }
 
 function updateUserInfo() {
-  if (!currentUser) return;
-
   const userInfo = document.getElementById('user-info');
-  const address = currentUser.address || 'No address provided';
-
-  userInfo.innerHTML = `
-    <span>Welcome, ${currentUser.name}!</span>
-    <span id="user-address">Address: ${address}</span>
-    <button id="view-map-btn" class="btn-secondary" ${!currentUser.address ? 'disabled' : ''}>View Map</button>
-    <button id="logout">Logout</button>
-    <div id="notification-badge">${unreadNotifications}</div>
-  `;
-
-  document.getElementById('logout').addEventListener('click', logoutUser);
-  document.getElementById('view-map-btn').addEventListener('click', () => {
-    if (currentUser && currentUser.address) {
-      showUserMapModal(currentUser.address);
-    }
-  });
+  const welcome = document.getElementById('welcome');
+  if (currentUser && userInfo && welcome) {
+    userInfo.classList.remove('hidden');
+    welcome.textContent = `Welcome, ${currentUser.name || currentUser.email}`;
+  } else if (userInfo && welcome) {
+    userInfo.classList.add('hidden');
+    welcome.textContent = '';
+  }
+  updateHeaderActions();
 }
 
 function showUserMapModal(address) {
@@ -906,12 +897,24 @@ function setupEventListeners() {
   
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', logoutUser);
+    logoutBtn.addEventListener('click', () => {
+      if (currentUser) {
+        logoutUser();
+      } else {
+        showMessage('You are not logged in.', 'error');
+      }
+    });
   }
 
   const ordersBtn = document.getElementById('orders-btn');
   if (ordersBtn) {
-    ordersBtn.addEventListener('click', showOrders);
+    ordersBtn.addEventListener('click', () => {
+      if (currentUser) {
+        showOrders();
+      } else {
+        showMessage('Please log in to view your orders.', 'error');
+      }
+    });
   }
   
   document.getElementById('back-to-products-btn')?.addEventListener('click', showProducts);
@@ -974,5 +977,22 @@ function checkRegistrationFormElements() {
   });
   if (allPresent) {
     console.log('All registration form elements are present.');
+  }
+}
+
+function updateHeaderActions() {
+  const logoutBtn = document.getElementById('logout-btn');
+  const ordersBtn = document.getElementById('orders-btn');
+  if (!logoutBtn || !ordersBtn) return;
+  if (currentUser) {
+    logoutBtn.disabled = false;
+    ordersBtn.disabled = false;
+    logoutBtn.classList.remove('disabled');
+    ordersBtn.classList.remove('disabled');
+  } else {
+    logoutBtn.disabled = true;
+    ordersBtn.disabled = true;
+    logoutBtn.classList.add('disabled');
+    ordersBtn.classList.add('disabled');
   }
 }
