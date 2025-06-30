@@ -904,8 +904,16 @@ function setupEventListeners() {
   
   document.getElementById('verify-btn')?.addEventListener('click', verifyEmail);
   
-  document.getElementById('logout-btn')?.addEventListener('click', logoutUser);
-  document.getElementById('orders-btn')?.addEventListener('click', showOrders);
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', logoutUser);
+  }
+
+  const ordersBtn = document.getElementById('orders-btn');
+  if (ordersBtn) {
+    ordersBtn.addEventListener('click', showOrders);
+  }
+  
   document.getElementById('back-to-products-btn')?.addEventListener('click', showProducts);
   
   document.getElementById('search-input')?.addEventListener('input', filterProducts);
