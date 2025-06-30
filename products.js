@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { products, saveProducts } = require('./products');
-const { authenticateToken, isAdmin } = require('./authMiddleware');
+const { authenticateToken, requireAdmin } = require('./authMiddleware');
 
 const router = express.Router();
 
@@ -188,7 +188,7 @@ router.get('/brands/list', (req, res) => {
 });
 
 // Add new product (admin only)
-router.post('/', authenticateToken, isAdmin, (req, res) => {
+router.post('/', authenticateToken, requireAdmin, (req, res) => {
   const { name, price, description, category, brand, stock, images } = req.body;
   if (!name || !price || !description || !category || !brand || !stock || !images || !Array.isArray(images)) {
     return res.status(400).json({ error: 'All product fields are required' });
@@ -210,7 +210,7 @@ router.post('/', authenticateToken, isAdmin, (req, res) => {
 });
 
 // Update a product (admin only)
-router.put('/:id', authenticateToken, isAdmin, (req, res) => {
+router.put('/:id', authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
   const productIndex = products.findIndex(p => p._id === id);
 
@@ -227,7 +227,7 @@ router.put('/:id', authenticateToken, isAdmin, (req, res) => {
 });
 
 // Delete a product (admin only)
-router.delete('/:id', authenticateToken, isAdmin, (req, res) => {
+router.delete('/:id', authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
   const productIndex = products.findIndex(p => p._id === id);
 
@@ -241,5 +241,4 @@ router.delete('/:id', authenticateToken, isAdmin, (req, res) => {
   res.json({ message: 'Product deleted successfully' });
 });
 
-module.exports = router;
-module.exports.products = products; 
+module.exports = router; 
