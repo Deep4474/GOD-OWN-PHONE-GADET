@@ -11,16 +11,17 @@ const PORT = process.env.PORT || 3001;
 
 // CORS configuration (should be the first middleware)
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:5500', 'http://localhost:5500', 'https://phone-2cv4.onrender.com'],
+  origin: ['http://localhost:3000', 'http://127.0.0.1:5500', 'http://localhost:5500', 'https://god-sown-phone-gadget.onrender.com'],
   credentials: true
 }));
+
+app.options('*', cors());
 
 // Import routes
 const authRoutes = require('./auth_fixed');
 const productRoutes = require('./products');
 const orderRoutes = require('./orders');
 const notificationRoutes = require('./notifications');
-const adminRoutes = require('./admin');
 const locationRoutes = require('./location');
 
 // Security middleware
@@ -64,7 +65,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/admin', adminRoutes);
 app.use('/api/location', locationRoutes);
 
 // Serve the main index.html for the root route
