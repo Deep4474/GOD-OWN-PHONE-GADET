@@ -356,41 +356,30 @@ async function loadUserOrders() {
 }
 
 async function placeOrder() {
-  if (!currentUser) {
-    showMessage('Please login first', 'error');
+  const quantityInput = document.getElementById('quantity');
+  const buyOptionSelect = document.getElementById('buy-option');
+  const paymentMethodSelect = document.getElementById('payment-method');
+
+  if (!selectedProduct || !currentUser || !quantityInput || !buyOptionSelect || !paymentMethodSelect) {
+    showMessage('An error occurred. Please try again.', 'error');
+    console.error('Missing required elements or data for placing an order.');
     return;
   }
-  
-  if (!selectedProduct) {
-    showMessage('Please select a product first', 'error');
-    return;
-  }
-  
-  const quantity = parseInt(document.getElementById('quantity').value) || 1;
-  const buyOption = document.getElementById('buy-option').value;
-  const paymentMethod = document.getElementById('payment-method').value;
-  
-  if (!buyOption || !paymentMethod) {
+
+  const orderData = {
+    userId: currentUser._id,
+    productId: selectedProduct._id,
+    quantity: parseInt(quantityInput.value, 10),
+    deliveryOption: buyOptionSelect.value,
+    paymentMethod: paymentMethodSelect.value,
+    deliveryAddress: currentUser.address,
+    totalAmount: calculateTotal(parseInt(quantityInput.value, 10), buyOptionSelect.value)
+  };
+
+  if (!orderData.deliveryOption || !orderData.paymentMethod) {
     showMessage('Please select both delivery option and payment method', 'error');
     return;
   }
-  
-  const deliveryAddress = {
-    state: document.getElementById('delivery-state').value || currentUser.state,
-    area: document.getElementById('delivery-area').value || currentUser.area,
-    street: document.getElementById('delivery-street').value || currentUser.street,
-    address: document.getElementById('delivery-address').value || currentUser.address
-  };
-  
-  const orderData = {
-    userId: currentUser.id,
-    productId: selectedProduct._id,
-    quantity: quantity,
-    deliveryOption: buyOption,
-    paymentMethod: paymentMethod,
-    deliveryAddress: deliveryAddress,
-    totalAmount: calculateTotal(quantity, buyOption)
-  };
   
   try {
     showLoading('Placing order...');
@@ -404,12 +393,12 @@ async function placeOrder() {
       let message = `Order Details:\n\n`;
       message += `Order ID: ${order._id}\n`;
       message += `Product: ${selectedProduct.name}\n`;
-      message += `Quantity: ${quantity}\n`;
+      message += `Quantity: ${quantityInput.value}\n`;
       message += `Total: ₦${order.totalAmount.toLocaleString()}\n`;
       message += `Status: ${order.status}\n`;
       message += `Date: ${new Date(order.createdAt).toLocaleString()}\n\n`;
       
-      if (paymentMethod === 'transfer') {
+      if (paymentMethodSelect.value === 'transfer') {
         message += `Please transfer ₦${order.totalAmount.toLocaleString()} to:\n`;
         message += `Account: ONGOD GADGETS\n`;
         message += `Account No: 1234567890\n`;
@@ -480,7 +469,7 @@ function displayOrders() {
 }
 
 // Notification Functions
-let notificationPollingInterval = null;
+let notificationInterval;
 
 async function loadNotifications() {
   if (!currentUser) return;
@@ -532,17 +521,25 @@ function updateNotificationBadge() {
 }
 
 function startNotificationPolling() {
-  notificationPollingInterval = setInterval(async () => {
-    if (currentUser) {
-      await loadNotifications();
+  stopNotificationPolling(); // Clear any existing interval
+  notificationInterval = setInterval(async () => {
+    if (authToken) {
+      try {
+        await loadNotifications();
+      } catch (error) {
+        console.error('Polling error:', error);
+        // Optional: stop polling if there's a persistent error
+        if (error.data && (error.data.status === 401 || error.data.status === 403)) {
+          stopNotificationPolling();
+        }
+      }
     }
-  }, 30000);
+  }, 15000); // Poll every 15 seconds
 }
 
 function stopNotificationPolling() {
-  if (notificationPollingInterval) {
-    clearInterval(notificationPollingInterval);
-    notificationPollingInterval = null;
+  if (notificationInterval) {
+    clearInterval(notificationInterval);
   }
 }
 
