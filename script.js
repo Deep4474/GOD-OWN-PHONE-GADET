@@ -280,44 +280,52 @@ function displayProducts() {
     return;
   }
 
-  productList.innerHTML = products.map(product => `
-    <div class="product-card" data-id="${product._id}">
-      <img src="${product.images[0]}" alt="${product.name}" />
-      <h3>${product.name}</h3>
-      <p>${product.description}</p>
-      <p>₦${product.price.toLocaleString()}</p>
-      <button class="buy-now-btn" data-product-id="${product._id}">Buy Now</button>
-    </div>
-  `).join('');
+  productList.innerHTML = products.map(product => {
+    const imgUrl = (product.images && product.images.length) ? product.images[0] : 'https://via.placeholder.com/220x160/ccc/666?text=No+Image';
+    return `
+      <div class="product-card" data-id="${product._id}">
+        <img src="${imgUrl}" alt="${product.name}">
+        <h4>${product.name}</h4>
+        <p class="description">${product.description}</p>
+        <p class="category">${product.category}</p>
+        <p class="price">₦${product.price.toLocaleString()}</p>
+        <button class="buy-now-btn" data-product-id="${product._id}">Buy Now</button>
+      </div>
+    `;
+  }).join('');
 }
 
 function filterProducts() {
   const searchInput = document.getElementById('search-input').value.toLowerCase();
   const categoryFilter = document.getElementById('category-filter').value;
-  
+
   const filteredProducts = products.filter(product => {
     const nameMatch = product.name.toLowerCase().includes(searchInput);
     const categoryMatch = categoryFilter === '' || product.category === categoryFilter;
     return nameMatch && categoryMatch;
   });
-  
+
   const productList = document.getElementById('product-list');
   if (!productList) return;
-  
+
   if (filteredProducts.length === 0) {
     productList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No products found</p>';
     return;
   }
-  
-  productList.innerHTML = filteredProducts.map(product => `
-    <div class="product-card" data-id="${product._id}">
-      <img src="${product.images[0]}" alt="${product.name}" />
-      <h3>${product.name}</h3>
-      <p>${product.description}</p>
-      <p>₦${product.price.toLocaleString()}</p>
-      <button class="buy-now-btn" data-product-id="${product._id}">Buy Now</button>
-    </div>
-  `).join('');
+
+  productList.innerHTML = filteredProducts.map(product => {
+    const imgUrl = (product.images && product.images.length) ? product.images[0] : 'https://via.placeholder.com/220x160/ccc/666?text=No+Image';
+    return `
+      <div class="product-card" data-id="${product._id}">
+        <img src="${imgUrl}" alt="${product.name}">
+        <h4>${product.name}</h4>
+        <p class="description">${product.description}</p>
+        <p class="category">${product.category}</p>
+        <p class="price">₦${product.price.toLocaleString()}</p>
+        <button class="buy-now-btn" data-product-id="${product._id}">Buy Now</button>
+      </div>
+    `;
+  }).join('');
 }
 
 function selectProduct(productId) {
