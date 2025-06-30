@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { notifications, saveNotifications } = require('./notifications');
-const { authenticateToken, requireAdmin } = require('./authMiddleware');
+const { notifications, saveNotifications } = require('../data/notificationData');
+const { authenticateToken, requireAdmin } = require('../middleware/authMiddleware');
 const { v4: uuidv4 } = require('uuid');
 
 // Get notifications for a user (or the logged-in user)

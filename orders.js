@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { orders, saveOrders } = require('./orders');
-const { authenticateToken } = require('./authMiddleware');
+const { orders, saveOrders } = require('../data/orderData');
+const { authenticateToken } = require('../middleware/authMiddleware');
 const { v4: uuidv4 } = require('uuid');
 
 // Get all orders (admin)
