@@ -16,7 +16,7 @@ app.use(cors({
 }));
 
 // Import routes
-const authRoutes = require('./auth');
+const authRoutes = require('./auth_fixed');
 const productRoutes = require('./products');
 const orderRoutes = require('./orders');
 const notificationRoutes = require('./notifications');
