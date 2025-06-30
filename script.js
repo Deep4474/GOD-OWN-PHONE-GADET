@@ -1,14 +1,14 @@
 // ONGOD Gadget Shop JavaScript - Backend Integration
 
 // API Configuration
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = window.location.origin;
 const API_ENDPOINTS = {
-  LOGIN: '/auth/login',
-  REGISTER: '/auth/register',
+  LOGIN: '/api/auth/login',
+  REGISTER: '/api/auth/register',
   VERIFY_EMAIL: '/auth/verify-email',
   LOGOUT: '/auth/logout',
-  PRODUCTS: '/products',
-  ORDERS: '/orders',
+  PRODUCTS: '/api/products',
+  ORDERS: '/api/orders',
   USER_ORDERS: '/orders/user',
   CREATE_ORDER: '/orders/create',
   NOTIFICATIONS: '/notifications',
@@ -889,6 +889,14 @@ function setupEventListeners() {
   document.getElementById('place-order-btn')?.addEventListener('click', placeOrder);
   
   document.getElementById('toggle-login-password')?.addEventListener('click', togglePasswordVisibility);
+
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      loginUser();
+    });
+  }
 }
 
 // Add CSS animations

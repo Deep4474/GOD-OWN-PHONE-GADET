@@ -29,6 +29,8 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        'script-src': ["'self'"],
+        'connect-src': ["'self'"],
         'frame-src': ["'self'", 'https://www.google.com'],
       },
     },
