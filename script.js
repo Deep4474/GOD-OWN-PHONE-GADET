@@ -274,64 +274,50 @@ async function loadProducts() {
 function displayProducts() {
   const productList = document.getElementById('product-list');
   if (!productList) return;
-  
-  productList.innerHTML = '';
-  
+
   if (products.length === 0) {
     productList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No products available</p>';
     return;
   }
-  
-  products.forEach(product => {
-    const imgUrl = (product.images && product.images.length) ? product.images[0] : 'https://via.placeholder.com/220x160/ccc/666?text=No+Image';
-    const productCard = document.createElement('div');
-    productCard.className = 'product-card';
-    productCard.innerHTML = `
-      <img src="${imgUrl}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/220x160/ccc/666?text=No+Image'">
-      <h4>${product.name}</h4>
-      <p class="price">₦${product.price.toLocaleString()}</p>
-      <p class="description">${product.description}</p>
-      <p class="category">${product.category}</p>
-      <button onclick="selectProduct('${product._id}')" class="btn-primary">Buy Now</button>
-    `;
-    productList.appendChild(productCard);
-  });
+
+  productList.innerHTML = products.map(product => `
+    <div class="product-card" data-id="${product._id}">
+      <img src="${product.images[0]}" alt="${product.name}" />
+      <h3>${product.name}</h3>
+      <p>${product.description}</p>
+      <p>₦${product.price.toLocaleString()}</p>
+      <button class="buy-now-btn" data-product-id="${product._id}">Buy Now</button>
+    </div>
+  `).join('');
 }
 
 function filterProducts() {
-  const searchTerm = document.getElementById('search-input').value.toLowerCase();
+  const searchInput = document.getElementById('search-input').value.toLowerCase();
   const categoryFilter = document.getElementById('category-filter').value;
   
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
-                         product.description.toLowerCase().includes(searchTerm);
-    const matchesCategory = !categoryFilter || product.category === categoryFilter;
-    
-    return matchesSearch && matchesCategory;
+    const nameMatch = product.name.toLowerCase().includes(searchInput);
+    const categoryMatch = categoryFilter === '' || product.category === categoryFilter;
+    return nameMatch && categoryMatch;
   });
   
   const productList = document.getElementById('product-list');
-  productList.innerHTML = '';
+  if (!productList) return;
   
   if (filteredProducts.length === 0) {
     productList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No products found</p>';
     return;
   }
   
-  filteredProducts.forEach(product => {
-    const imgUrl = (product.images && product.images.length) ? product.images[0] : 'https://via.placeholder.com/220x160/ccc/666?text=No+Image';
-    const productCard = document.createElement('div');
-    productCard.className = 'product-card';
-    productCard.innerHTML = `
-      <img src="${imgUrl}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/220x160/ccc/666?text=No+Image'">
-      <h4>${product.name}</h4>
-      <p class="price">₦${product.price.toLocaleString()}</p>
-      <p class="description">${product.description}</p>
-      <p class="category">${product.category}</p>
-      <button onclick="selectProduct('${product._id}')" class="btn-primary">Buy Now</button>
-    `;
-    productList.appendChild(productCard);
-  });
+  productList.innerHTML = filteredProducts.map(product => `
+    <div class="product-card" data-id="${product._id}">
+      <img src="${product.images[0]}" alt="${product.name}" />
+      <h3>${product.name}</h3>
+      <p>${product.description}</p>
+      <p>₦${product.price.toLocaleString()}</p>
+      <button class="buy-now-btn" data-product-id="${product._id}">Buy Now</button>
+    </div>
+  `).join('');
 }
 
 function selectProduct(productId) {
@@ -869,11 +855,48 @@ function initializeApp() {
 }
 
 function setupEventListeners() {
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      loginUser();
+    });
+  }
+
+  const registerBtn = document.getElementById('register-btn');
+  if (registerBtn) {
+    registerBtn.addEventListener('click', registerUser);
+  }
+
+  const buyOption = document.getElementById('buy-option');
+  if (buyOption) {
+    buyOption.addEventListener('change', showMap);
+  }
+
+  const quantityInput = document.getElementById('quantity');
+  if (quantityInput) {
+    quantityInput.addEventListener('change', updateTotal);
+  }
+
+  const productList = document.getElementById('product-list');
+  if (productList) {
+    productList.addEventListener('click', (event) => {
+      if (event.target && event.target.classList.contains('buy-now-btn')) {
+        const productId = event.target.dataset.productId;
+        selectProduct(productId);
+      }
+    });
+  }
+
+  const toggleLoginPassword = document.getElementById('toggle-login-password');
+  if(toggleLoginPassword) {
+    toggleLoginPassword.addEventListener('click', togglePasswordVisibility);
+  }
+
   document.getElementById('show-register-link')?.addEventListener('click', showRegister);
   document.getElementById('show-login-link')?.addEventListener('click', showLogin);
   document.getElementById('show-login-link-2')?.addEventListener('click', showLogin);
   
-  document.getElementById('register-btn')?.addEventListener('click', registerUser);
   document.getElementById('verify-btn')?.addEventListener('click', verifyEmail);
   
   document.getElementById('logout-btn')?.addEventListener('click', logoutUser);
@@ -888,26 +911,6 @@ function setupEventListeners() {
   document.getElementById('search-location-btn')?.addEventListener('click', searchLocation);
   
   document.getElementById('place-order-btn')?.addEventListener('click', placeOrder);
-  
-  document.getElementById('toggle-login-password')?.addEventListener('click', togglePasswordVisibility);
-
-  const loginForm = document.getElementById('login-form');
-  if (loginForm) {
-    loginForm.addEventListener('submit', (event) => {
-      event.preventDefault();
-      loginUser();
-    });
-  }
-
-  const buyOption = document.getElementById('buy-option');
-  if (buyOption) {
-    buyOption.addEventListener('change', showMap);
-  }
-
-  const quantityInput = document.getElementById('quantity');
-  if(quantityInput) {
-    quantityInput.addEventListener('change', updateTotal);
-  }
 }
 
 // Add CSS animations
