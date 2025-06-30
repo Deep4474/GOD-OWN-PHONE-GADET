@@ -683,44 +683,17 @@ function updateUserInfo() {
 }
 
 function showUserMapModal(address) {
-  const modalBackdrop = document.createElement('div');
-  modalBackdrop.className = 'modal-backdrop';
-
-  const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
-
-  modalBackdrop.innerHTML = `
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Your Location</h3>
-        <button class="modal-close">&times;</button>
-      </div>
-      <div class="modal-body">
-        <iframe class="user-map" src="${mapSrc}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-      </div>
-    </div>
-  `;
-  
-  document.body.appendChild(modalBackdrop);
-  setTimeout(() => modalBackdrop.classList.add('show'), 10);
-
-  const closeModal = () => {
-    modalBackdrop.classList.remove('show');
-    modalBackdrop.addEventListener('transitionend', () => modalBackdrop.remove());
-  };
-
-  modalBackdrop.querySelector('.modal-close').onclick = closeModal;
-  modalBackdrop.addEventListener('click', (e) => {
-    if (e.target === modalBackdrop) {
-      closeModal();
-    }
-  });
+  // Simple alert for now, can be replaced by a modal library
+  alert(`Map for address: ${address}`);
 }
 
 function resetBuyForm() {
-  document.getElementById('buy-form').reset();
-  document.getElementById('quantity').value = 1;
-  document.getElementById('buy-option').value = '';
-  document.getElementById('payment-method').value = '';
+  const buyForm = document.getElementById('buy-form');
+  if (buyForm) {
+    buyForm.reset();
+  }
+  // Also manually reset elements that .reset() might not affect
+  document.getElementById('total-price').textContent = '₦0';
   document.getElementById('map-container').classList.add('hidden');
   selectedProduct = null;
 }
