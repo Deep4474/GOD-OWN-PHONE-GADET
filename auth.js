@@ -169,8 +169,14 @@ router.post('/verify-email', async (req, res) => {
   res.json({
     success: true,
     message: 'Email verified successfully',
-    user: sanitizeUser(user),
     token,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isVerified: true,
+      role: user.role
+    }
   });
 });
 
