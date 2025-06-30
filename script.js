@@ -5,19 +5,20 @@ const API_BASE_URL = window.location.origin;
 const API_ENDPOINTS = {
   LOGIN: '/api/auth/login',
   REGISTER: '/api/auth/register',
-  VERIFY_EMAIL: '/auth/verify-email',
-  LOGOUT: '/auth/logout',
+  VERIFY: '/api/auth/verify',
+  LOGOUT: '/api/auth/logout',
   PRODUCTS: '/api/products',
   ORDERS: '/api/orders',
-  USER_ORDERS: '/orders/user',
-  CREATE_ORDER: '/orders/create',
-  NOTIFICATIONS: '/notifications',
-  MARK_READ: '/notifications/:id/read',
-  UNREAD_COUNT: '/notifications/unread-count',
+  USER_ORDERS: '/api/orders/user',
+  CREATE_ORDER: '/api/orders/create',
+  NOTIFICATIONS: '/api/notifications',
+  MARK_READ: '/api/notifications/:id/read',
+  UNREAD_COUNT: '/api/notifications/unread-count',
   PROFILE: '/user/profile',
   UPDATE_PROFILE: '/user/profile/update',
   LOCATION: '/location',
-  ADDRESS_VERIFY: '/location/verify'
+  ADDRESS_VERIFY: '/location/verify',
+  ADMIN_LOGIN: '/api/admin/login'
 };
 
 
@@ -202,7 +203,7 @@ async function verifyEmail() {
   try {
     showLoading('Verifying email...');
     
-    const response = await API.post(API_ENDPOINTS.VERIFY_EMAIL, { email, code });
+    const response = await API.post(API_ENDPOINTS.VERIFY, { email, code });
     
     if (response.success) {
       authToken = response.token;
@@ -896,6 +897,16 @@ function setupEventListeners() {
       event.preventDefault();
       loginUser();
     });
+  }
+
+  const buyOption = document.getElementById('buy-option');
+  if (buyOption) {
+    buyOption.addEventListener('change', showMap);
+  }
+
+  const quantityInput = document.getElementById('quantity');
+  if(quantityInput) {
+    quantityInput.addEventListener('change', updateTotal);
   }
 }
 

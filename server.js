@@ -32,6 +32,7 @@ app.use(
         'script-src': ["'self'"],
         'connect-src': ["'self'"],
         'frame-src': ["'self'", 'https://www.google.com'],
+        'img-src': ["'self'", 'data:', '*.gstatic.com'],
       },
     },
   })
