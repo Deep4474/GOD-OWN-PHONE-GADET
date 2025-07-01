@@ -81,6 +81,20 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Dashboard endpoint
+app.get('/api/dashboard', (req, res) => {
+  res.json({
+    totalUsers: 1200,
+    totalOrders: 350,
+    totalProducts: 85,
+    revenue: 150000,
+    recentOrders: [
+      { id: 1, user: 'John Doe', amount: 250, status: 'Delivered' },
+      { id: 2, user: 'Jane Smith', amount: 120, status: 'Pending' }
+    ]
+  });
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ 
