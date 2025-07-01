@@ -29,6 +29,8 @@ const productRoutes = require('./products');
 const orderRoutes = require('./orders');
 const notificationRoutes = require('./notifications');
 const locationRoutes = require('./location');
+const orders = require('./orders.json');
+const users = require('./users.json');
 
 // Security middleware
 app.use(
@@ -89,15 +91,29 @@ app.get('/api/health', (req, res) => {
 
 // Dashboard endpoint
 app.get('/api/dashboard', (req, res) => {
+  // Calculate summary
+  const totalUsers = users.length;
+  const totalOrders = orders.length;
+  const totalProducts = 85; // Replace with real count if available
+  const revenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+
+  // Get recent orders (last 5)
+  const recentOrders = orders.slice(-5).reverse().map(order => {
+    const user = users.find(u => u.id === order.userId) || {};
+    return {
+      id: order._id,
+      user: user.name || 'Unknown',
+      amount: order.totalAmount,
+      status: order.status
+    };
+  });
+
   res.json({
-    totalUsers: 1200,
-    totalOrders: 350,
-    totalProducts: 85,
-    revenue: 150000,
-    recentOrders: [
-      { id: 1, user: 'John Doe', amount: 250, status: 'Delivered' },
-      { id: 2, user: 'Jane Smith', amount: 120, status: 'Pending' }
-    ]
+    totalUsers,
+    totalOrders,
+    totalProducts,
+    revenue,
+    recentOrders
   });
 });
 
