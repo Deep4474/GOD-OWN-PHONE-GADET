@@ -236,7 +236,7 @@ a:hover {
   }
 
   .product-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
   }
 
@@ -246,8 +246,12 @@ a:hover {
   }
 
   .product-card img {
-    height: 90px;
+    height: 110px;
     max-width: 100%;
+    object-fit: contain;
+    background: #f9f9f9;
+    display: block;
+    margin: 0 auto;
   }
 
   .product-card-body {
