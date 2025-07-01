@@ -284,7 +284,9 @@ function displayProducts() {
     const imgUrl = (product.images && product.images.length) ? product.images[0] : 'https://via.placeholder.com/220x160/ccc/666?text=No+Image';
     return `
       <div class="product-card" data-id="${product._id}">
-        <img src="${imgUrl}" alt="${product.name}">
+        <div class="product-image-container">
+          <img src="${imgUrl}" alt="${product.name}">
+        </div>
         <h4>${product.name}</h4>
         <p class="description">${product.description}</p>
         <p class="category">${product.category}</p>
@@ -317,7 +319,9 @@ function filterProducts() {
     const imgUrl = (product.images && product.images.length) ? product.images[0] : 'https://via.placeholder.com/220x160/ccc/666?text=No+Image';
     return `
       <div class="product-card" data-id="${product._id}">
-        <img src="${imgUrl}" alt="${product.name}">
+        <div class="product-image-container">
+          <img src="${imgUrl}" alt="${product.name}">
+        </div>
         <h4>${product.name}</h4>
         <p class="description">${product.description}</p>
         <p class="category">${product.category}</p>
