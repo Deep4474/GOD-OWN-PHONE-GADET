@@ -1,18 +1,10 @@
 [
   {
-    "id": "1",
-    "name": "Admin User",
+    "id": "1751467079480",
+    "name": "Default Admin",
     "email": "admin@example.com",
-    "phone": "1234567890",
+    "password": "$2a$12$zpYwhOhUwlwb3YwYDnaSIO2gGwHObYvF5JXSI1tNPf4lvOXNZSUua",
     "role": "admin",
-    "createdAt": "2024-01-01T00:00:00.000Z"
-  },
-  {
-    "id": "2",
-    "name": "Regular User",
-    "email": "user@example.com",
-    "phone": "0987654321",
-    "role": "user",
-    "createdAt": "2024-01-02T00:00:00.000Z"
+    "createdAt": "2025-07-02T14:37:59.480Z"
   }
 ]

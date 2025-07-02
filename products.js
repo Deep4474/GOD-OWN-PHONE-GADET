@@ -282,4 +282,44 @@ router.delete('/:id', authenticateToken, requireAdmin, (req, res) => {
   res.json({ message: 'Product deleted successfully' });
 });
 
+// Add a new product
+router.post('/', (req, res) => {
+  try {
+    const products = getProducts();
+    const { name, price, category, brand, stock, images } = req.body;
+    if (!name || !price || !category || !brand || stock === undefined) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const newProduct = {
+      _id: Date.now().toString(),
+      name,
+      price,
+      category,
+      brand,
+      stock,
+      images: images && images.length ? images : [],
+      createdAt: new Date().toISOString()
+    };
+    products.push(newProduct);
+    saveProducts(products);
+    res.status(201).json(newProduct);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to add product' });
+  }
+});
+
+// Delete a product
+router.delete('/:id', (req, res) => {
+  try {
+    let products = getProducts();
+    const idx = products.findIndex(p => p._id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'Product not found' });
+    const deleted = products.splice(idx, 1);
+    saveProducts(products);
+    res.json({ success: true, deleted: deleted[0] });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete product' });
+  }
+});
+
 module.exports = router; 

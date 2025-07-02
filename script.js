@@ -263,7 +263,7 @@ async function logoutUser() {
 async function loadProducts() {
   try {
     const response = await API.get(API_ENDPOINTS.PRODUCTS);
-    products = response.products || [];
+    products = Array.isArray(response) ? response : (response.products || []);
     displayProducts();
   } catch (error) {
     console.error('Failed to load products:', error);
