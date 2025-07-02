@@ -84,6 +84,7 @@ class API {
   }
   
   static post(endpoint, data) {
+    console.log('API POST:', endpoint, data); // Debug log
     return this.request(endpoint, {
       method: 'POST',
       body: JSON.stringify(data)
@@ -1040,4 +1041,16 @@ function updateNotificationBellBadge() {
   const hasAdminMsg = notifications.some(n => n.adminMessage);
   if (hasAdminMsg) bell.classList.add('active');
   else bell.classList.remove('active');
+}
+
+// Centralized API error handling for token expiry
+function handleTokenExpiry(error) {
+  if (error && error.message && error.message.includes('Token expired')) {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
+    alert('Your session has expired. Please log in again.');
+    window.location.reload();
+    return true;
+  }
+  return false;
 }

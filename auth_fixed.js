@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const nodemailer = require('nodemailer');
-const { users, saveUsers } = require('./userData');
+const { getUsers, saveUsers } = require('./userData');
 const { authenticateToken } = require('./authMiddleware');
 
 const router = express.Router();
@@ -46,6 +46,7 @@ router.post('/register', validateRegistration, async (req, res) => {
     }
 
     const { name, email, password, phone, address } = req.body;
+    const users = getUsers();
     const existingUser = users.find(user => user.email === email);
 
     if (existingUser) {
@@ -127,6 +128,7 @@ router.post('/login', validateLogin, async (req, res) => {
     }
 
     const { email, password } = req.body;
+    const users = getUsers();
     const user = users.find(u => u.email === email);
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -160,6 +162,7 @@ router.post('/verify', async (req, res) => {
     return res.status(400).json({ error: 'Email and verification code are required' });
   }
 
+  const users = getUsers();
   const user = users.find(u => u.email === email);
   if (!user || user.isVerified || user.verificationCode !== code) {
     return res.status(400).json({ error: 'Invalid verification code or user already verified' });
@@ -189,6 +192,7 @@ router.post('/verify', async (req, res) => {
 
 // Get current user profile
 router.get('/profile', authenticateToken, (req, res) => {
+  const users = getUsers();
   const user = users.find(u => u.id === req.user.userId);
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
@@ -211,6 +215,7 @@ router.put(
       return res.status(400).json({ errors: errors.array() });
     }
 
+    const users = getUsers();
     const userIndex = users.findIndex(u => u.id === req.user.userId);
     if (userIndex === -1) {
       return res.status(404).json({ error: 'User not found' });
