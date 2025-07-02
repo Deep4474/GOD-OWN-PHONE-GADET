@@ -31,7 +31,13 @@ router.post('/register', async (req, res) => {
   };
   users.push(newAdmin);
   saveUsers(users);
-  res.json({ success: true, user: { name, email, role: 'admin' } });
+  // Generate token for auto-login
+  const token = jwt.sign(
+    { email: newAdmin.email, role: newAdmin.role },
+    process.env.JWT_SECRET || 'your-secret-key',
+    { expiresIn: '24h' }
+  );
+  res.json({ success: true, user: { name, email, role: 'admin' }, token });
 });
 
 // Admin Login
