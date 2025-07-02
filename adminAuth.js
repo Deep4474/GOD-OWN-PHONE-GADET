@@ -2,6 +2,9 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { getUsers, saveUsers } = require('./userData');
+const { getProducts } = require('./productData');
+const { orders } = require('./orderData');
+const { authenticateAdmin } = require('./authMiddleware');
 const router = express.Router();
 
 // Admin Register
@@ -49,6 +52,39 @@ router.post('/login', async (req, res) => {
     { expiresIn: '24h' }
   );
   res.json({ token, user: { name: user.name, email: user.email, role: user.role } });
+});
+
+// Admin Dashboard (protected)
+router.get('/dashboard', authenticateAdmin, (req, res) => {
+  const users = getUsers();
+  const products = getProducts();
+  // Calculate summary
+  const totalUsers = users.length;
+  const totalOrders = orders.length;
+  const totalProducts = products.length;
+  const totalRevenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+
+  // Get recent orders (last 5)
+  const recentOrders = orders.slice(-5).reverse().map(order => {
+    const user = users.find(u => u.id === order.userId) || {};
+    return {
+      _id: order._id,
+      userId: order.userId,
+      totalAmount: order.totalAmount,
+      status: order.status,
+      createdAt: order.createdAt
+    };
+  });
+
+  res.json({
+    stats: {
+      totalUsers,
+      totalOrders,
+      totalProducts,
+      totalRevenue,
+      recentOrders
+    }
+  });
 });
 
 module.exports = router; 
