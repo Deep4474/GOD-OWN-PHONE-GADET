@@ -2,11 +2,11 @@
   {
     "_id": "1751263646852",
     "name": "iphoe",
-    "price": "86868",
+    "price": 86868,
     "description": "ui",
     "category": "phone",
     "brand": "iphine",
-    "stock": "8",
+    "stock": 8,
     "images": [
       "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQR59tVNqoObAFrsJQ6isQqDk49hiRKnQ2pCgvA0XfLFY_SQjaDsWmcb-7Ek2qUxoBjOF2ulkaO4LgBT4CznEPmwNZTdEUQVfGD10J4V0w&usqp=CAc"
     ],

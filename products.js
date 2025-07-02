@@ -10,9 +10,39 @@ router.get('/', (req, res) => {
   try {
     const { category, brand, minPrice, maxPrice, search, sort } = req.query;
     
-    const products = getProducts();
+    let products = getProducts();
 
-    let filteredProducts = [...products];
+    // Validate and sanitize products
+    const validProducts = [];
+    const invalidProducts = [];
+    for (const p of products) {
+      // Check required fields and types
+      if (
+        typeof p._id === 'string' &&
+        typeof p.name === 'string' &&
+        !isNaN(Number(p.price)) &&
+        typeof p.description === 'string' &&
+        typeof p.category === 'string' &&
+        typeof p.brand === 'string' &&
+        !isNaN(Number(p.stock)) &&
+        Array.isArray(p.images) &&
+        typeof p.createdAt === 'string'
+      ) {
+        // Coerce price and stock to numbers
+        validProducts.push({
+          ...p,
+          price: Number(p.price),
+          stock: Number(p.stock)
+        });
+      } else {
+        invalidProducts.push(p);
+      }
+    }
+    if (invalidProducts.length > 0) {
+      console.error('Invalid products found and skipped:', invalidProducts);
+    }
+
+    let filteredProducts = [...validProducts];
 
     // Filter by category
     if (category) {
