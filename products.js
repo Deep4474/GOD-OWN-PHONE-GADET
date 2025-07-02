@@ -1,6 +1,6 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const { products, saveProducts } = require('./productData');
+const { getProducts, saveProducts } = require('./productData');
 const { authenticateToken, requireAdmin } = require('./authMiddleware');
 
 const router = express.Router();
@@ -10,6 +10,8 @@ router.get('/', (req, res) => {
   try {
     const { category, brand, minPrice, maxPrice, search, sort } = req.query;
     
+    const products = getProducts();
+
     let filteredProducts = [...products];
 
     // Filter by category
@@ -77,6 +79,7 @@ router.get('/', (req, res) => {
 // Get single product
 router.get('/:id', (req, res) => {
   try {
+    const products = getProducts();
     const product = products.find(p => p._id === req.params.id);
     
     if (!product) {
@@ -94,6 +97,7 @@ router.get('/:id', (req, res) => {
 // Get products by category
 router.get('/category/:category', (req, res) => {
   try {
+    const products = getProducts();
     const categoryProducts = products.filter(p => 
       p.category.toLowerCase() === req.params.category.toLowerCase()
     );
@@ -113,6 +117,7 @@ router.get('/category/:category', (req, res) => {
 // Get featured products (top rated)
 router.get('/featured/top-rated', (req, res) => {
   try {
+    const products = getProducts();
     const featuredProducts = products
       .filter(p => p.rating >= 4.5)
       .sort((a, b) => b.rating - a.rating)
@@ -132,6 +137,7 @@ router.get('/featured/top-rated', (req, res) => {
 // Get new arrivals
 router.get('/new-arrivals', (req, res) => {
   try {
+    const products = getProducts();
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -154,6 +160,7 @@ router.get('/new-arrivals', (req, res) => {
 // Get product categories
 router.get('/categories/list', (req, res) => {
   try {
+    const products = getProducts();
     const categories = [...new Set(products.map(p => p.category))];
     
     res.json({
@@ -172,6 +179,7 @@ router.get('/categories/list', (req, res) => {
 // Get product brands
 router.get('/brands/list', (req, res) => {
   try {
+    const products = getProducts();
     const brands = [...new Set(products.map(p => p.brand))];
     
     res.json({
@@ -193,6 +201,7 @@ router.post('/', authenticateToken, requireAdmin, (req, res) => {
   if (!name || !price || !description || !category || !brand || !stock || !images || !Array.isArray(images)) {
     return res.status(400).json({ error: 'All product fields are required' });
   }
+  const products = getProducts();
   const newProduct = {
     _id: Date.now().toString(),
     name,
@@ -212,6 +221,7 @@ router.post('/', authenticateToken, requireAdmin, (req, res) => {
 // Update a product (admin only)
 router.put('/:id', authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
+  const products = getProducts();
   const productIndex = products.findIndex(p => p._id === id);
 
   if (productIndex === -1) {
@@ -229,6 +239,7 @@ router.put('/:id', authenticateToken, requireAdmin, (req, res) => {
 // Delete a product (admin only)
 router.delete('/:id', authenticateToken, requireAdmin, (req, res) => {
   const { id } = req.params;
+  const products = getProducts();
   const productIndex = products.findIndex(p => p._id === id);
 
   if (productIndex === -1) {

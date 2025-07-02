@@ -15,6 +15,7 @@ function authenticateToken(req, res, next) {
       if (err.name === 'TokenExpiredError') {
         return res.status(401).json({ error: 'Token expired' });
       }
+      console.error('403 Invalid token:', { error: err, token });
       return res.status(403).json({ error: 'Invalid token' });
     }
     req.user = user;
@@ -45,6 +46,7 @@ const authenticateAdmin = (req, res, next) => {
     }
 
     if (user.role !== 'admin') {
+      console.error('403 Admin access required:', { user });
       return res.status(403).json({ 
         error: 'Access denied', 
         message: 'Admin access required' 
@@ -63,10 +65,10 @@ const authenticateAdmin = (req, res, next) => {
 
 function requireAdmin(req, res, next) {
   console.log('requireAdmin check:', req.user);
-  // TEMP: Allow admin@example.com for testing
   if (req.user && (req.user.role === 'admin' || req.user.email === 'admin@example.com')) {
     return next();
   }
+  console.error('403 Admin access denied for user:', req.user);
   return res.status(403).json({ 
     error: 'Access denied', 
     message: 'Admin access required' 
