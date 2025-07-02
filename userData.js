@@ -15,6 +15,8 @@ function saveUsers(users) {
   fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
 }
 
-let users = loadUsers();
+function getUsers() {
+  return loadUsers();
+}
 
-module.exports = { users, saveUsers }; 
+module.exports = { getUsers, saveUsers }; 
