@@ -94,32 +94,22 @@ router.get('/debug-admins', (req, res) => {
   res.json({ admins });
 });
 
-// --- Always create or update default admin user on server start ---
+// --- FORCE OVERWRITE users.json with only the default admin user on server start ---
 (() => {
-  const users = getUsers();
-  const email = 'admin@example.com';
-  const password = 'admin1234';
   const bcrypt = require('bcryptjs');
-  const hashed = bcrypt.hashSync(password, 12);
-  let existing = users.find(u => u.email === email && u.role === 'admin');
-  if (!existing) {
-    const newAdmin = {
+  const hashed = bcrypt.hashSync('admin1234', 12);
+  const users = [
+    {
       id: Date.now().toString(),
       name: 'Default Admin',
-      email,
+      email: 'admin@example.com',
       password: hashed,
       role: 'admin',
       createdAt: new Date().toISOString()
-    };
-    users.push(newAdmin);
-    saveUsers(users);
-    console.log('Default admin user created:', email);
-  } else {
-    // Always update password to ensure it is correct
-    existing.password = hashed;
-    saveUsers(users);
-    console.log('Default admin user password updated:', email);
-  }
+    }
+  ];
+  saveUsers(users);
+  console.log('users.json overwritten with only default admin user.');
 })();
 
 module.exports = router; 
