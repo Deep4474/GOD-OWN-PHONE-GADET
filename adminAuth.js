@@ -94,6 +94,17 @@ router.get('/debug-admins', (req, res) => {
   res.json({ admins });
 });
 
+// DEBUG: Show current password hash for admin@example.com
+router.get('/debug-admin-password', (req, res) => {
+  const users = getUsers();
+  const admin = users.find(u => u.email === 'admin@example.com');
+  if (admin) {
+    res.json({ email: admin.email, password: admin.password });
+  } else {
+    res.json({ error: 'admin@example.com not found' });
+  }
+});
+
 // --- FORCE OVERWRITE users.json with only the default admin user on server start ---
 (() => {
   const bcrypt = require('bcryptjs');
