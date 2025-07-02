@@ -1,8 +1,8 @@
 const API = 'https://phone-2cv4.onrender.com/api';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const navItems = document.querySelectorAll('.admin-nav li[data-section]');
-  const topbarTitle = document.getElementById('admin-topbar-title');
+const navItems = document.querySelectorAll('.admin-nav li[data-section]');
+const topbarTitle = document.getElementById('admin-topbar-title');
   const adminContent = document.getElementById('admin-content');
   const productModal = document.getElementById('product-modal');
   const orderModal = document.getElementById('order-modal');
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     adminContent.innerHTML = '<div>Loading dashboard...</div>';
     try {
       const res = await fetch(`${API}/dashboard`);
-      const data = await res.json();
+        const data = await res.json();
       adminContent.innerHTML = `
         <div class="dashboard-stats">
           <div class="stat"><span>Total Users</span><b>${data.totalUsers ?? '-'}</b></div>
@@ -63,15 +63,15 @@ document.addEventListener('DOMContentLoaded', () => {
       let rows = (data.products || []).map(p => `
         <tr>
           <td><img src="${(p.images && p.images[0]) || 'https://via.placeholder.com/48'}" alt="" /></td>
-          <td>${p.name}</td>
-          <td>₦${p.price}</td>
-          <td>${p.category}</td>
+                <td>${p.name}</td>
+                <td>₦${p.price}</td>
+                <td>${p.category}</td>
           <td>${p.stock ?? '-'}</td>
           <td>${p.position ?? '-'}</td>
           <td>
             <button class="btn-secondary btn-edit" data-id="${p._id}">Edit</button>
             <button class="btn-secondary btn-delete" data-id="${p._id}">Delete</button>
-          </td>
+                </td>
         </tr>
       `).join('');
       adminContent.innerHTML = `
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const productForm = document.getElementById('product-form');
   if (productForm) {
     productForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    e.preventDefault();
       const id = document.getElementById('product-id').value;
       const name = document.getElementById('product-name').value.trim();
       const price = parseFloat(document.getElementById('product-price').value);
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const token = localStorage.getItem('adminToken');
       const headers = {
-        'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
         ...(token ? { 'Authorization': `Bearer ${token}` } : {})
       };
       const res = await fetch(`${API}/products/${id || ''}`, {
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
     adminContent.innerHTML = '<div>Loading orders...</div>';
     try {
       const res = await fetch(`${API}/orders`);
-      const data = await res.json();
+    const data = await res.json();
       const rows = (data.orders || []).map(o => `
         <tr>
           <td>${o._id}</td>
@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
             orderModal.classList.add('hidden');
             loadOrders();
           }, 800);
-        } else {
+    } else {
           msgDiv.style.color = '#dc2626';
           msgDiv.textContent = 'Update failed.';
         }
@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
     adminContent.innerHTML = '<div>Loading notifications...</div>';
     try {
       const res = await fetch(`${API}/notifications`);
-      const data = await res.json();
+    const data = await res.json();
       const rows = (data.notifications || []).map(n => `
         <tr>
           <td>${n.user || 'System'}</td>
@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
     adminContent.innerHTML = '<div>Loading analytics...</div>';
     try {
       const res = await fetch(`${API}/analytics`);
-      const data = await res.json();
+    const data = await res.json();
       const topProducts = (data.topProducts || []).map(p =>
         `<li>${p.name} - ₦${p.totalSales}</li>`
       ).join('');
