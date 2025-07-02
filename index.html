@@ -21,8 +21,13 @@
     <div id="header-actions">
       <span id="user-info-bar">
         <span id="welcome"></span>
-        <button id="notification-bell" title="Notifications">��</button>
-        <div id="notification-dropdown"></div>
+        <div id="notification-bar" style="position: relative;">
+          <button id="notification-bell" title="Notifications">
+            <span class="bell-icon">🔔</span>
+            <span class="notification-badge" style="display:none;"></span>
+          </button>
+          <div id="notification-dropdown"></div>
+        </div>
       </span>
       <button id="logout-btn">Logout</button>
     </div>

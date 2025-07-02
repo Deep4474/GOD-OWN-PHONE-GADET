@@ -483,15 +483,42 @@ let notificationInterval;
 
 async function loadNotifications() {
   if (!currentUser) return;
-  
   try {
+    // Fetch notifications from backend (admin messages)
     const response = await API.get(API_ENDPOINTS.NOTIFICATIONS);
-    notifications = response.notifications || [];
-    
+    const backendNotifications = response.notifications || [];
+    // Fetch orders for order history (sent to admin)
+    if (!orders || orders.length === 0) {
+      const ordersResponse = await API.get(API_ENDPOINTS.USER_ORDERS);
+      orders = ordersResponse.orders || [];
+    }
+    // Order notifications: sent to admin
+    const orderNotifications = orders.map(order => ({
+      id: order._id,
+      product: order.productName || order.productId,
+      status: order.status,
+      date: order.createdAt,
+      adminMessage: order.adminMessage || '',
+      type: 'order',
+      from: 'user',
+    }));
+    // Admin notifications: from backend
+    const adminNotifications = backendNotifications.map(n => ({
+      id: n._id,
+      product: n.product || '',
+      status: n.type || '',
+      date: n.createdAt,
+      adminMessage: n.message || '',
+      type: n.type || 'admin',
+      from: 'admin',
+    }));
+    // Merge and sort by date (most recent first)
+    notifications = [...orderNotifications, ...adminNotifications].sort((a, b) => new Date(b.date) - new Date(a.date));
+    // Unread count (backend only, for badge)
     const unreadResponse = await API.get(API_ENDPOINTS.UNREAD_COUNT);
     unreadNotifications = unreadResponse.count || 0;
-    
     updateNotificationBadge();
+    renderNotificationDropdown();
   } catch (error) {
     console.error('Failed to load notifications:', error);
   }
