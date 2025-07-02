@@ -349,11 +349,15 @@ function selectProduct(productId) {
 
 // Order Functions
 async function loadUserOrders() {
-  if (!currentUser) return;
-  
+  if (!currentUser) {
+    console.log('No currentUser found when loading user orders.');
+    return;
+  }
   try {
+    console.log('Fetching orders for user:', currentUser);
     const response = await API.get(API_ENDPOINTS.USER_ORDERS);
     orders = response.orders || [];
+    console.log('Fetched orders:', orders);
   } catch (error) {
     console.error('Failed to load orders:', error);
   }
@@ -453,7 +457,7 @@ function updateTotal() {
 function displayOrders() {
   const ordersList = document.getElementById('orders-list');
   if (!ordersList) return;
-  
+  console.log('Displaying orders:', orders);
   if (orders.length === 0) {
     ordersList.innerHTML = '<p style="text-align: center;">No orders found</p>';
     return;
@@ -461,13 +465,13 @@ function displayOrders() {
   
   ordersList.innerHTML = orders.map(order => `
     <div class="order-item">
-      <h4>${order.productName}</h4>
+      <h4>${order.productName || order.productId}</h4>
       <p><strong>Order ID:</strong> ${order._id}</p>
       <p><strong>Quantity:</strong> ${order.quantity}</p>
       <p><strong>Total:</strong> ₦${order.totalAmount.toLocaleString()}</p>
       <p><strong>Status:</strong> <span class="status-${order.status}">${order.status}</span></p>
       <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
-      ${order.adminMessage ? `<p><strong>Admin Message:</strong> ${order.adminMessage}</p>` : ''}
+      ${order.adminMessage ? `<p class="admin-message"><strong>Admin Response:</strong> ${order.adminMessage}</p>` : '<p class="admin-message pending">No admin response yet.</p>'}
     </div>
   `).join('');
 }
