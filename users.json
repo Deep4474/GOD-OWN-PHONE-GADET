@@ -1,10 +1,10 @@
 [
   {
-    "id": "1751475226618",
+    "id": "1751476911336",
     "name": "Default Admin",
     "email": "admin@example.com",
-    "password": "$2a$12$mLs0B5b7L.jkIrwjgADyrONlwimVk.Rhf29.RehY42cZWW9DaXjl6",
+    "password": "$2a$12$XAvf4Wx1KUcn/9u19RKTFel5QRq8v24a1MEGOKEGR79KidrUihpmG",
     "role": "admin",
-    "createdAt": "2025-07-02T16:53:46.629Z"
+    "createdAt": "2025-07-02T17:21:51.336Z"
   }
 ]
