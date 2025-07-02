@@ -87,6 +87,13 @@ router.get('/dashboard', authenticateAdmin, (req, res) => {
   });
 });
 
+// DEBUG: List all admin users (REMOVE IN PRODUCTION)
+router.get('/debug-admins', (req, res) => {
+  const users = getUsers();
+  const admins = users.filter(u => u.role === 'admin');
+  res.json({ admins });
+});
+
 // --- Script to create default admin user (for development) ---
 if (process.env.CREATE_DEFAULT_ADMIN === 'true') {
   const users = getUsers();
