@@ -87,4 +87,28 @@ router.get('/dashboard', authenticateAdmin, (req, res) => {
   });
 });
 
+// --- Script to create default admin user (for development) ---
+if (process.env.CREATE_DEFAULT_ADMIN === 'true') {
+  const users = getUsers();
+  const email = 'admin@example.com';
+  const password = 'admin1234';
+  if (!users.find(u => u.email === email && u.role === 'admin')) {
+    bcrypt.hash(password, 12).then(hashed => {
+      const newAdmin = {
+        id: Date.now().toString(),
+        name: 'Default Admin',
+        email,
+        password: hashed,
+        role: 'admin',
+        createdAt: new Date().toISOString()
+      };
+      users.push(newAdmin);
+      saveUsers(users);
+      console.log('Default admin user created:', email);
+    });
+  } else {
+    console.log('Default admin user already exists:', email);
+  }
+}
+
 module.exports = router; 
