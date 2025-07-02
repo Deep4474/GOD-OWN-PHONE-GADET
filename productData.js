@@ -11,10 +11,13 @@ function loadProducts() {
     return [];
   }
 }
+
 function saveProducts(products) {
   fs.writeFileSync(productsFilePath, JSON.stringify(products, null, 2));
 }
 
-let products = loadProducts();
+function getProducts() {
+  return loadProducts();
+}
 
-module.exports = { products, saveProducts }; 
+module.exports = { getProducts, saveProducts }; 
