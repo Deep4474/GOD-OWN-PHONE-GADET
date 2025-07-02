@@ -29,7 +29,7 @@ const productRoutes = require('./products');
 const orderRoutes = require('./orders');
 const notificationRoutes = require('./notifications');
 const locationRoutes = require('./location');
-const adminAuthRoutes = require('./admin/adminAuth');
+const adminAuthRoutes = require('./adminAuth');
 const orders = require('./orders.json');
 const users = require('./users.json');
 
