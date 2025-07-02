@@ -117,6 +117,11 @@ app.get('/api/dashboard', (req, res) => {
   });
 });
 
+// Users endpoint for admin panel
+app.get('/api/users', (req, res) => {
+  res.json({ users });
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ 

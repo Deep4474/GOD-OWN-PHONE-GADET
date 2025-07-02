@@ -973,3 +973,11 @@ function updateHeaderActions() {
     ordersBtn.classList.add('disabled');
   }
 }
+
+function handleApiResponse(res, resourceName = 'resource') {
+  if (!res.ok) {
+    if (res.status === 404) throw new Error(`${resourceName} API endpoint not found (404)`);
+    throw new Error(`Failed to fetch ${resourceName} (status: ${res.status})`);
+  }
+  return res.json();
+}
