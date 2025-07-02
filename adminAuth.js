@@ -99,9 +99,9 @@ router.get('/debug-admins', (req, res) => {
   const users = getUsers();
   const email = 'admin@example.com';
   const password = 'admin1234';
-  const existing = users.find(u => u.email === email && u.role === 'admin');
   const bcrypt = require('bcryptjs');
   const hashed = bcrypt.hashSync(password, 12);
+  let existing = users.find(u => u.email === email && u.role === 'admin');
   if (!existing) {
     const newAdmin = {
       id: Date.now().toString(),
@@ -115,7 +115,7 @@ router.get('/debug-admins', (req, res) => {
     saveUsers(users);
     console.log('Default admin user created:', email);
   } else {
-    // Update password in case it changed
+    // Always update password to ensure it is correct
     existing.password = hashed;
     saveUsers(users);
     console.log('Default admin user password updated:', email);
