@@ -6,6 +6,8 @@ const { getProducts } = require('./productData');
 const { orders } = require('./orderData');
 const { authenticateAdmin } = require('./authMiddleware');
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 
 // Admin Register
 router.post('/register', async (req, res) => {
@@ -105,9 +107,17 @@ router.get('/debug-admin-password', (req, res) => {
   }
 });
 
-// --- FORCE OVERWRITE users.json with only the default admin user on server start ---
+// --- FORCE DELETE and recreate users.json with only the default admin user on server start ---
+const usersFilePath = path.join(__dirname, './users.json');
+
 (() => {
-  const bcrypt = require('bcryptjs');
+  try {
+    if (fs.existsSync(usersFilePath)) {
+      fs.unlinkSync(usersFilePath);
+    }
+  } catch (e) {
+    console.error('Could not delete users.json:', e);
+  }
   const hashed = bcrypt.hashSync('admin1234', 12);
   const users = [
     {
@@ -119,8 +129,8 @@ router.get('/debug-admin-password', (req, res) => {
       createdAt: new Date().toISOString()
     }
   ];
-  saveUsers(users);
-  console.log('users.json overwritten with only default admin user.');
+  fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+  console.log('users.json forcibly recreated with only default admin user.');
 })();
 
 module.exports = router; 
