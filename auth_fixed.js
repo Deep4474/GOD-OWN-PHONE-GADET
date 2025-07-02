@@ -63,7 +63,7 @@ router.post('/register', validateRegistration, async (req, res) => {
       await transporter.sendMail({
         from: `ONGOD Gadget Shop <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: 'Your New Verification Code',
+        subject: "GOD'SOWN PHONE GADGET Verification",
         text: `Your new verification code is: ${newVerificationCode}`,
       });
 
@@ -94,7 +94,7 @@ router.post('/register', validateRegistration, async (req, res) => {
     await transporter.sendMail({
       from: `ONGOD Gadget Shop <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: 'Your Verification Code',
+      subject: "GOD'SOWN PHONE GADGET Verification",
       text: `Your verification code is: ${verificationCode}`,
     });
 
