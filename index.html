@@ -19,7 +19,11 @@
   <header>
     <h1>GOD'SOWN PHONE  Gadget</h1>
     <div id="header-actions">
-      <button id="orders-btn">My Orders</button>
+      <span id="user-info-bar">
+        <span id="welcome"></span>
+        <button id="notification-bell" title="Notifications">��</button>
+        <div id="notification-dropdown" class="hidden"></div>
+      </span>
       <button id="logout-btn">Logout</button>
     </div>
     <div id="user-info" class="hidden">
@@ -107,13 +111,6 @@
         </select>
       </div>
       <div id="product-list" class="product-grid"></div>
-    </section>
-
-    <!-- Order History Section -->
-    <section id="orders-section" class="section hidden">
-      <h2>My Orders</h2>
-      <div id="orders-list"></div>
-      <button id="back-to-products-btn" class="btn-secondary">Back to Products</button>
     </section>
 
     <!-- Buy Section -->

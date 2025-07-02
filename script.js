@@ -358,6 +358,7 @@ async function loadUserOrders() {
     const response = await API.get(API_ENDPOINTS.USER_ORDERS);
     orders = response.orders || [];
     console.log('Fetched orders:', orders);
+    updateNotifications();
   } catch (error) {
     console.error('Failed to load orders:', error);
   }
@@ -908,6 +909,19 @@ function setupEventListeners() {
   document.getElementById('search-location-btn')?.addEventListener('click', searchLocation);
   
   document.getElementById('place-order-btn')?.addEventListener('click', placeOrder);
+
+  const bell = document.getElementById('notification-bell');
+  const dropdown = document.getElementById('notification-dropdown');
+  if (bell && dropdown) {
+    bell.onclick = () => {
+      dropdown.classList.toggle('show');
+    };
+    document.addEventListener('click', (e) => {
+      if (!bell.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+  }
 }
 
 // Add CSS animations
@@ -984,4 +998,46 @@ function handleApiResponse(res, resourceName = 'resource') {
     throw new Error(`Failed to fetch ${resourceName} (status: ${res.status})`);
   }
   return res.json();
+}
+
+function updateNotifications() {
+  // Orders sent to admin (all user's orders)
+  // Orders with admin response (adminMessage present)
+  notifications = orders.map(order => {
+    return {
+      id: order._id,
+      product: order.productName || order.productId,
+      status: order.status,
+      date: order.createdAt,
+      adminMessage: order.adminMessage || '',
+    };
+  });
+  renderNotificationDropdown();
+  updateNotificationBellBadge();
+}
+
+function renderNotificationDropdown() {
+  const dropdown = document.getElementById('notification-dropdown');
+  if (!dropdown) return;
+  if (notifications.length === 0) {
+    dropdown.innerHTML = '<div class="notification-item">No notifications yet.</div>';
+    return;
+  }
+  dropdown.innerHTML = notifications.map(n => `
+    <div class="notification-item">
+      <span class="order-id">Order: ${n.id}</span><br/>
+      <span>Status: ${n.status}</span><br/>
+      ${n.adminMessage ? `<span class="admin">Admin: ${n.adminMessage}</span>` : `<span class="user">Order sent to admin</span>`}
+      <br/><span style="font-size:0.85em;color:#888;">${new Date(n.date).toLocaleString()}</span>
+    </div>
+  `).join('');
+}
+
+function updateNotificationBellBadge() {
+  const bell = document.getElementById('notification-bell');
+  if (!bell) return;
+  // Show active if any order has adminMessage
+  const hasAdminMsg = notifications.some(n => n.adminMessage);
+  if (hasAdminMsg) bell.classList.add('active');
+  else bell.classList.remove('active');
 }

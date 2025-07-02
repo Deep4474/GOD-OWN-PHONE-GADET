@@ -27,6 +27,13 @@ header h1 {
   font-size: 22px;
 }
 
+#header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.2rem;
+}
+
 #header-actions button {
   background: white;
   color: #0077ff;
@@ -46,6 +53,69 @@ header h1 {
   text-align: right;
   font-size: 14px;
   margin-top: 0.3rem;
+}
+
+#user-info-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+#notification-bell {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  position: relative;
+}
+
+#notification-bell.active {
+  color: #2563eb;
+}
+
+#notification-dropdown {
+  position: absolute;
+  top: 2.2rem;
+  right: 0;
+  min-width: 260px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  z-index: 100;
+  padding: 0.7rem 0.5rem;
+  max-height: 320px;
+  overflow-y: auto;
+  display: none;
+}
+
+#notification-dropdown.show {
+  display: block;
+}
+
+.notification-item {
+  padding: 0.5rem 0.3rem;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 0.97rem;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item .order-id {
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.notification-item .admin {
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.notification-item .user {
+  color: #2563eb;
+  font-weight: 500;
 }
 
 /* Section Styling */
