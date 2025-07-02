@@ -29,6 +29,7 @@ const productRoutes = require('./products');
 const orderRoutes = require('./orders');
 const notificationRoutes = require('./notifications');
 const locationRoutes = require('./location');
+const adminAuthRoutes = require('./admin/adminAuth');
 const orders = require('./orders.json');
 const users = require('./users.json');
 
@@ -74,6 +75,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/location', locationRoutes);
+app.use('/api/admin', adminAuthRoutes);
 
 // Serve the main index.html for the root route
 app.get('/', (req, res) => {
