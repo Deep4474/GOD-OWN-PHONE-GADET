@@ -62,6 +62,7 @@ const authenticateAdmin = (req, res, next) => {
 };
 
 function requireAdmin(req, res, next) {
+  console.log('requireAdmin check:', req.user);
   if (req.user && req.user.role === 'admin') {
     return next();
   }
