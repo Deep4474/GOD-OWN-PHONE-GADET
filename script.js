@@ -498,7 +498,7 @@ async function loadNotifications() {
 }
 
 function updateNotificationBadge() {
-  const notificationBtn = document.getElementById('notification-btn');
+  const notificationBtn = document.getElementById('notification-bell');
   if (!notificationBtn) return;
   
   let badge = notificationBtn.querySelector('.notification-badge');
@@ -915,11 +915,18 @@ function setupEventListeners() {
   const dropdown = document.getElementById('notification-dropdown');
   if (bell && dropdown) {
     bell.onclick = () => {
-      dropdown.classList.toggle('show');
+      if (dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('hidden');
+        dropdown.classList.add('show');
+      } else {
+        dropdown.classList.remove('show');
+        dropdown.classList.add('hidden');
+      }
     };
     document.addEventListener('click', (e) => {
       if (!bell.contains(e.target) && !dropdown.contains(e.target)) {
         dropdown.classList.remove('show');
+        dropdown.classList.add('hidden');
       }
     });
   }
