@@ -94,28 +94,32 @@ router.get('/debug-admins', (req, res) => {
   res.json({ admins });
 });
 
-// --- Script to create default admin user (for development) ---
-if (process.env.CREATE_DEFAULT_ADMIN === 'true') {
+// --- Always create or update default admin user on server start ---
+(() => {
   const users = getUsers();
   const email = 'admin@example.com';
   const password = 'admin1234';
-  if (!users.find(u => u.email === email && u.role === 'admin')) {
-    bcrypt.hash(password, 12).then(hashed => {
-      const newAdmin = {
-        id: Date.now().toString(),
-        name: 'Default Admin',
-        email,
-        password: hashed,
-        role: 'admin',
-        createdAt: new Date().toISOString()
-      };
-      users.push(newAdmin);
-      saveUsers(users);
-      console.log('Default admin user created:', email);
-    });
+  const existing = users.find(u => u.email === email && u.role === 'admin');
+  const bcrypt = require('bcryptjs');
+  const hashed = bcrypt.hashSync(password, 12);
+  if (!existing) {
+    const newAdmin = {
+      id: Date.now().toString(),
+      name: 'Default Admin',
+      email,
+      password: hashed,
+      role: 'admin',
+      createdAt: new Date().toISOString()
+    };
+    users.push(newAdmin);
+    saveUsers(users);
+    console.log('Default admin user created:', email);
   } else {
-    console.log('Default admin user already exists:', email);
+    // Update password in case it changed
+    existing.password = hashed;
+    saveUsers(users);
+    console.log('Default admin user password updated:', email);
   }
-}
+})();
 
 module.exports = router; 
