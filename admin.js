@@ -400,7 +400,12 @@ const topbarTitle = document.getElementById('admin-topbar-title');
       `;
     }
     try {
-      const res = await fetch(`${API}/notifications`);
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch(`${API}/notifications`, {
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
+      });
       const data = await res.json();
       const rows = (data.notifications || []).map(n => `
         <tr>
@@ -441,7 +446,7 @@ const topbarTitle = document.getElementById('admin-topbar-title');
           msgDiv.textContent = '';
           const token = localStorage.getItem('adminToken');
           try {
-            const res = await fetch('/api/admin/notify', {
+            const res = await fetch(`${API}/admin/notify`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

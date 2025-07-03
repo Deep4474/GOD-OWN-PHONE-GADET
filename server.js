@@ -80,6 +80,16 @@ app.use('/api/admin', adminAuthRoutes);
 // Register admin notify route
 app.use('/api/admin', authRoutes);
 
+// Analytics endpoint (dummy data for now)
+app.get('/api/analytics', (req, res) => {
+  res.json({
+    monthlyRevenue: 0,
+    topProducts: [],
+    totalUsers: 0,
+    ordersThisMonth: 0
+  });
+});
+
 // Serve the main index.html for the root route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
