@@ -324,7 +324,7 @@ const topbarTitle = document.getElementById('admin-topbar-title');
     adminContent.innerHTML = '<div>Loading notifications...</div>';
     try {
       const res = await fetch(`${API}/notifications`);
-    const data = await res.json();
+      const data = await res.json();
       const rows = (data.notifications || []).map(n => `
         <tr>
           <td>${n.user || 'System'}</td>
@@ -333,12 +333,60 @@ const topbarTitle = document.getElementById('admin-topbar-title');
         </tr>
       `).join('');
       adminContent.innerHTML = `
-        <h3>Notifications</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <h3>Notifications</h3>
+          <button class="btn-primary" id="open-notify-modal">+ Send Notification</button>
+        </div>
         <table class="admin-table">
           <thead><tr><th>User</th><th>Message</th><th>Date</th></tr></thead>
           <tbody>${rows || '<tr><td colspan="3">No notifications</td></tr>'}</tbody>
         </table>
       `;
+      // Show modal on button click
+      const openNotifyBtn = document.getElementById('open-notify-modal');
+      const notifyModal = document.getElementById('admin-notify-form-container');
+      if (openNotifyBtn && notifyModal) {
+        openNotifyBtn.onclick = () => notifyModal.classList.remove('hidden');
+      }
+      // Close modal logic
+      const closeNotifyModal = document.getElementById('close-notify-modal');
+      if (closeNotifyModal && notifyModal) closeNotifyModal.onclick = () => notifyModal.classList.add('hidden');
+      // Handle form submission
+      const notifyForm = document.getElementById('admin-notify-form');
+      if (notifyForm) {
+        notifyForm.onsubmit = async function(e) {
+          e.preventDefault();
+          const email = document.getElementById('notify-email').value;
+          const subject = document.getElementById('notify-subject').value;
+          const message = document.getElementById('notify-message').value;
+          const msgDiv = document.getElementById('notify-form-message');
+          msgDiv.textContent = '';
+          const token = localStorage.getItem('adminToken');
+          try {
+            const res = await fetch('/admin/notify', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+              },
+              body: JSON.stringify({ email, subject, message })
+            });
+            const data = await res.json();
+            if (res.ok) {
+              msgDiv.style.color = '#2563eb';
+              msgDiv.textContent = 'Notification sent!';
+              notifyForm.reset();
+              setTimeout(() => notifyModal.classList.add('hidden'), 1000);
+            } else {
+              msgDiv.style.color = '#dc2626';
+              msgDiv.textContent = data.error || 'Failed to send notification.';
+            }
+          } catch {
+            msgDiv.style.color = '#dc2626';
+            msgDiv.textContent = 'Network error.';
+          }
+        };
+      }
     } catch {
       adminContent.innerHTML = '<p>Failed to load notifications.</p>';
     }

@@ -240,4 +240,30 @@ router.post('/logout', authenticateToken, (req, res) => {
   res.json({ message: 'Logged out successfully' });
 });
 
+// Admin: Send custom notification email to user
+router.post('/admin/notify', authenticateToken, async (req, res) => {
+  // Only allow admins
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+
+  const { email, subject, message } = req.body;
+  if (!email || !subject || !message) {
+    return res.status(400).json({ error: 'Email, subject, and message are required' });
+  }
+
+  try {
+    await transporter.sendMail({
+      from: `ONGOD Gadget Shop <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject,
+      text: message,
+    });
+    res.json({ success: true, message: 'Notification sent successfully' });
+  } catch (error) {
+    console.error('Notification error:', error);
+    res.status(500).json({ error: 'Failed to send notification' });
+  }
+});
+
 module.exports = router; 
