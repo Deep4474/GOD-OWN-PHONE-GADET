@@ -1012,9 +1012,10 @@ function setupEventListeners() {
   // --- Menu Dropdown Logic ---
   const menuToggle = document.getElementById('menu-toggle');
   const menuDropdown = document.getElementById('menu-dropdown');
-  constbell = document.getElementById('notification-bell');
-  constuserNotifBox = document.getElementById('user-notification-history');
+  // const bell = document.getElementById('notification-bell'); // Duplicate, remove
+  // const userNotifBox = document.getElementById('user-notification-history'); // Duplicate, remove
 
+  // Toggle menu dropdown
   if (menuToggle && menuDropdown) {
     menuToggle.addEventListener('click', function(e) {
       e.stopPropagation();

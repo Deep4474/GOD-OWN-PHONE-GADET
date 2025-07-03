@@ -268,7 +268,7 @@ const topbarTitle = document.getElementById('admin-topbar-title');
     adminContent.innerHTML = '<div>Loading orders...</div>';
     try {
       const res = await fetch(`${API}/orders`);
-      const data = await res.json();
+    const data = await res.json();
       // Save notifications for new orders
       (data.orders || []).forEach(order => {
         if (order.status === 'pending') {
