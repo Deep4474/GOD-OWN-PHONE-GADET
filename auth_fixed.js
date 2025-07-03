@@ -182,6 +182,18 @@ router.post('/verify', async (req, res) => {
   console.log('--- DEBUG: User object sent on successful verification ---');
   console.log(JSON.stringify(userToReturn, null, 2));
 
+  // Send successful login email
+  try {
+    await transporter.sendMail({
+      from: `ONGOD Gadget Shop <ayomideoluniyi49@gmail.com>`,
+      to: user.email,
+      subject: "Login Successful - GOD'SOWN PHONE GADGET",
+      text: `You have successfully verified your email and logged in. Thank you for joining us!`
+    });
+  } catch (e) {
+    console.error('Verification success email error:', e);
+  }
+
   res.json({
     success: true,
     message: 'Email verified successfully',
