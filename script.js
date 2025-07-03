@@ -1210,3 +1210,85 @@ if (localStorage.getItem('darkMode') === '1') {
 } else {
   setDarkMode(false);
 }
+
+// --- Customer Care Chat Modal Logic ---
+const careBtn = document.getElementById('customer-care-btn');
+const careModal = document.getElementById('customer-care-modal');
+const careClose = document.getElementById('close-customer-care');
+const careForm = document.getElementById('customer-care-form');
+const careMsgForm = document.getElementById('customer-care-message-form');
+const careName = document.getElementById('customer-care-name');
+const careEmail = document.getElementById('customer-care-email');
+const careMsg = document.getElementById('customer-care-message');
+const careHistory = document.getElementById('customer-care-history');
+let carePollInterval = null;
+
+function renderCareHistory(messages) {
+  careHistory.innerHTML = messages.map(msg => `
+    <div style="margin-bottom:0.7rem;text-align:${msg.from==='admin'?'left':'right'};">
+      <div style="display:inline-block;padding:0.6em 1em;border-radius:16px;background:${msg.from==='admin'?'#e0e7ef':'#2563eb'};color:${msg.from==='admin'?'#222':'#fff'};margin-bottom:2px;">${msg.text}</div>
+      <div style="font-size:0.8em;color:#888;margin-top:2px;">${msg.from==='admin'?'Support':(msg.name||'You')} ${msg.time||''}</div>
+    </div>
+  `).join('');
+  careHistory.scrollTop = careHistory.scrollHeight;
+}
+
+async function fetchCareHistory() {
+  if (!careEmail.value) return;
+  try {
+    const res = await fetch(`/api/support/messages?email=${encodeURIComponent(careEmail.value)}`);
+    const data = await res.json();
+    if (Array.isArray(data.messages)) {
+      renderCareHistory(data.messages);
+    } else {
+      careHistory.innerHTML = '<div style="color:#888;">No messages yet.</div>';
+    }
+  } catch {
+    careHistory.innerHTML = '<div style="color:#dc2626;">Failed to load messages.</div>';
+  }
+}
+
+if (careBtn && careModal) {
+  careBtn.onclick = () => {
+    careModal.style.display = 'flex';
+    careModal.classList.remove('hidden');
+    fetchCareHistory();
+    if (carePollInterval) clearInterval(carePollInterval);
+    carePollInterval = setInterval(fetchCareHistory, 10000);
+  };
+}
+if (careClose && careModal) {
+  careClose.onclick = () => {
+    careModal.style.display = 'none';
+    careModal.classList.add('hidden');
+    if (carePollInterval) clearInterval(carePollInterval);
+  };
+}
+if (careForm) {
+  careForm.onsubmit = e => {
+    e.preventDefault();
+    fetchCareHistory();
+  };
+}
+if (careMsgForm) {
+  careMsgForm.onsubmit = async function(e) {
+    e.preventDefault();
+    if (!careName.value.trim() || !careEmail.value.trim() || !careMsg.value.trim()) return;
+    const msg = {
+      name: careName.value.trim(),
+      email: careEmail.value.trim(),
+      text: careMsg.value.trim()
+    };
+    try {
+      const res = await fetch('/api/support/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(msg)
+      });
+      if (res.ok) {
+        careMsg.value = '';
+        fetchCareHistory();
+      }
+    } catch {}
+  };
+}

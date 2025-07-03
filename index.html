@@ -177,6 +177,23 @@
 
   </main>
 
+  <button id="customer-care-btn" style="position:fixed;bottom:32px;right:32px;z-index:9999;background:#2563eb;color:#fff;border:none;border-radius:50%;width:56px;height:56px;box-shadow:0 2px 12px #0003;font-size:2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">💬</button>
+  <div id="customer-care-modal" class="hidden" style="position:fixed;bottom:100px;right:32px;z-index:10000;background:#fff;border-radius:16px;box-shadow:0 8px 32px #0002;width:340px;max-width:95vw;padding:0;display:none;flex-direction:column;">
+    <div style="background:#2563eb;color:#fff;padding:1rem 1.2rem;border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-weight:600;">Customer Care</span>
+      <button id="close-customer-care" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;">&times;</button>
+    </div>
+    <div id="customer-care-history" style="background:#f1f5f9;min-height:120px;max-height:220px;overflow-y:auto;padding:1rem;"></div>
+    <form id="customer-care-form" style="display:flex;gap:0.5rem;padding:1rem 1rem 1.2rem 1rem;">
+      <input type="text" id="customer-care-name" placeholder="Your Name" style="flex:1;" required />
+      <input type="email" id="customer-care-email" placeholder="Email" style="flex:1;" required />
+    </form>
+    <form id="customer-care-message-form" style="display:flex;gap:0.5rem;padding:0 1rem 1.2rem 1rem;">
+      <textarea id="customer-care-message" placeholder="Type your message..." style="flex:1;resize:none;min-height:36px;" required></textarea>
+      <button type="submit" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:0.5em 1.2em;font-weight:600;cursor:pointer;">Send</button>
+    </form>
+  </div>
+
   <script src="script.js"></script>
   <style>
     .spinner {

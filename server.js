@@ -124,6 +124,31 @@ app.get('/api/users', (req, res) => {
   res.json({ users });
 });
 
+// Get messages for a user
+app.get('/api/support/messages', (req, res) => {
+  const email = req.query.email;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  const messages = readMessages().filter(m => m.email === email);
+  res.json({ messages });
+});
+
+// Post a new message
+app.post('/api/support/message', (req, res) => {
+  const { name, email, text } = req.body;
+  if (!name || !email || !text) return res.status(400).json({ error: 'Missing fields' });
+  const messages = readMessages();
+  const msg = {
+    from: 'user',
+    name,
+    email,
+    text,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+  messages.push(msg);
+  writeMessages(messages);
+  res.json({ success: true });
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ 
@@ -148,4 +173,18 @@ app.listen(PORT, () => {
   console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
 });
 
-module.exports = app; 
+module.exports = app;
+
+const MESSAGES_FILE = path.join(__dirname, 'customerMessages.json');
+
+// Helper to read/write messages
+function readMessages() {
+  try {
+    return JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf8'));
+  } catch {
+    return [];
+  }
+}
+function writeMessages(messages) {
+  fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+} 
