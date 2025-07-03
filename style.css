@@ -120,7 +120,7 @@ header h1 {
 
 /* Section Styling */
 .section {
-  max-width: 600px;
+  max-width: 1200px;
   margin: 2rem auto;
   background: white;
   padding: 2rem;
@@ -198,7 +198,7 @@ a:hover {
 /* Product Grid */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 1fr;
   gap: 1.2rem;
   justify-items: stretch;
 }
@@ -420,6 +420,16 @@ a:hover {
 @media (max-width: 1024px) {
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (min-width: 1025px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  .section {
+    max-width: 1200px;
   }
 }
 
