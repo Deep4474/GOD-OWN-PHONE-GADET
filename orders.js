@@ -115,16 +115,19 @@ router.put('/:id/update', async (req, res) => {
     const user = users.find(u => u.id === order.userId);
     const products = getProducts();
     const product = products.find(p => p._id === order.productId || p.id === order.productId);
-    if (user && user.email) {
+    const email = order.email || (user && user.email);
+    const phone = order.phone || (user && user.phone);
+    if (email) {
       let updateDetails = `Order Update:\n`;
       updateDetails += `Order ID: ${order._id}\n`;
       updateDetails += `Product: ${product ? product.name : order.productId}\n`;
       updateDetails += `Status: ${order.status}\n`;
       if (order.adminMessage) updateDetails += `Admin Message: ${order.adminMessage}\n`;
       updateDetails += `Date: ${new Date().toLocaleString()}\n`;
+      if (phone) updateDetails += `Phone: ${phone}\n`;
       await transporter.sendMail({
         from: `ONGOD Gadget Shop <ayomideoluniyi49@gmail.com>`,
-        to: user.email,
+        to: email,
         subject: "Order Update - GOD'SOWN PHONE GADGET",
         text: `${updateDetails}`
       });
