@@ -235,7 +235,19 @@ const topbarTitle = document.getElementById('admin-topbar-title');
     adminContent.innerHTML = '<div>Loading orders...</div>';
     try {
       const res = await fetch(`${API}/orders`);
-    const data = await res.json();
+      const data = await res.json();
+      // Save notifications for new orders
+      (data.orders || []).forEach(order => {
+        if (order.status === 'pending') {
+          let notifications = [];
+          try {
+            notifications = JSON.parse(localStorage.getItem('adminOrderNotifications')) || [];
+          } catch (e) { notifications = []; }
+          if (!notifications.some(n => n.orderId === order._id)) {
+            saveOrderNotification(order);
+          }
+        }
+      });
       const rows = (data.orders || []).map(o => `
         <tr>
           <td>${o._id}</td>
@@ -301,6 +313,24 @@ const topbarTitle = document.getElementById('admin-topbar-title');
     });
   }
 
+  // --- Save Notification Helper ---
+  function saveOrderNotification(order) {
+    let notifications = [];
+    try {
+      notifications = JSON.parse(localStorage.getItem('adminOrderNotifications')) || [];
+    } catch (e) {
+      notifications = [];
+    }
+    const now = new Date();
+    notifications.unshift({
+      message: `Order #${order._id.slice(-6)} has been sent to admin (₦${order.totalAmount.toLocaleString()})`,
+      orderId: order._id,
+      time: now.toLocaleString()
+    });
+    if (notifications.length > 100) notifications = notifications.slice(0, 100);
+    localStorage.setItem('adminOrderNotifications', JSON.stringify(notifications));
+  }
+
   // --- Users ---
   async function loadUsers() {
     adminContent.innerHTML = '<div>Loading users...</div>';
@@ -322,6 +352,20 @@ const topbarTitle = document.getElementById('admin-topbar-title');
   // --- Notifications ---
   async function loadNotifications() {
     adminContent.innerHTML = '<div>Loading notifications...</div>';
+    // Local order notifications
+    let localNotifications = [];
+    try {
+      localNotifications = JSON.parse(localStorage.getItem('adminOrderNotifications')) || [];
+    } catch (e) { localNotifications = []; }
+    let localRows = '';
+    if (localNotifications.length > 0) {
+      localRows = `
+        <h4>Order Notifications</h4>
+        <ul class="notification-list">
+          ${localNotifications.map(n => `<li><strong>${n.time}</strong>: ${n.message}</li>`).join('')}
+        </ul>
+      `;
+    }
     try {
       const res = await fetch(`${API}/notifications`);
       const data = await res.json();
@@ -337,6 +381,7 @@ const topbarTitle = document.getElementById('admin-topbar-title');
           <h3>Notifications</h3>
           <button class="btn-primary" id="open-notify-modal">+ Send Notification</button>
         </div>
+        ${localRows}
         <table class="admin-table">
           <thead><tr><th>User</th><th>Message</th><th>Date</th></tr></thead>
           <tbody>${rows || '<tr><td colspan="3">No notifications</td></tr>'}</tbody>

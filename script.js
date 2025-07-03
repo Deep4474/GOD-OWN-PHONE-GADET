@@ -365,6 +365,32 @@ async function loadUserOrders() {
   }
 }
 
+// Save notification to localStorage
+function saveUserNotification(notification) {
+  let notifications = [];
+  try {
+    notifications = JSON.parse(localStorage.getItem('userOrderNotifications')) || [];
+  } catch (e) { notifications = []; }
+  notifications.unshift(notification);
+  if (notifications.length > 100) notifications = notifications.slice(0, 100);
+  localStorage.setItem('userOrderNotifications', JSON.stringify(notifications));
+}
+
+// Show notification history in the UI
+function showUserNotificationHistory() {
+  let notifications = [];
+  try {
+    notifications = JSON.parse(localStorage.getItem('userOrderNotifications')) || [];
+  } catch (e) { notifications = []; }
+  const container = document.getElementById('user-notification-history');
+  if (!container) return;
+  if (notifications.length === 0) {
+    container.innerHTML = '<div>No notifications yet.</div>';
+    return;
+  }
+  container.innerHTML = notifications.map(n => `<div>${n.time}: ${n.message}</div>`).join('');
+}
+
 async function placeOrder() {
   const quantityInput = document.getElementById('quantity');
   const buyOptionSelect = document.getElementById('buy-option');
@@ -422,6 +448,11 @@ async function placeOrder() {
       resetBuyForm();
       await loadUserOrders();
       showProducts();
+      // Add to local notification history
+      saveUserNotification({
+        message: `Your order #${response.order._id.slice(-6)} has been sent to admin.`,
+        time: new Date().toLocaleString()
+      });
     } else {
       showMessage(response.message || 'Failed to place order', 'error');
     }
@@ -954,6 +985,30 @@ function setupEventListeners() {
       if (!bell.contains(e.target) && !dropdown.contains(e.target)) {
         dropdown.classList.remove('show');
         dropdown.classList.add('hidden');
+      }
+    });
+  }
+
+  // Show user notification history when bell is clicked
+  if (bell) {
+    bell.addEventListener('click', (e) => {
+      showUserNotificationHistory();
+      const historyDiv = document.getElementById('user-notification-history');
+      if (historyDiv) {
+        // Toggle display
+        if (historyDiv.style.display === 'block') {
+          historyDiv.style.display = 'none';
+        } else {
+          historyDiv.style.display = 'block';
+        }
+      }
+      e.stopPropagation();
+    });
+    // Hide notification history when clicking outside
+    document.addEventListener('click', (e) => {
+      const historyDiv = document.getElementById('user-notification-history');
+      if (historyDiv && !bell.contains(e.target) && !historyDiv.contains(e.target)) {
+        historyDiv.style.display = 'none';
       }
     });
   }
