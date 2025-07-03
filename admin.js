@@ -141,11 +141,39 @@ const topbarTitle = document.getElementById('admin-topbar-title');
       if (file && preview) {
         const reader = new FileReader();
         reader.onload = () => {
-          preview.innerHTML = `<img src="${reader.result}" alt="Preview" />`;
+          // Create an image element
+          const img = new Image();
+          img.onload = () => {
+            // Create a canvas
+            const size = 220;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            // Draw a nice gradient background
+            const grad = ctx.createLinearGradient(0, 0, size, size);
+            grad.addColorStop(0, '#f0f4ff');
+            grad.addColorStop(1, '#c2e9fb');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, size, size);
+            // Draw the uploaded image centered
+            const scale = Math.min(size / img.width, size / img.height);
+            const w = img.width * scale;
+            const h = img.height * scale;
+            const x = (size - w) / 2;
+            const y = (size - h) / 2;
+            ctx.drawImage(img, x, y, w, h);
+            // Show preview
+            preview.innerHTML = `<img src="${canvas.toDataURL()}" alt="Preview" style="width:100%;border-radius:12px;box-shadow:0 2px 8px #0002;" />`;
+            // Store the composited image for upload
+            preview.dataset.finalImage = canvas.toDataURL();
+          };
+          img.src = reader.result;
         };
         reader.readAsDataURL(file);
       } else if (preview) {
         preview.innerHTML = '';
+        delete preview.dataset.finalImage;
       }
     });
   }
@@ -184,6 +212,11 @@ const topbarTitle = document.getElementById('admin-topbar-title');
     if (!name || !price || !category || !stock || isNaN(position) || !description || !brand) {
       message.textContent = 'All fields are required.';
       return;
+    }
+    // Use composited image if available
+    const preview = document.getElementById('image-preview');
+    if (preview && preview.dataset.finalImage) {
+      imageUrl = preview.dataset.finalImage;
     }
     const product = { name, price, category, stock, position, description, brand, images: imageUrl ? [imageUrl] : [] };
     try {

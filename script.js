@@ -1185,3 +1185,28 @@ if (toggleMapBtn && mapContainer) {
 
 // Call once on load
 updateOrderSummaryCompact();
+
+// --- Dark Mode Toggle ---
+const darkToggle = document.getElementById('dark-mode-toggle');
+function setDarkMode(enabled) {
+  if (enabled) {
+    document.body.classList.add('dark-mode');
+    if (darkToggle) darkToggle.textContent = '☀️';
+    localStorage.setItem('darkMode', '1');
+  } else {
+    document.body.classList.remove('dark-mode');
+    if (darkToggle) darkToggle.textContent = '🌙';
+    localStorage.setItem('darkMode', '0');
+  }
+}
+if (darkToggle) {
+  darkToggle.addEventListener('click', () => {
+    setDarkMode(!document.body.classList.contains('dark-mode'));
+  });
+}
+// On load, apply saved preference
+if (localStorage.getItem('darkMode') === '1') {
+  setDarkMode(true);
+} else {
+  setDarkMode(false);
+}

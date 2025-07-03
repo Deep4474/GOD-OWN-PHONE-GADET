@@ -447,3 +447,66 @@ a:hover {
 body, input, select, button {
   font-size: 15px;
 }
+
+/* --- DARK MODE --- */
+body.dark-mode {
+  background: #181a1b;
+  color: #e0e0e0;
+}
+body.dark-mode header,
+body.dark-mode main,
+body.dark-mode section,
+body.dark-mode .section {
+  background: #23272a;
+  color: #e0e0e0;
+}
+body.dark-mode .btn-primary {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+}
+body.dark-mode .btn-secondary {
+  background: #444c56;
+  color: #fff;
+  border: none;
+}
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background: #23272a;
+  color: #e0e0e0;
+  border: 1px solid #444c56;
+}
+body.dark-mode .product-card,
+body.dark-mode .order-item,
+body.dark-mode .order-details-grid,
+body.dark-mode .order-info-card,
+body.dark-mode .order-location-card {
+  background: #23272a;
+  color: #e0e0e0;
+  border-color: #444c56;
+}
+body.dark-mode #user-notification-history {
+  background: #23272a !important;
+  color: #e0e0e0;
+  border-color: #444c56 !important;
+}
+body.dark-mode .message {
+  color: #fff;
+}
+body.dark-mode .admin-table,
+body.dark-mode table {
+  background: #23272a;
+  color: #e0e0e0;
+  border-color: #444c56;
+}
+body.dark-mode .form-group label {
+  color: #e0e0e0;
+}
+body.dark-mode .notification-badge {
+  background: #444c56 !important;
+  color: #fff !important;
+}
+body.dark-mode .bell-icon {
+  color: #fff;
+}
