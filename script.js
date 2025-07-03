@@ -990,25 +990,21 @@ function setupEventListeners() {
   }
 
   // Show user notification history when bell is clicked
-  if (bell) {
+  const userNotifBox = document.getElementById('user-notification-history');
+  if (bell && userNotifBox) {
     bell.addEventListener('click', (e) => {
-      showUserNotificationHistory();
-      const historyDiv = document.getElementById('user-notification-history');
-      if (historyDiv) {
-        // Toggle display
-        if (historyDiv.style.display === 'block') {
-          historyDiv.style.display = 'none';
-        } else {
-          historyDiv.style.display = 'block';
-        }
-      }
       e.stopPropagation();
+      if (userNotifBox.style.display === 'block') {
+        userNotifBox.style.display = 'none';
+      } else {
+        showUserNotificationHistory();
+        userNotifBox.style.display = 'block';
+      }
     });
-    // Hide notification history when clicking outside
+    // Hide when clicking outside
     document.addEventListener('click', (e) => {
-      const historyDiv = document.getElementById('user-notification-history');
-      if (historyDiv && !bell.contains(e.target) && !historyDiv.contains(e.target)) {
-        historyDiv.style.display = 'none';
+      if (!userNotifBox.contains(e.target) && !bell.contains(e.target)) {
+        userNotifBox.style.display = 'none';
       }
     });
   }
