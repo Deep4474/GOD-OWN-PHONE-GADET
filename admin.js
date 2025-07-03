@@ -441,7 +441,7 @@ const topbarTitle = document.getElementById('admin-topbar-title');
           msgDiv.textContent = '';
           const token = localStorage.getItem('adminToken');
           try {
-            const res = await fetch('/admin/notify', {
+            const res = await fetch('/api/admin/notify', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

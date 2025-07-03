@@ -219,7 +219,7 @@ a:hover {
 
 .product-card img {
   width: 100%;
-  max-width: 140px;
+  max-width: 220px;
   height: auto;
   object-fit: contain;
   margin-bottom: 0.5rem;
@@ -227,13 +227,15 @@ a:hover {
 
 /* Add image container for better control */
 .product-image-container {
-  width: 100%;
+  width: 240px;
+  max-width: 240px;
+  min-width: 200px;
   aspect-ratio: 1 / 1;
   background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px;
+  padding: 16px;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -508,4 +510,16 @@ body.dark-mode .notification-badge {
 }
 body.dark-mode .bell-icon {
   color: #fff;
+}
+
+@media screen and (min-width: 1025px) {
+  .product-card img {
+    max-width: 220px;
+  }
+  .product-image-container {
+    max-width: 240px;
+    min-width: 200px;
+    aspect-ratio: 1 / 1;
+    padding: 16px;
+  }
 }

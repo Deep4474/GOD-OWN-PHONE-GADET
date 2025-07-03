@@ -77,6 +77,9 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/admin', adminAuthRoutes);
 
+// Register admin notify route
+app.use('/api/admin', authRoutes);
+
 // Serve the main index.html for the root route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
