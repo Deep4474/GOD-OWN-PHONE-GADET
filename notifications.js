@@ -44,7 +44,7 @@ router.put('/:id/read', (req, res) => {
 });
 
 // Admin: send notification to user
-router.post('/send', (req, res) => {
+router.post('/send', authenticateToken, requireAdmin, (req, res) => {
   const { userId, message, type } = req.body;
   if (!userId || !message) return res.status(400).json({ error: 'userId and message required' });
   const notif = {
