@@ -1088,3 +1088,49 @@ function handleTokenExpiry(error) {
   }
   return false;
 }
+
+// --- Order Summary Compact Logic ---
+function updateOrderSummaryCompact() {
+  const address = currentUser && currentUser.address ? currentUser.address : '';
+  const payment = document.getElementById('payment-method')?.value || '';
+  const total = document.getElementById('total-price')?.textContent || '';
+  if (document.getElementById('summary-address')) document.getElementById('summary-address').textContent = address;
+  if (document.getElementById('summary-payment')) document.getElementById('summary-payment').textContent = payment ? payment.charAt(0).toUpperCase() + payment.slice(1) : '';
+  if (document.getElementById('total-price')) document.getElementById('total-price').textContent = total;
+}
+
+// Update summary on relevant changes
+const paymentMethodSelect = document.getElementById('payment-method');
+if (paymentMethodSelect) {
+  paymentMethodSelect.addEventListener('change', updateOrderSummaryCompact);
+}
+const addressInput = document.getElementById('address');
+if (addressInput) {
+  addressInput.addEventListener('input', updateOrderSummaryCompact);
+}
+const quantityInput = document.getElementById('quantity');
+if (quantityInput) {
+  quantityInput.addEventListener('input', updateOrderSummaryCompact);
+}
+const buyOptionSelect = document.getElementById('buy-option');
+if (buyOptionSelect) {
+  buyOptionSelect.addEventListener('change', updateOrderSummaryCompact);
+}
+
+// Toggle map visibility
+const toggleMapBtn = document.getElementById('toggle-map-btn');
+const mapContainer = document.getElementById('map-container');
+if (toggleMapBtn && mapContainer) {
+  toggleMapBtn.addEventListener('click', () => {
+    if (mapContainer.classList.contains('hidden')) {
+      mapContainer.classList.remove('hidden');
+      toggleMapBtn.textContent = 'Hide Map';
+    } else {
+      mapContainer.classList.add('hidden');
+      toggleMapBtn.textContent = 'Show Map';
+    }
+  });
+}
+
+// Call once on load
+updateOrderSummaryCompact();

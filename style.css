@@ -279,6 +279,20 @@ a:hover {
   border: 1px solid #ddd;
 }
 
+.order-summary-compact {
+  font-size: 14px;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background: #fafafa;
+  max-width: 300px;
+  margin-top: 1rem;
+}
+
+.order-summary-compact div {
+  margin-bottom: 6px;
+}
+
 /* Buy Form */
 #buy-section {
   max-width: 350px;
