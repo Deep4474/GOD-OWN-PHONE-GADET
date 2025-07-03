@@ -1008,6 +1008,56 @@ function setupEventListeners() {
       }
     });
   }
+
+  // --- Menu Dropdown Logic ---
+  const menuToggle = document.getElementById('menu-toggle');
+  const menuDropdown = document.getElementById('menu-dropdown');
+  constbell = document.getElementById('notification-bell');
+  constuserNotifBox = document.getElementById('user-notification-history');
+
+  if (menuToggle && menuDropdown) {
+    menuToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      // Update welcome text
+      const welcomeDiv = document.getElementById('welcome');
+      if (welcomeDiv && window.currentUser) {
+        welcomeDiv.textContent = `Welcome, ${window.currentUser.name || window.currentUser.email || ''}`;
+      }
+      // Hide notification history if open
+      if (userNotifBox) userNotifBox.style.display = 'none';
+      // Toggle menu
+      if (menuDropdown.style.display === 'block') {
+        menuDropdown.style.display = 'none';
+      } else {
+        menuDropdown.style.display = 'block';
+      }
+    });
+    document.addEventListener('click', function(e) {
+      if (!menuDropdown.contains(e.target) && !menuToggle.contains(e.target)) {
+        menuDropdown.style.display = 'none';
+        if (userNotifBox) userNotifBox.style.display = 'none';
+      }
+    });
+  }
+
+  // Notification bell in menu toggles notification history
+  if (bell && userNotifBox) {
+    bell.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (userNotifBox.style.display === 'block') {
+        userNotifBox.style.display = 'none';
+      } else {
+        showUserNotificationHistory();
+        userNotifBox.style.display = 'block';
+      }
+    });
+    // Hide notification history when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!userNotifBox.contains(e.target) && !bell.contains(e.target)) {
+        userNotifBox.style.display = 'none';
+      }
+    });
+  }
 }
 
 // Add CSS animations
