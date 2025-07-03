@@ -395,6 +395,8 @@ async function placeOrder() {
   const quantityInput = document.getElementById('quantity');
   const buyOptionSelect = document.getElementById('buy-option');
   const paymentMethodSelect = document.getElementById('payment-method');
+  const emailInput = document.getElementById('order-email');
+  const phoneInput = document.getElementById('order-phone');
 
   if (!selectedProduct || !currentUser || !quantityInput || !buyOptionSelect || !paymentMethodSelect) {
     showMessage('An error occurred. Please try again.', 'error');
@@ -409,7 +411,9 @@ async function placeOrder() {
     deliveryOption: buyOptionSelect.value,
     paymentMethod: paymentMethodSelect.value,
     deliveryAddress: currentUser.address,
-    totalAmount: calculateTotal(parseInt(quantityInput.value, 10), buyOptionSelect.value)
+    totalAmount: calculateTotal(parseInt(quantityInput.value, 10), buyOptionSelect.value),
+    email: emailInput ? emailInput.value : (currentUser.email || ''),
+    phone: phoneInput ? phoneInput.value : (currentUser.phone || '')
   };
 
   if (!orderData.deliveryOption || !orderData.paymentMethod) {

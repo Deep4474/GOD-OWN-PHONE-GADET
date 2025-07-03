@@ -41,9 +41,9 @@ router.get('/user/:userId', (req, res) => {
 
 // Create a new order
 router.post('/create', async (req, res) => {
-  const { userId, productId, quantity, deliveryOption, paymentMethod, deliveryAddress, totalAmount } = req.body;
+  const { userId, productId, quantity, deliveryOption, paymentMethod, deliveryAddress, totalAmount, email, phone } = req.body;
   
-  const requiredFields = { userId, productId, quantity, deliveryOption, paymentMethod, deliveryAddress, totalAmount };
+  const requiredFields = { userId, productId, quantity, deliveryOption, paymentMethod, deliveryAddress, totalAmount, email, phone };
   const missingFields = Object.entries(requiredFields)
     .filter(([key, value]) => value === undefined || value === null)
     .map(([key]) => key);
@@ -61,6 +61,8 @@ router.post('/create', async (req, res) => {
     paymentMethod,
     deliveryAddress,
     totalAmount,
+    email,
+    phone,
     status: 'pending',
     createdAt: new Date().toISOString(),
     adminMessage: ''
@@ -82,6 +84,8 @@ router.post('/create', async (req, res) => {
       orderDetails += `Total: ₦${totalAmount}\n`;
       orderDetails += `Status: pending\n`;
       orderDetails += `Date: ${new Date(newOrder.createdAt).toLocaleString()}\n`;
+      orderDetails += `Email: ${email}\n`;
+      orderDetails += `Phone: ${phone}\n`;
       await transporter.sendMail({
         from: `ONGOD Gadget Shop <ayomideoluniyi49@gmail.com>`,
         to: user.email,
