@@ -17,10 +17,10 @@ body {
 header {
   background: #0077ff;
   color: white;
-  padding: 1rem 2rem;
+  padding: 0 2rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
 }
 
 header h1 {
@@ -30,7 +30,7 @@ header h1 {
 #header-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  margin-left: auto;
   gap: 1.2rem;
 }
 
@@ -325,11 +325,10 @@ a:hover {
   }
 
   #header-actions {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.3rem;
-    margin-bottom: 0.3rem;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-left: 0;
+    gap: 0.5rem;
   }
 
   #user-info {
