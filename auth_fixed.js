@@ -253,7 +253,7 @@ router.post('/logout', authenticateToken, (req, res) => {
 });
 
 // Admin: Send custom notification email to user
-router.post('/admin/notify', authenticateToken, async (req, res) => {
+router.post('/notify', authenticateToken, async (req, res) => {
   // Only allow admins
   if (req.user.role !== 'admin') {
     return res.status(403).json({ error: 'Access denied' });
