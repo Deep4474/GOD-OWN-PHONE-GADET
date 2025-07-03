@@ -18,23 +18,16 @@
 <body>
   <header>
     <h1>GOD'SOWN PHONE  Gadget</h1>
-    <div id="header-actions">
-      <span id="user-info-bar">
-        <span id="welcome"></span>
-        <div id="notification-bar" style="position: relative;">
-          <button id="notification-bell" title="Notifications">
-            <span class="bell-icon">🔔</span>
-            <span class="notification-badge" style="display:none;"></span>
-          </button>
-          <button id="dark-mode-toggle" title="Toggle dark mode" style="margin-left:10px;font-size:1.2em;background:none;border:none;cursor:pointer;">🌙</button>
-          <div id="notification-dropdown"></div>
-          <div id="user-notification-history" style="max-height:220px; overflow-y:auto; background:#fff; border:1px solid #eee; border-radius:6px; box-shadow:0 2px 8px #0001; margin-top:6px; padding:8px 12px; display:none;"></div>
-        </div>
-      </span>
-      <button id="logout-btn">Logout</button>
-    </div>
-    <div id="user-info" class="hidden">
-      <p id="welcome"></p>
+    <div id="menu-bar" style="position:relative;">
+      <button id="menu-toggle" style="background:none;border:none;font-size:2rem;cursor:pointer;">☰</button>
+      <div id="menu-dropdown" class="hidden" style="position:absolute;top:100%;right:0;background:#fff;border-radius:8px;box-shadow:0 4px 16px #0002;padding:1rem;min-width:220px;z-index:1000;display:none;">
+        <div id="welcome" style="margin-bottom:0.7rem;"></div>
+        <button id="notification-bell" title="Notifications" style="background:none;border:none;font-size:1.3em;cursor:pointer;">🔔 <span class="notification-badge" style="display:none;"></span></button>
+        <button id="dark-mode-toggle" title="Toggle dark mode" style="margin-left:10px;font-size:1.2em;background:none;border:none;cursor:pointer;">🌙</button>
+        <button id="logout-btn" style="margin-top:0.7rem;" class="btn-primary">Logout</button>
+        <div id="notification-dropdown"></div>
+        <div id="user-notification-history" style="max-height:220px; overflow-y:auto; background:#fff; border:1px solid #eee; border-radius:6px; box-shadow:0 2px 8px #0001; margin-top:6px; padding:8px 12px; display:none;"></div>
+      </div>
     </div>
   </header>
 
@@ -177,7 +170,6 @@
 
   </main>
 
-  <button id="customer-care-btn" style="position:fixed;bottom:32px;right:32px;z-index:9999;background:#2563eb;color:#fff;border:none;border-radius:50%;width:56px;height:56px;box-shadow:0 2px 12px #0003;font-size:2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">💬</button>
   <div id="customer-care-modal" class="hidden" style="position:fixed;bottom:100px;right:32px;z-index:10000;background:#fff;border-radius:16px;box-shadow:0 8px 32px #0002;width:340px;max-width:95vw;padding:0;display:none;flex-direction:column;">
     <div style="background:#2563eb;color:#fff;padding:1rem 1.2rem;border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:space-between;">
       <span style="font-weight:600;">Customer Care</span>
@@ -193,6 +185,8 @@
       <button type="submit" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:0.5em 1.2em;font-weight:600;cursor:pointer;">Send</button>
     </form>
   </div>
+
+  <button id="customer-care-btn" style="position:fixed;bottom:32px;right:32px;z-index:9999;background:#2563eb;color:#fff;border:none;border-radius:50%;width:56px;height:56px;box-shadow:0 2px 12px #0003;font-size:2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">💬</button>
 
   <script src="script.js"></script>
   <style>

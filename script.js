@@ -1212,7 +1212,7 @@ if (localStorage.getItem('darkMode') === '1') {
 }
 
 // --- Customer Care Chat Modal Logic ---
-const careBtn = document.getElementById('customer-care-btn');
+const careBtn = document.getElementById('customer-care-link');
 const careModal = document.getElementById('customer-care-modal');
 const careClose = document.getElementById('close-customer-care');
 const careForm = document.getElementById('customer-care-form');
