@@ -20,7 +20,8 @@ header {
   padding: 0 2rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 1.5rem;
 }
 
 header h1 {
@@ -28,7 +29,6 @@ header h1 {
 }
 
 #menu-bar {
-  margin-left: auto;
 }
 
 #header-actions {
