@@ -82,11 +82,17 @@
         <input type="tel" id="phone" name="phone" required>
 
         <label for="password">Password</label>
-        <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
+        <div class="form-group" style="position: relative;">
+          <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
+          <button type="button" id="toggle-register-password" style="position: absolute; right: 10px; top: 8px; background: none; border: none; cursor: pointer;">👁️</button>
+        </div>
         <div id="password-strength" style="font-size: 0.9em; color: #888; margin-bottom: 0.5em;"></div>
 
         <label for="confirm-password">Confirm Password</label>
-        <input type="password" id="confirm-password" name="confirm-password" required autocomplete="new-password">
+        <div class="form-group" style="position: relative;">
+          <input type="password" id="confirm-password" name="confirm-password" required autocomplete="new-password">
+          <button type="button" id="toggle-confirm-password" style="position: absolute; right: 10px; top: 8px; background: none; border: none; cursor: pointer;">👁️</button>
+        </div>
         <div id="password-match" style="font-size: 0.9em; color: #888; margin-bottom: 0.5em;"></div>
 
         <button type="submit" id="register-btn">Register</button>

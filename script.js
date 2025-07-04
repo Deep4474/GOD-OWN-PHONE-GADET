@@ -259,10 +259,27 @@ async function verifyEmail() {
     showLoading('Verifying email...');
     const response = await API.post(API_ENDPOINTS.VERIFY, { email, code });
     if (response.success) {
-      // Show a persistent message above the login form
-      setVerifiedLoginMessage('Your email has been verified! Please log in to continue.');
-      showLogin(); // Show login form after verification
-      // Do NOT log in or store token/user data here
+      // After verification, log the user in and show main content
+      // Fetch user data (simulate login)
+      const loginResponse = await API.post(API_ENDPOINTS.LOGIN, { email, password: document.getElementById('password').value });
+      if (loginResponse.user && loginResponse.token) {
+        authToken = loginResponse.token;
+        currentUser = loginResponse.user;
+        localStorage.setItem('authToken', authToken);
+        localStorage.setItem('userData', JSON.stringify(currentUser));
+        showMessage('Email verified and logged in! Welcome to GOD\'SOWN PHONE GADGET.', 'success');
+        showProducts();
+        updateUserInfo();
+        await Promise.all([
+          loadProducts(),
+          loadUserOrders(),
+          loadNotifications(),
+          startNotificationPolling()
+        ]);
+      } else {
+        showMessage('Verification succeeded, but automatic login failed. Please log in manually.', 'warning');
+        showLogin();
+      }
     } else {
       showMessage(response.message || 'Verification failed', 'error');
     }
@@ -920,6 +937,7 @@ function searchLocation() {
 document.addEventListener('DOMContentLoaded', function() {
   initializeApp();
   setupEventListeners();
+  setupRegisterPasswordToggles();
 });
 
 function initializeApp() {
@@ -1551,4 +1569,46 @@ function showLogin() {
   // Only keep the verified message if it was just set
   if (!window.justVerified) clearVerifiedLoginMessage();
   window.justVerified = false;
+}
+
+// Registration password show/hide toggle
+function setupRegisterPasswordToggles() {
+  // Remove previous listeners if any
+  const regToggle = document.getElementById('toggle-register-password');
+  const regPassword = document.getElementById('password');
+  if (regToggle && regPassword) {
+    regToggle.onclick = null;
+    regToggle.addEventListener('click', function () {
+      if (regPassword.type === 'password') {
+        regPassword.type = 'text';
+        regToggle.textContent = '🙈';
+      } else {
+        regPassword.type = 'password';
+        regToggle.textContent = '👁️';
+      }
+    });
+  }
+  const confirmToggle = document.getElementById('toggle-confirm-password');
+  const confirmPassword = document.getElementById('confirm-password');
+  if (confirmToggle && confirmPassword) {
+    confirmToggle.onclick = null;
+    confirmToggle.addEventListener('click', function () {
+      if (confirmPassword.type === 'password') {
+        confirmPassword.type = 'text';
+        confirmToggle.textContent = '🙈';
+      } else {
+        confirmPassword.type = 'password';
+        confirmToggle.textContent = '👁️';
+      }
+    });
+  }
+}
+// Call setupRegisterPasswordToggles every time the register form is shown
+function showRegister() {
+  hideAllSections();
+  const regSection = document.getElementById('register-section');
+  if (regSection) regSection.classList.remove('hidden');
+  const userInfo = document.getElementById('user-info');
+  if (userInfo) userInfo.classList.add('hidden');
+  setupRegisterPasswordToggles();
 }
