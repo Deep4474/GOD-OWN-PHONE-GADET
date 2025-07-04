@@ -56,7 +56,7 @@ function isValidEmail(email) {
 
 // Registration endpoint
 router.post('/register', async (req, res) => {
-  const { name, email, confirmEmail, password, phone, address, state, lga, position } = req.body;
+  const { name, email, confirmEmail, password, phone, address, state, lga } = req.body;
   if (!name || !email || !confirmEmail || !password) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
@@ -80,7 +80,6 @@ router.post('/register', async (req, res) => {
       address,
       state,
       lga,
-      position,
       verified: false,
       verificationToken
     };

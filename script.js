@@ -179,8 +179,8 @@ async function registerUser() {
     phone: document.getElementById('phone').value.trim(),
     address: document.getElementById('address').value.trim(),
     state: document.getElementById('state').value,
-    lga: document.getElementById('lga').value,
-    position: document.getElementById('position').value.trim()
+    lga: document.getElementById('lga').value
+    // position removed
   };
 
   // Extra validation
@@ -259,7 +259,8 @@ async function verifyEmail() {
     showLoading('Verifying email...');
     const response = await API.post(API_ENDPOINTS.VERIFY, { email, code });
     if (response.success) {
-      showMessage('Email verified successfully! You can now log in.', 'success');
+      // Show a persistent message above the login form
+      setVerifiedLoginMessage('Your email has been verified! Please log in to continue.');
       showLogin(); // Show login form after verification
       // Do NOT log in or store token/user data here
     } else {
@@ -1500,3 +1501,35 @@ document.getElementById('confirm-password')?.addEventListener('input', function(
     }
   }
 });
+
+// Add a function to show a persistent message above the login form after verification
+function setVerifiedLoginMessage(msg) {
+  let msgDiv = document.getElementById('verified-login-message');
+  if (!msgDiv) {
+    msgDiv = document.createElement('div');
+    msgDiv.id = 'verified-login-message';
+    msgDiv.style.cssText = 'background:#e6ffed;color:#256029;padding:10px 16px;margin-bottom:10px;border-radius:4px;font-weight:bold;text-align:center;';
+    const loginSection = document.getElementById('login-section');
+    if (loginSection) {
+      loginSection.insertBefore(msgDiv, loginSection.firstChild);
+    }
+  }
+  msgDiv.textContent = msg;
+  msgDiv.style.display = 'block';
+}
+// Hide the message when login is successful or when showing other forms
+function clearVerifiedLoginMessage() {
+  const msgDiv = document.getElementById('verified-login-message');
+  if (msgDiv) msgDiv.style.display = 'none';
+}
+// Update showLogin to clear the message unless coming from verification
+function showLogin() {
+  hideAllSections();
+  const loginSection = document.getElementById('login-section');
+  if (loginSection) loginSection.classList.remove('hidden');
+  const userInfo = document.getElementById('user-info');
+  if (userInfo) userInfo.classList.add('hidden');
+  // Only keep the verified message if it was just set
+  if (!window.justVerified) clearVerifiedLoginMessage();
+  window.justVerified = false;
+}
