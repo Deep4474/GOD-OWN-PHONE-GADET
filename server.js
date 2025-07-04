@@ -32,7 +32,7 @@ const orderRoutes = require('./orders');
 const notificationRoutes = require('./notifications');
 const locationRoutes = require('./location');
 const adminAuthRoutes = require('./adminAuth');
-const orders = require('./orders.json');
+const orders = require('./backend/orders.json');
 const users = require('./users.json');
 
 // Security middleware
