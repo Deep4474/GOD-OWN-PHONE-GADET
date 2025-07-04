@@ -153,12 +153,17 @@ async function loginUser() {
     } else {
       // Show backend error message if present
       showMessage(response.message || response.error || 'Login failed', 'error');
+      // Debug: log backend error
+      console.error('[DEBUG] Login backend error:', response);
     }
   } catch (error) {
     // Show exact backend error if available
     showMessage(error.message || 'Login failed. Please try again.', 'error');
     // Debug: log error
     console.error('[DEBUG] Login error:', error);
+    if (error.data) {
+      console.error('[DEBUG] Login error data:', error.data);
+    }
   } finally {
     hideLoading();
   }
@@ -219,17 +224,23 @@ async function registerUser() {
     const response = await API.post(API_ENDPOINTS.REGISTER, sendData);
     // Debug: log response
     console.log('[DEBUG] Register response:', response);
-    if (response.user && response.token) {
-      showMessage('Registration successful! Please check your email for verification.', 'success');
+    if (response.user) {
+      showMessage('Registration successful! Please check your email for a verification code.', 'success');
       document.getElementById('verify-email').value = formData.email;
-      showVerify();
+      showVerify(); // Show verification form
+      // Do NOT log in or store token/user data yet
     } else {
       showMessage(response.message || response.error || 'Registration failed', 'error');
+      // Debug: log backend error
+      console.error('[DEBUG] Register backend error:', response);
     }
   } catch (error) {
     showMessage(error.message || 'Registration failed. Please try again.', 'error');
     // Debug: log error
     console.error('[DEBUG] Register error:', error);
+    if (error.data) {
+      console.error('[DEBUG] Register error data:', error.data);
+    }
   } finally {
     hideLoading();
   }
@@ -246,26 +257,11 @@ async function verifyEmail() {
 
   try {
     showLoading('Verifying email...');
-    
     const response = await API.post(API_ENDPOINTS.VERIFY, { email, code });
-    
     if (response.success) {
-      authToken = response.token;
-      currentUser = response.user;
-      
-      localStorage.setItem('authToken', authToken);
-      localStorage.setItem('userData', JSON.stringify(currentUser));
-      
-      showMessage('Email verified successfully! Welcome to ONGOD Gadget Shop.', 'success');
-      showProducts();
-      updateUserInfo();
-      
-      await Promise.all([
-        loadProducts(),
-        loadUserOrders(),
-        loadNotifications(),
-        startNotificationPolling()
-      ]);
+      showMessage('Email verified successfully! You can now log in.', 'success');
+      showLogin(); // Show login form after verification
+      // Do NOT log in or store token/user data here
     } else {
       showMessage(response.message || 'Verification failed', 'error');
     }
