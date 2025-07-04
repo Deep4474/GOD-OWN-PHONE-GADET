@@ -50,11 +50,21 @@ function sendVerificationEmail(email, token) {
   return transporter.sendMail(mailOptions);
 }
 
+function isValidEmail(email) {
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+}
+
 // Registration endpoint
 router.post('/register', async (req, res) => {
-  const { name, email, password, phone, address, state, lga } = req.body;
-  if (!name || !email || !password) {
+  const { name, email, confirmEmail, password, phone, address, state, lga, position } = req.body;
+  if (!name || !email || !confirmEmail || !password) {
     return res.status(400).json({ error: 'Missing required fields' });
+  }
+  if (email !== confirmEmail) {
+    return res.status(400).json({ error: 'Emails do not match' });
+  }
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
   }
   if (users.find(u => u.email === email)) {
     return res.status(400).json({ error: 'Email already registered' });
@@ -70,6 +80,7 @@ router.post('/register', async (req, res) => {
       address,
       state,
       lga,
+      position,
       verified: false,
       verificationToken
     };
