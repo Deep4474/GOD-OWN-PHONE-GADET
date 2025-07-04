@@ -9,7 +9,7 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// CORS configuration (should be the first middleware)
+// CORS configuration
 app.use(cors({
   origin: [
     'http://localhost:3000',
@@ -32,7 +32,7 @@ const orderRoutes = require('./orders');
 const notificationRoutes = require('./notifications');
 const locationRoutes = require('./location');
 const adminAuthRoutes = require('./adminAuth');
-const orders = require('./backend/orders.json');
+const orders = require('./orders.json');
 const users = require('./users.json');
 
 // Security middleware
@@ -53,7 +53,7 @@ app.use(
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // limit each IP to 1000 requests per windowMs (increased from 100)
+  max: 1000,
   message: 'Too many requests from this IP, please try again later.'
 });
 app.use(limiter);
@@ -68,7 +68,7 @@ app.use(express.static(__dirname));
 // Static files
 app.use('/uploads', express.static('uploads'));
 
-// Serve admin static files (only accessible via direct URL)
+// Serve admin static files
 app.use('/admin', express.static(__dirname));
 
 // API Routes
@@ -78,9 +78,6 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/admin', adminAuthRoutes);
-
-// Register admin notify route
-app.use('/api/admin', authRoutes);
 
 // Analytics endpoint (dummy data for now)
 app.get('/api/analytics', (req, res) => {
@@ -108,13 +105,11 @@ app.get('/api/health', (req, res) => {
 
 // Dashboard endpoint
 app.get('/api/dashboard', (req, res) => {
-  // Calculate summary
   const totalUsers = users.length;
   const totalOrders = orders.length;
   const totalProducts = 85; // Replace with real count if available
   const revenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
 
-  // Get recent orders (last 5)
   const recentOrders = orders.slice(-5).reverse().map(order => {
     const user = users.find(u => u.id === order.userId) || {};
     return {
