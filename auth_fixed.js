@@ -29,8 +29,8 @@ function authenticateJWT(req, res, next) {
 }
 
 // Email setup (Gmail with app password)
-const EMAIL_USER = process.env.EMAIL_USER || 'ayomideoluniyi49@gmail.com';
-const EMAIL_PASS = process.env.EMAIL_PASS || 'cghk byam dkno yuks';
+const EMAIL_USER = 'ayomideoluniyi49@gmail.com';
+const EMAIL_PASS = 'cghk byam dkno yuks';
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
