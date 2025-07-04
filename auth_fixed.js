@@ -88,11 +88,13 @@ router.post('/register', async (req, res) => {
     try {
       await sendVerificationEmail(email, verificationToken);
     } catch (e) {
-      return res.status(500).json({ error: 'Failed to send verification email' });
+      console.error('Email sending error:', e);
+      return res.status(500).json({ error: 'Failed to send verification email', details: e.message, stack: e.stack });
     }
     res.json({ user: { ...newUser, password: undefined, verificationToken: undefined }, message: 'Registration successful. Please verify your email.' });
   } catch (err) {
-    res.status(500).json({ error: 'Registration failed' });
+    console.error('Registration error:', err);
+    res.status(500).json({ error: 'Registration failed', details: err.message, stack: err.stack });
   }
 });
 
