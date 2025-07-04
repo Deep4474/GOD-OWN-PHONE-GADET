@@ -1,9 +1,12 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { getProducts, saveProducts } = require('./productData');
-const { authenticateToken, requireAdmin } = require('./authMiddleware');
+const { authenticateToken, requireAdmin, authenticateAdmin } = require('./authMiddleware');
 
 const router = express.Router();
+
+// Protect all product routes for admin only
+router.use(authenticateAdmin);
 
 // Get all products
 router.get('/', (req, res) => {

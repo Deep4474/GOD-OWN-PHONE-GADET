@@ -147,11 +147,11 @@ app.get('/api/support/messages', (req, res) => {
 
 // Post a new message
 app.post('/api/support/message', (req, res) => {
-  const { name, email, text } = req.body;
+  const { name, email, text, from } = req.body;
   if (!name || !email || !text) return res.status(400).json({ error: 'Missing fields' });
   const messages = readMessages();
   const msg = {
-    from: 'user',
+    from: from === 'admin' ? 'admin' : 'user',
     name,
     email,
     text,

@@ -19,6 +19,7 @@ const topbarTitle = document.getElementById('admin-topbar-title');
     else if (section === 'users') loadUsers();
     else if (section === 'notifications') loadNotifications();
     else if (section === 'analytics') loadAnalytics();
+    else if (section === 'customer-care') loadCustomerCare();
     else adminContent.innerHTML = `<div class="admin-placeholder"><h2>${topbarTitle.textContent}</h2><p>${topbarTitle.textContent} panel coming soon.</p></div>`;
   }
 
@@ -499,4 +500,165 @@ const topbarTitle = document.getElementById('admin-topbar-title');
       adminContent.innerHTML = '<p>Failed to load analytics.</p>';
     }
   }
+
+  // --- Customer Care Chat ---
+  async function loadCustomerCare() {
+    adminContent.innerHTML = '<div>Loading customer care...</div>';
+    try {
+      const res = await fetch(`${API}/support/messages/all`);
+      const data = await res.json();
+      const messages = Array.isArray(data.messages) ? data.messages : [];
+      // Group messages by user email
+      const users = {};
+      messages.forEach(msg => {
+        if (!users[msg.email]) users[msg.email] = [];
+        users[msg.email].push(msg);
+      });
+      const userList = Object.keys(users).map(email => `<li data-email="${email}">${email}</li>`).join('');
+      adminContent.innerHTML = `
+        <div class="admin-customer-care">
+          <div class="customer-list-panel">
+            <h3>Users</h3>
+            <ul id="customer-user-list">${userList || '<li>No users</li>'}</ul>
+          </div>
+          <div class="chat-panel">
+            <h3 id="chat-user-email">Select a user</h3>
+            <div id="chat-history" class="chat-history"></div>
+            <form id="admin-chat-form" style="display:none;">
+              <input type="text" id="admin-chat-message" placeholder="Type your reply..." style="width:70%;" required />
+              <button type="submit" class="btn-primary">Send</button>
+            </form>
+          </div>
+        </div>
+        <style>
+          .admin-customer-care { display: flex; gap: 2rem; }
+          .customer-list-panel { width: 220px; border-right: 1px solid #eee; padding-right: 1rem; }
+          .customer-list-panel ul { list-style: none; padding: 0; }
+          .customer-list-panel li { cursor: pointer; padding: 0.5em 0.7em; border-radius: 6px; margin-bottom: 4px; }
+          .customer-list-panel li:hover, .customer-list-panel li.active { background: #2563eb; color: #fff; }
+          .chat-panel { flex: 1; display: flex; flex-direction: column; }
+          .chat-history { background: #f9f9f9; border-radius: 8px; min-height: 220px; max-height: 340px; overflow-y: auto; padding: 1rem; margin-bottom: 1rem; }
+          .chat-message { margin-bottom: 0.7rem; text-align: right; }
+          .chat-message.admin { text-align: left; }
+          .chat-message .bubble { display: inline-block; padding: 0.6em 1em; border-radius: 16px; background: #2563eb; color: #fff; margin-bottom: 2px; }
+          .chat-message.admin .bubble { background: #e0e7ef; color: #222; }
+        </style>
+      `;
+      // User selection
+      const userListEl = document.getElementById('customer-user-list');
+      const chatHistory = document.getElementById('chat-history');
+      const chatUserEmail = document.getElementById('chat-user-email');
+      const chatForm = document.getElementById('admin-chat-form');
+      const chatInput = document.getElementById('admin-chat-message');
+      let selectedEmail = null;
+      userListEl.querySelectorAll('li[data-email]').forEach(li => {
+        li.onclick = () => {
+          userListEl.querySelectorAll('li').forEach(l => l.classList.remove('active'));
+          li.classList.add('active');
+          selectedEmail = li.dataset.email;
+          chatUserEmail.textContent = selectedEmail;
+          renderChat(users[selectedEmail]);
+          chatForm.style.display = 'flex';
+        };
+      });
+      function renderChat(msgs) {
+        chatHistory.innerHTML = msgs.map(msg => `
+          <div class="chat-message${msg.from==='admin'?' admin':''}">
+            <div class="bubble">${msg.text}</div>
+            <div style="font-size:0.8em;color:#888;margin-top:2px;">${msg.from==='admin'?'Admin':msg.name||'User'} ${msg.time||''}</div>
+          </div>
+        `).join('');
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+      }
+      chatForm.onsubmit = async function(e) {
+        e.preventDefault();
+        if (!selectedEmail || !chatInput.value.trim()) return;
+        const msg = {
+          name: 'Admin',
+          email: selectedEmail,
+          text: chatInput.value.trim(),
+          from: 'admin'
+        };
+        try {
+          const res = await fetch(`${API}/support/message`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(msg)
+          });
+          if (res.ok) {
+            users[selectedEmail].push({ ...msg, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
+            renderChat(users[selectedEmail]);
+            chatInput.value = '';
+          }
+        } catch {}
+      };
+    } catch {
+      adminContent.innerHTML = '<p>Failed to load customer care messages.</p>';
+    }
+  }
+
+  // --- Admin Login Modal Logic ---
+  const loginModal = document.getElementById('admin-login-modal');
+  const loginOverlay = document.getElementById('admin-login-overlay');
+  const loginForm = document.getElementById('admin-login-form');
+  const loginMessage = document.getElementById('admin-login-message');
+  const adminUserInfo = document.getElementById('admin-logged-in-user');
+  const logoutBtn = document.getElementById('admin-logout');
+
+  function showLoginModal() {
+    loginModal.classList.remove('hidden');
+    loginOverlay.classList.remove('hidden');
+  }
+  function hideLoginModal() {
+    loginModal.classList.add('hidden');
+    loginOverlay.classList.add('hidden');
+  }
+
+  function setAdminUser(user) {
+    if (adminUserInfo) {
+      adminUserInfo.textContent = user ? user.name + ' (' + user.email + ')' : '';
+    }
+  }
+
+  function logoutAdmin() {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    setAdminUser(null);
+    showLoginModal();
+  }
+
+  if (logoutBtn) {
+    logoutBtn.onclick = logoutAdmin;
+  }
+
+  if (loginForm) {
+    loginForm.onsubmit = async (e) => {
+      e.preventDefault();
+      loginMessage.textContent = '';
+      const email = document.getElementById('admin-login-email').value.trim();
+      const password = document.getElementById('admin-login-password').value;
+      try {
+        const res = await fetch(`${API}/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok && data.token) {
+          localStorage.setItem('adminToken', data.token);
+          localStorage.setItem('adminUser', JSON.stringify(data.user));
+          setAdminUser(data.user);
+          hideLoginModal();
+          location.reload(); // Reload to re-trigger data fetches with token
+        } else {
+          loginMessage.textContent = data.error || 'Login failed.';
+        }
+      } catch (err) {
+        loginMessage.textContent = 'Network error.';
+      }
+    };
+  }
+
+  // On page load, force logout and show login modal
+  logoutAdmin();
 });
