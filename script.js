@@ -58,7 +58,8 @@ class API {
         ...options.headers
       }
     };
-    
+
+    console.log('API Request:', endpoint, 'Token:', token);
     try {
       const response = await fetch(url, config);
       
