@@ -71,7 +71,8 @@ router.post('/register', async (req, res) => {
   }
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const verificationToken = crypto.randomBytes(32).toString('hex');
+    // Generate a 6-digit numeric verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
     const newUser = {
       name,
       email,
@@ -81,17 +82,23 @@ router.post('/register', async (req, res) => {
       state,
       lga,
       verified: false,
-      verificationToken
+      verificationCode // store the code
     };
     users.push(newUser);
     saveUsers(users);
     try {
-      await sendVerificationEmail(email, verificationToken);
+      // Send the code in the email
+      await transporter.sendMail({
+        from: EMAIL_USER,
+        to: email,
+        subject: "GOD'SOWN PHONE GADGET - Email Verification Code",
+        html: `<h2>Welcome to GOD'SOWN PHONE GADGET!</h2><p>Your verification code is:</p><h3 style='color:#2563eb;'>${verificationCode}</h3><p>Enter this code in the app to verify your email.</p>`
+      });
     } catch (e) {
       console.error('Email sending error:', e);
       return res.status(500).json({ error: 'Failed to send verification email', details: e.message, stack: e.stack });
     }
-    res.json({ user: { ...newUser, password: undefined, verificationToken: undefined }, message: 'Registration successful. Please verify your email.' });
+    res.json({ user: { ...newUser, password: undefined, verificationCode: undefined }, message: 'Registration successful. Please check your email for your verification code.' });
   } catch (err) {
     console.error('Registration error:', err);
     res.status(500).json({ error: 'Registration failed', details: err.message, stack: err.stack });
@@ -138,6 +145,25 @@ router.get('/verify-email', (req, res) => {
   user.verificationToken = undefined;
   saveUsers(users);
   res.json({ message: 'Email verified successfully. You can now log in.' });
+});
+
+// Update the verification endpoint to use the code
+router.post('/verify', (req, res) => {
+  const { email, code } = req.body;
+  const user = users.find(u => u.email === email);
+  if (!user) {
+    return res.status(400).json({ error: 'User not found' });
+  }
+  if (user.verified) {
+    return res.json({ success: true, message: 'User already verified' });
+  }
+  if (user.verificationCode !== code) {
+    return res.status(400).json({ error: 'Invalid verification code' });
+  }
+  user.verified = true;
+  user.verificationCode = undefined;
+  saveUsers(users);
+  res.json({ success: true, message: 'Email verified successfully. You can now log in.' });
 });
 
 module.exports = router; 
