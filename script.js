@@ -111,34 +111,39 @@ async function loginUser() {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
 
+  // Extra validation
   if (!email || !password) {
     showMessage('Please enter email and password', 'error');
+    return;
+  }
+  // Simple email format check
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    showMessage('Please enter a valid email address', 'error');
     return;
   }
 
   try {
     showLoading('Logging in...');
-    
+    // Debug: log payload
+    console.log('[DEBUG] Login payload:', { email, password });
     const response = await API.post(API_ENDPOINTS.LOGIN, { email, password });
-    
+    // Debug: log response
+    console.log('[DEBUG] Login response:', response);
     if (response.user && response.token) {
       authToken = response.token;
       currentUser = response.user;
-      
+      // Backend check: is user verified?
       if (!currentUser.isVerified) {
         showMessage('Please verify your email before accessing the shop.', 'warning');
         document.getElementById('verify-email').value = currentUser.email;
         showVerify();
         return;
       }
-      
       localStorage.setItem('authToken', authToken);
       localStorage.setItem('userData', JSON.stringify(currentUser));
-      
       showMessage('Login successful! Welcome back.', 'success');
       showProducts();
       updateUserInfo();
-      
       await Promise.all([
         loadProducts(),
         loadUserOrders(),
@@ -146,10 +151,14 @@ async function loginUser() {
         startNotificationPolling()
       ]);
     } else {
-      showMessage(response.message || 'Login failed', 'error');
+      // Show backend error message if present
+      showMessage(response.message || response.error || 'Login failed', 'error');
     }
   } catch (error) {
+    // Show exact backend error if available
     showMessage(error.message || 'Login failed. Please try again.', 'error');
+    // Debug: log error
+    console.error('[DEBUG] Login error:', error);
   } finally {
     hideLoading();
   }
@@ -169,6 +178,19 @@ async function registerUser() {
     position: document.getElementById('position').value.trim()
   };
 
+  // Extra validation
+  if (!formData.name || !formData.email || !formData.password || !formData.phone || !formData.address) {
+    showMessage('Please fill in all required fields', 'error');
+    return;
+  }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(formData.email)) {
+    showMessage('Please enter a valid email address', 'error');
+    return;
+  }
+  if (formData.email !== formData.confirmEmail) {
+    showMessage('Emails do not match', 'error');
+    return;
+  }
   // Password strength validation
   const minLength = 8;
   const hasUpper = /[A-Z]/.test(formData.password);
@@ -183,7 +205,6 @@ async function registerUser() {
     showMessage('Passwords do not match', 'error');
     return;
   }
-
   if (!Object.values(formData).every(value => value)) {
     showMessage('Please fill in all fields', 'error');
     return;
@@ -193,16 +214,22 @@ async function registerUser() {
     showLoading('Creating account...');
     // Remove confirmPassword before sending to backend
     const { confirmPassword, ...sendData } = formData;
+    // Debug: log payload
+    console.log('[DEBUG] Register payload:', sendData);
     const response = await API.post(API_ENDPOINTS.REGISTER, sendData);
+    // Debug: log response
+    console.log('[DEBUG] Register response:', response);
     if (response.user && response.token) {
       showMessage('Registration successful! Please check your email for verification.', 'success');
       document.getElementById('verify-email').value = formData.email;
       showVerify();
     } else {
-      showMessage(response.message || 'Registration failed', 'error');
+      showMessage(response.message || response.error || 'Registration failed', 'error');
     }
   } catch (error) {
     showMessage(error.message || 'Registration failed. Please try again.', 'error');
+    // Debug: log error
+    console.error('[DEBUG] Register error:', error);
   } finally {
     hideLoading();
   }
