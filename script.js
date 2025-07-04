@@ -1,8 +1,7 @@
-const API_BASE = window.location.origin;
+const API_BASE = "https://phone-2cv4.onrender.com";
 
 let currentUser = JSON.parse(localStorage.getItem("user")) || null;
 
-// === Initialization ===
 document.addEventListener("DOMContentLoaded", () => {
   if (currentUser) {
     document.getElementById("welcome").textContent = `Hi, ${currentUser.email.split("@")[0]}`;
@@ -14,13 +13,11 @@ document.addEventListener("DOMContentLoaded", () => {
   setupUIEvents();
 });
 
-// === Show Sections ===
 function showSection(id) {
   document.querySelectorAll("section").forEach(sec => sec.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 }
 
-// === Auth ===
 function setupAuthHandlers() {
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
@@ -38,7 +35,6 @@ function setupAuthHandlers() {
         body: JSON.stringify({ email, password })
       });
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.message || "Login failed");
 
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -74,10 +70,9 @@ function setupAuthHandlers() {
         body: JSON.stringify(payload)
       });
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.message || "Registration failed");
 
-      alert("Registration successful! Verify your email.");
+      alert("Registered! Please verify your email.");
       document.getElementById("verify-email").value = payload.email;
       showSection("verify-section");
     } catch (err) {
@@ -96,7 +91,6 @@ function setupAuthHandlers() {
         body: JSON.stringify({ email, code })
       });
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.message || "Verification failed");
 
       alert("Email verified successfully!");
@@ -107,7 +101,6 @@ function setupAuthHandlers() {
   };
 }
 
-// === Fetch and Render Products ===
 function fetchAndRenderProducts() {
   fetch(`${API_BASE}/api/products`)
     .then(res => res.json())
@@ -127,10 +120,9 @@ function fetchAndRenderProducts() {
         container.appendChild(card);
       });
     })
-    .catch(() => alert("Failed to fetch products. Please check your server."));
+    .catch(() => alert("Unable to fetch products. Please try again later."));
 }
 
-// === Product Selection & Order Flow ===
 function selectProduct(id, name, price) {
   showSection("buy-section");
   document.getElementById("selected-product-name").textContent = name;
@@ -143,7 +135,7 @@ function selectProduct(id, name, price) {
     const email = document.getElementById("order-email").value;
     const phone = document.getElementById("order-phone").value;
 
-    if (!option || !method || !email || !phone) return alert("Please fill all fields.");
+    if (!option || !method || !email || !phone) return alert("Fill all fields to place an order.");
 
     const total = price * quantity * (option === "Delivery" ? 1.5 : 1.2);
 
@@ -162,7 +154,7 @@ function selectProduct(id, name, price) {
         })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Order failed");
+      if (!res.ok) throw new Error(data.message || "Order error");
 
       alert("Order placed successfully!");
       showSection("products-section");
@@ -172,7 +164,6 @@ function selectProduct(id, name, price) {
   };
 }
 
-// === Customer Care Support ===
 document.getElementById("customer-care-message-form").onsubmit = async (e) => {
   e.preventDefault();
   const name = document.getElementById("customer-care-name").value;
@@ -186,7 +177,7 @@ document.getElementById("customer-care-message-form").onsubmit = async (e) => {
       body: JSON.stringify({ name, email, text })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Message failed");
+    if (!res.ok) throw new Error(data.message || "Send failed");
 
     document.getElementById("customer-care-history").innerHTML += `
       <div><b>${name}</b>: ${text}</div>
@@ -197,7 +188,6 @@ document.getElementById("customer-care-message-form").onsubmit = async (e) => {
   }
 };
 
-// === UI Events ===
 function setupUIEvents() {
   document.getElementById("logout-btn").onclick = () => {
     localStorage.removeItem("user");
