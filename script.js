@@ -745,6 +745,7 @@ function showRegister() {
 }
 
 function showVerify() {
+  console.log('showVerify called'); // Debug log
   hideAllSections();
   const verifySection = document.getElementById('verify-section');
   if (verifySection) verifySection.classList.remove('hidden');
@@ -954,6 +955,15 @@ function setupEventListeners() {
     loginForm.addEventListener('submit', (event) => {
       event.preventDefault();
       loginUser();
+    });
+  }
+
+  // Ensure register form uses submit event and prevents reload
+  const registerForm = document.getElementById('register-form');
+  if (registerForm) {
+    registerForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      registerUser();
     });
   }
 
