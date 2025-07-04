@@ -54,31 +54,40 @@
     <!-- Register Section -->
     <section id="register-section" class="section hidden">
       <h2>Create Account</h2>
-      <div class="form-group">
-        <input type="text" id="name" placeholder="Full Name" required />
-      </div>
-      <div class="form-group">
-        <input type="email" id="email" placeholder="Email" required />
-      </div>
-      <div class="form-group">
-        <input type="password" id="password" placeholder="Password" required />
-      </div>
-      <div class="form-group">
-        <input type="text" id="phone" placeholder="Phone" required />
-      </div>
-      <div class="form-group">
-        <input type="text" id="state" placeholder="State" required />
-      </div>
-      <div class="form-group">
-        <input type="text" id="area" placeholder="Area" required />
-      </div>
-      <div class="form-group">
-        <input type="text" id="street" placeholder="Street" required />
-      </div>
-      <div class="form-group">
-        <textarea id="address" placeholder="Full Address" required></textarea>
-      </div>
-      <button id="register-btn" class="btn-primary">Register</button>
+      <form id="register-form">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+
+        <div style="display: flex; gap: 1rem;">
+          <div style="flex: 1;">
+            <label for="state">State</label>
+            <select id="state" name="state" required></select>
+          </div>
+          <div style="flex: 1;">
+            <label for="lga">Local Government Area</label>
+            <select id="lga" name="lga" required></select>
+          </div>
+        </div>
+
+        <label for="address">Full Address</label>
+        <input type="text" id="address" name="address" required placeholder="Full address (e.g. 123 Main St, Ikeja)">
+
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
+        <div id="password-strength" style="font-size: 0.9em; color: #888; margin-bottom: 0.5em;"></div>
+
+        <label for="confirm-password">Confirm Password</label>
+        <input type="password" id="confirm-password" name="confirm-password" required autocomplete="new-password">
+        <div id="password-match" style="font-size: 0.9em; color: #888; margin-bottom: 0.5em;"></div>
+
+        <button type="submit" id="register-btn">Register</button>
+      </form>
       <p>Already registered? <a href="#" id="show-login-link">Back to login</a></p>
     </section>
 
