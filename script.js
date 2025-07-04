@@ -37,9 +37,14 @@ class API {
     const url = `${API_BASE_URL}${endpoint}`;
     // Determine which token to use
     let token = null;
-    if (endpoint.startsWith('/api/products') || endpoint.startsWith('/api/notifications')) {
+    const isProductsEndpoint = endpoint.startsWith('/api/products');
+    const isNotificationsEndpoint = endpoint.startsWith('/api/notifications');
+    const method = (options.method || 'GET').toUpperCase();
+    if (isNotificationsEndpoint) {
       token = localStorage.getItem('adminToken');
-    } else {
+    } else if (isProductsEndpoint && method !== 'GET') {
+      token = localStorage.getItem('adminToken');
+    } else if (!isProductsEndpoint) {
       token = authToken;
     }
     
@@ -59,7 +64,6 @@ class API {
       }
     };
 
-    console.log('API Request:', endpoint, 'Token:', token);
     try {
       const response = await fetch(url, config);
       
