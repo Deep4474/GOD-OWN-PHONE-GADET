@@ -658,7 +658,4 @@ const topbarTitle = document.getElementById('admin-topbar-title');
       }
     };
   }
-
-  // On page load, force logout and show login modal
-  logoutAdmin();
 });
