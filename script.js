@@ -40,11 +40,10 @@ class API {
     const isProductsEndpoint = endpoint.startsWith('/api/products');
     const isNotificationsEndpoint = endpoint.startsWith('/api/notifications');
     const method = (options.method || 'GET').toUpperCase();
-    if (isNotificationsEndpoint) {
+    // Only send token for POST/PUT/DELETE to products/notifications
+    if ((isProductsEndpoint || isNotificationsEndpoint) && method !== 'GET') {
       token = localStorage.getItem('adminToken');
-    } else if (isProductsEndpoint && method !== 'GET') {
-      token = localStorage.getItem('adminToken');
-    } else if (!isProductsEndpoint) {
+    } else if (!isProductsEndpoint && !isNotificationsEndpoint) {
       token = authToken;
     }
     
