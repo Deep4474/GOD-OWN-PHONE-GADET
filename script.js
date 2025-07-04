@@ -74,6 +74,7 @@ class API {
       
       return await response.json();
     } catch (error) {
+      handleTokenExpiry(error); // Handle token expiry and log out user
       console.error('API Error:', error);
       throw error;
     }

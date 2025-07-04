@@ -162,6 +162,12 @@ app.post('/api/support/message', (req, res) => {
   res.json({ success: true });
 });
 
+// Get all messages (admin use)
+app.get('/api/support/messages/all', (req, res) => {
+  const messages = readMessages();
+  res.json({ messages });
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ 
