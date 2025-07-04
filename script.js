@@ -35,11 +35,18 @@ let authToken = localStorage.getItem('authToken');
 class API {
   static async request(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
+    // Determine which token to use
+    let token = null;
+    if (endpoint.startsWith('/api/products') || endpoint.startsWith('/api/notifications')) {
+      token = localStorage.getItem('adminToken');
+    } else {
+      token = authToken;
+    }
     
     const defaultOptions = {
       headers: {
         'Content-Type': 'application/json',
-        ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+        ...(token && { 'Authorization': `Bearer ${token}` })
       }
     };
     
