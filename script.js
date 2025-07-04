@@ -159,12 +159,14 @@ async function registerUser() {
   const formData = {
     name: document.getElementById('name').value.trim(),
     email: document.getElementById('email').value.trim(),
+    confirmEmail: document.getElementById('confirm-email').value.trim(),
     password: document.getElementById('password').value,
     confirmPassword: document.getElementById('confirm-password').value,
     phone: document.getElementById('phone').value.trim(),
     address: document.getElementById('address').value.trim(),
     state: document.getElementById('state').value,
-    lga: document.getElementById('lga').value
+    lga: document.getElementById('lga').value,
+    position: document.getElementById('position').value.trim()
   };
 
   // Password strength validation
