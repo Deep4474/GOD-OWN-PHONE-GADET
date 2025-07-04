@@ -134,9 +134,9 @@ async function loginUser() {
       currentUser = response.user;
       // Backend check: is user verified?
       if (!currentUser.isVerified) {
-        showMessage('Please verify your email before accessing the shop.', 'warning');
+        showMessage('Please verify your email before accessing the shop. Enter your code below.', 'warning');
         document.getElementById('verify-email').value = currentUser.email;
-        showVerify();
+        showVerify(); // Always show verify section if not verified
         return;
       }
       localStorage.setItem('authToken', authToken);
@@ -746,8 +746,10 @@ function showRegister() {
 
 function showVerify() {
   hideAllSections();
-  document.getElementById('verify-section').classList.remove('hidden');
-  document.getElementById('user-info').classList.add('hidden');
+  const verifySection = document.getElementById('verify-section');
+  if (verifySection) verifySection.classList.remove('hidden');
+  const userInfo = document.getElementById('user-info');
+  if (userInfo) userInfo.classList.add('hidden');
 }
 
 function showProducts() {
@@ -927,15 +929,22 @@ function initializeApp() {
   if (savedUser && savedToken) {
     currentUser = JSON.parse(savedUser);
     authToken = savedToken;
-    showProducts();
-    updateUserInfo();
-    
-    Promise.all([
-      loadProducts(),
-      loadUserOrders(),
-      loadNotifications(),
-      startNotificationPolling()
-    ]).catch(console.error);
+    // Only show main content if user is verified
+    if (currentUser.isVerified) {
+      showProducts();
+      updateUserInfo();
+      Promise.all([
+        loadProducts(),
+        loadUserOrders(),
+        loadNotifications(),
+        startNotificationPolling()
+      ]).catch(console.error);
+    } else {
+      // Not verified: force verification section
+      showMessage('Please verify your email before accessing the shop. Enter your code below.', 'warning');
+      document.getElementById('verify-email').value = currentUser.email;
+      showVerify();
+    }
   }
 }
 
