@@ -95,7 +95,7 @@ router.get('/dashboard', authenticateAdmin, (req, res) => {
   });
 });
 
-// DEBUG: List all admin users (REMOVE IN PRODUCTION)
+// DEBUG: List all admin users (for troubleshooting)
 router.get('/debug-admins', (req, res) => {
   const users = getUsers();
   const admins = users.filter(u => u.role === 'admin');
