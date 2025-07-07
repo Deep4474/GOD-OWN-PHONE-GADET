@@ -198,45 +198,33 @@ async function registerUser() {
   }
   // Password strength validation
   const minLength = 8;
-  const hasUpper = /[A-Z]/.test(formData.password);
-  const hasLower = /[a-z]/.test(formData.password);
-  const hasNumber = /[0-9]/.test(formData.password);
-  const hasSymbol = /[^A-Za-z0-9]/.test(formData.password);
-  if (formData.password.length < minLength || !hasUpper || !hasLower || !hasNumber || !hasSymbol) {
-    showMessage('Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.', 'error');
+  if (formData.password.length < minLength) {
+    showMessage(`Password must be at least ${minLength} characters`, 'error');
     return;
   }
   if (formData.password !== formData.confirmPassword) {
     showMessage('Passwords do not match', 'error');
     return;
   }
-  if (!Object.values(formData).every(value => value)) {
-    showMessage('Please fill in all fields', 'error');
-    return;
-  }
 
   try {
-    showLoading('Creating account...');
-    // Remove confirmPassword before sending to backend
-    const { confirmPassword, ...sendData } = formData;
-    // Debug: log payload
-    console.log('[DEBUG] Register payload:', sendData);
-    const response = await API.post(API_ENDPOINTS.REGISTER, sendData);
-    // Debug: log response
-    console.log('[DEBUG] Register response:', response);
+    showLoading('Registering...');
+    const response = await API.post(API_ENDPOINTS.REGISTER, formData);
     if (response.user) {
-      showMessage('Registration successful! Please check your email for a verification code.', 'success');
-      document.getElementById('verify-email').value = formData.email;
-      showVerify(); // Show verification form
-      // Do NOT log in or store token/user data yet
+      currentUser = response.user;
+      if (!currentUser.isVerified) {
+        showMessage('Registration successful! Please verify your email.', 'success');
+        document.getElementById('verify-email').value = currentUser.email;
+        showVerify();
+      } else {
+        showMessage('Registration successful! You can now log in.', 'success');
+        showLogin();
+      }
     } else {
-      showMessage(response.message || response.error || 'Registration failed', 'error');
-      // Debug: log backend error
-      console.error('[DEBUG] Register backend error:', response);
+      showMessage(response.message || 'Registration failed', 'error');
     }
   } catch (error) {
     showMessage(error.message || 'Registration failed. Please try again.', 'error');
-    // Debug: log error
     console.error('[DEBUG] Register error:', error);
     if (error.data) {
       console.error('[DEBUG] Register error data:', error.data);
