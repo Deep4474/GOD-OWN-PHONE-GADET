@@ -176,3 +176,84 @@ footer {
   display: none;
   flex-direction: column;
 } 
+
+/* Auth Form Styles */
+.section form {
+  max-width: 350px;
+  margin: 0 auto;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  box-shadow: 0 2px 12px #0001;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.section form input[type='text'],
+.section form input[type='email'],
+.section form input[type='password'],
+.section form input[type='number'],
+.section form select,
+.section form textarea {
+  padding: 0.7rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #fff;
+  transition: border 0.2s;
+}
+
+.section form input:focus,
+.section form select:focus,
+.section form textarea:focus {
+  border-color: #2563eb;
+  outline: none;
+}
+
+.btn-primary,
+.btn-success {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover,
+.btn-success:hover {
+  background: #1746a0;
+}
+
+#register-message,
+#login-message {
+  min-height: 1.2em;
+  color: #dc2626;
+  font-size: 1rem;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+#verify-code-section {
+  margin-top: 1.2rem;
+  background: #e6f0ff;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .section form {
+    padding: 1.2rem 0.5rem;
+  }
+} 

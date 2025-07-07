@@ -1556,3 +1556,100 @@ function showBuy() {
   document.getElementById('buy-section').classList.remove('hidden');
   localStorage.setItem('currentSection', 'buy');
 }
+
+// --- AUTH LOGIC ---
+
+async function loginUser() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const loginMsg = document.getElementById('login-message');
+  if (loginMsg) loginMsg.textContent = '';
+  try {
+    showLoading('Logging in...');
+    const res = await API.post(API_ENDPOINTS.LOGIN, { email, password });
+    if (res.token && res.user) {
+      if (!res.user.verified) {
+        showMessage('Please verify your email before logging in.', 'error');
+        if (loginMsg) loginMsg.textContent = 'Please verify your email before logging in.';
+        hideLoading();
+        return;
+      }
+      currentUser = res.user;
+      authToken = res.token;
+      localStorage.setItem('userData', JSON.stringify(res.user));
+      localStorage.setItem('authToken', res.token);
+      showMessage('Login successful!', 'success');
+      showProducts();
+      updateUserInfo();
+    } else {
+      showMessage(res.message || 'Login failed', 'error');
+      if (loginMsg) loginMsg.textContent = res.message || 'Login failed';
+    }
+  } catch (err) {
+    showMessage(err.message || 'Login failed', 'error');
+    if (loginMsg) loginMsg.textContent = err.message || 'Login failed';
+  } finally {
+    hideLoading();
+  }
+}
+
+async function registerUser() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const registerMsg = document.getElementById('register-message');
+  if (registerMsg) registerMsg.textContent = '';
+  try {
+    showLoading('Registering...');
+    const res = await API.post(API_ENDPOINTS.REGISTER, { name, email, confirmEmail: email, password });
+    if (res.user) {
+      showMessage('Registration successful! Please check your email for the verification code.', 'success');
+      // Store email for verification
+      document.getElementById('verification-code').value = '';
+      document.getElementById('verify-code-section').classList.remove('hidden');
+      if (registerMsg) registerMsg.textContent = 'Check your email for the verification code.';
+      // Optionally, store email for verification step
+      window.pendingVerificationEmail = email;
+    } else {
+      showMessage(res.message || 'Registration failed', 'error');
+      if (registerMsg) registerMsg.textContent = res.message || 'Registration failed';
+    }
+  } catch (err) {
+    showMessage(err.message || 'Registration failed', 'error');
+    if (registerMsg) registerMsg.textContent = err.message || 'Registration failed';
+  } finally {
+    hideLoading();
+  }
+}
+
+// Verification code logic
+const verifyBtn = document.getElementById('verify-btn');
+if (verifyBtn) {
+  verifyBtn.onclick = async function() {
+    const code = document.getElementById('verification-code').value.trim();
+    const email = window.pendingVerificationEmail || document.getElementById('reg-email').value.trim();
+    const registerMsg = document.getElementById('register-message');
+    if (!code) {
+      showMessage('Please enter the verification code.', 'error');
+      return;
+    }
+    try {
+      showLoading('Verifying...');
+      const res = await API.post(API_ENDPOINTS.VERIFY, { email, code });
+      if (res.success) {
+        showMessage('Email verified! You can now log in.', 'success');
+        document.getElementById('verify-code-section').classList.add('hidden');
+        setVerifiedLoginMessage('Email verified! You can now log in.');
+        showLogin();
+      } else {
+        showMessage(res.message || 'Verification failed', 'error');
+        if (registerMsg) registerMsg.textContent = res.message || 'Verification failed';
+      }
+    } catch (err) {
+      showMessage(err.message || 'Verification failed', 'error');
+      if (registerMsg) registerMsg.textContent = err.message || 'Verification failed';
+    } finally {
+      hideLoading();
+    }
+  };
+}
