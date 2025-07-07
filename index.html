@@ -332,49 +332,6 @@
       }
     }
   </style>
-  <script>
-  // --- Menu and Notification Bell Logic ---
-  const menuToggle = document.getElementById('menu-toggle');
-  const sideMenu = document.getElementById('side-menu');
-  const closeMenu = document.getElementById('close-menu');
-  menuToggle.addEventListener('click', function() {
-    sideMenu.classList.add('show');
-    sideMenu.classList.remove('hidden');
-  });
-  closeMenu.addEventListener('click', function() {
-    sideMenu.classList.remove('show');
-    sideMenu.classList.add('hidden');
-  });
-  // Hide menu when clicking outside
-  document.addEventListener('click', function(e) {
-    if (!sideMenu.contains(e.target) && !menuToggle.contains(e.target)) {
-      sideMenu.classList.remove('show');
-      sideMenu.classList.add('hidden');
-    }
-  });
-  // Notification bell dropdown
-  const notificationBell = document.getElementById('notification-bell');
-  const notificationDropdown = document.getElementById('notification-dropdown');
-  notificationBell.addEventListener('click', function(e) {
-    e.stopPropagation();
-    if (notificationDropdown.style.display === 'block') {
-      notificationDropdown.style.display = 'none';
-    } else {
-      notificationDropdown.style.display = 'block';
-    }
-  });
-  document.addEventListener('click', function(e) {
-    if (!notificationDropdown.contains(e.target) && !notificationBell.contains(e.target)) {
-      notificationDropdown.style.display = 'none';
-    }
-  });
-  // Logout button
-  document.getElementById('logout-btn').addEventListener('click', function() {
-    logoutUser();
-    sideMenu.classList.remove('show');
-    sideMenu.classList.add('hidden');
-  });
-  </script>
 </body>
 
 </html>  

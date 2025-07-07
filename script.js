@@ -980,6 +980,55 @@ document.addEventListener('DOMContentLoaded', function() {
       sideMenu.classList.add('hidden');
     });
   }
+
+  // --- Menu and Notification Bell Logic ---
+  const menuToggle = document.getElementById('menu-toggle');
+  const sideMenu2 = document.getElementById('side-menu');
+  const closeMenu = document.getElementById('close-menu');
+  if (menuToggle && sideMenu2 && closeMenu) {
+    menuToggle.addEventListener('click', function() {
+      sideMenu2.classList.add('show');
+      sideMenu2.classList.remove('hidden');
+    });
+    closeMenu.addEventListener('click', function() {
+      sideMenu2.classList.remove('show');
+      sideMenu2.classList.add('hidden');
+    });
+    // Hide menu when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!sideMenu2.contains(e.target) && !menuToggle.contains(e.target)) {
+        sideMenu2.classList.remove('show');
+        sideMenu2.classList.add('hidden');
+      }
+    });
+  }
+  // Notification bell dropdown
+  const notificationBell = document.getElementById('notification-bell');
+  const notificationDropdown = document.getElementById('notification-dropdown');
+  if (notificationBell && notificationDropdown) {
+    notificationBell.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (notificationDropdown.style.display === 'block') {
+        notificationDropdown.style.display = 'none';
+      } else {
+        notificationDropdown.style.display = 'block';
+      }
+    });
+    document.addEventListener('click', function(e) {
+      if (!notificationDropdown.contains(e.target) && !notificationBell.contains(e.target)) {
+        notificationDropdown.style.display = 'none';
+      }
+    });
+  }
+  // Logout button
+  const logoutBtn2 = document.getElementById('logout-btn');
+  if (logoutBtn2 && sideMenu2) {
+    logoutBtn2.addEventListener('click', function() {
+      logoutUser();
+      sideMenu2.classList.remove('show');
+      sideMenu2.classList.add('hidden');
+    });
+  }
 });
 
 function initializeApp() {
