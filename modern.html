@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GOD'S OWN PHONE GADGET - Modern</title>
+  <link rel="stylesheet" href="modern.css" />
+</head>
+<body>
+  <main class="main-content container">
+    <header class="main-header">
+      <div class="header-flex">
+        <div class="brand">
+          <span class="brand-icon">📱</span>
+          <span class="brand-title">GOD'S OWN PHONE GADGET</span>
+        </div>
+        <button id="menu-toggle" class="menu-toggle" aria-label="Open menu">☰</button>
+      </div>
+    </header>
+    <nav id="side-menu" class="side-menu-modal">
+      <button id="close-menu" class="close-menu" aria-label="Close menu">&times;</button>
+      <ul class="menu-list">
+        <li><button id="menu-notifications" class="menu-item">🔔 Notifications <span id="notif-badge" class="notif-badge hidden"></span></button></li>
+        <li><button id="menu-darkmode" class="menu-item">🌙 Dark Mode</button></li>
+        <li><button id="menu-profile" class="menu-item">👤 Profile</button></li>
+        <li><button id="menu-settings" class="menu-item">⚙️ Settings</button></li>
+        <li><button id="menu-help" class="menu-item">❓ Help</button></li>
+        <li><button id="menu-myorders" class="menu-item">📦 My Orders</button></li>
+        <li><button id="menu-logout" class="menu-item">🚪 Logout</button></li>
+      </ul>
+    </nav>
+    <section id="auth-section" class="glass-card">
+      <div id="login-view" class="auth-view">
+        <h2>Login</h2>
+        <form id="login-form" autocomplete="on">
+          <div class="form-group">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" placeholder="Email" required />
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" placeholder="Password" required />
+          </div>
+          <button type="submit" class="btn-main">Login</button>
+        </form>
+        <div id="login-message" class="form-message"></div>
+        <p class="switch-link">Don't have an account? <a href="#" id="show-register-link">Register</a></p>
+      </div>
+      <div id="register-view" class="auth-view hidden">
+        <h2>Register</h2>
+        <form id="register-form">
+          <div class="form-group">
+            <label for="reg-name">Name</label>
+            <input type="text" id="reg-name" required />
+          </div>
+          <div class="form-group">
+            <label for="reg-email">Email</label>
+            <input type="email" id="reg-email" required />
+          </div>
+          <div class="form-group">
+            <label for="reg-password">Password</label>
+            <input type="password" id="reg-password" required />
+          </div>
+          <div class="form-group">
+            <label for="reg-confirm-password">Confirm Password</label>
+            <input type="password" id="reg-confirm-password" required />
+          </div>
+          
+          <button type="submit" class="btn-main">Register</button>
+        </form>
+        <div id="register-message" class="form-message"></div>
+        <div id="verify-code-section" class="hidden">
+          <h3>Verify Your Email</h3>
+          <p>Enter the code sent to your email:</p>
+          <input type="text" id="verification-code" placeholder="Verification Code" required />
+          <button id="verify-btn" class="btn-main">Verify</button>
+        </div>
+        <p class="switch-link">Already registered? <a href="#" id="show-login-link">Login</a></p>
+      </div>
+    </section>
+    <section id="products-section" class="glass-card hidden">
+      <h2>Our Products</h2>
+      <div class="search-filter">
+        <input type="text" id="search-input" placeholder="Search products..." />
+        <select id="category-filter">
+          <option value="">All Categories</option>
+          <option value="Smartphones">Smartphones</option>
+          <option value="Laptops">Laptops</option>
+          <option value="Tablets">Tablets</option>
+          <option value="Accessories">Accessories</option>
+          <option value="Wearables">Wearables</option>
+        </select>
+      </div>
+      <div id="product-list" class="product-grid"></div>
+    </section>
+  </main>
+  <div id="notification-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="close-notif" class="close-modal">&times;</button>
+      <h3>Notifications</h3>
+      <ul id="notif-list" class="notif-list"></ul>
+    </div>
+  </div>
+  <div id="orders-modal" class="modal hidden">
+    <div class="modal-content" style="max-width:600px;">
+      <button id="close-orders-modal" class="close-modal">&times;</button>
+      <h3>My Orders</h3>
+      <div id="orders-list">Loading...</div>
+    </div>
+  </div>
+  <div id="profile-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="close-profile-modal" class="close-modal">&times;</button>
+      <h3>Profile</h3>
+      <div id="profile-info">Loading...</div>
+    </div>
+  </div>
+  <div id="help-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="close-help-modal" class="close-modal">&times;</button>
+      <h3>Customer Care</h3>
+      <div id="help-info">
+        <p>For assistance, contact us at:</p>
+        <ul>
+          <li>Phone: 0800-123-4567</li>
+          <li>Email: support@godsownphone.com</li>
+        </ul>
+        <p>We are here to help you 24/7!</p>
+      </div>
+    </div>
+  </div>
+  <script src="modern.js"></script>
+</body>
+</html> 
