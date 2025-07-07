@@ -17,4 +17,15 @@ router.post('/', (req, res) => {
   res.status(201).json({ success: true, product: newProduct });
 });
 
+router.delete('/:id', (req, res) => {
+  const id = req.params.id;
+  const index = products.findIndex(p => p._id === id || p.id === id);
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Product not found' });
+  }
+  products.splice(index, 1);
+  fs.writeFileSync('./products.json', JSON.stringify(products, null, 2));
+  res.json({ success: true });
+});
+
 module.exports = router; 
