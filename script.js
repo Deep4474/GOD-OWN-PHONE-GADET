@@ -741,6 +741,9 @@ function showLogin() {
   if (loginSection) loginSection.classList.remove('hidden');
   const userInfo = document.getElementById('user-info');
   if (userInfo) userInfo.classList.add('hidden');
+  if (!window.justVerified) clearVerifiedLoginMessage();
+  window.justVerified = false;
+  localStorage.setItem('currentSection', 'login');
 }
 
 function showRegister() {
@@ -749,21 +752,24 @@ function showRegister() {
   if (regSection) regSection.classList.remove('hidden');
   const userInfo = document.getElementById('user-info');
   if (userInfo) userInfo.classList.add('hidden');
+  setupRegisterPasswordToggles();
+  localStorage.setItem('currentSection', 'register');
 }
 
 function showVerify() {
-  console.log('showVerify called'); // Debug log
   hideAllSections();
   const verifySection = document.getElementById('verify-section');
   if (verifySection) verifySection.classList.remove('hidden');
   const userInfo = document.getElementById('user-info');
   if (userInfo) userInfo.classList.add('hidden');
+  localStorage.setItem('currentSection', 'verify');
 }
 
 function showProducts() {
   hideAllSections();
   document.getElementById('products-section').classList.remove('hidden');
   displayProducts();
+  localStorage.setItem('currentSection', 'products');
 }
 
 async function showOrders() {
@@ -771,11 +777,13 @@ async function showOrders() {
   hideAllSections();
   document.getElementById('orders-section').classList.remove('hidden');
   displayOrders();
+  localStorage.setItem('currentSection', 'orders');
 }
 
 function showBuy() {
   hideAllSections();
   document.getElementById('buy-section').classList.remove('hidden');
+  localStorage.setItem('currentSection', 'buy');
 }
 
 function showMap() {
@@ -1035,13 +1043,11 @@ function initializeApp() {
   checkRegistrationFormElements();
   const savedUser = localStorage.getItem('userData');
   const savedToken = localStorage.getItem('authToken');
-  
+  const lastSection = localStorage.getItem('currentSection');
   if (savedUser && savedToken) {
     currentUser = JSON.parse(savedUser);
     authToken = savedToken;
-    // Only show main content if user is verified
     if (currentUser.isVerified) {
-      showProducts();
       updateUserInfo();
       Promise.all([
         loadProducts(),
@@ -1049,11 +1055,24 @@ function initializeApp() {
         loadNotifications(),
         startNotificationPolling()
       ]).catch(console.error);
+      // Restore last section
+      switch (lastSection) {
+        case 'products': showProducts(); break;
+        case 'orders': showOrders(); break;
+        case 'buy': showBuy(); break;
+        default: showProducts(); break;
+      }
     } else {
-      // Not verified: force verification section
       showMessage('Please verify your email before accessing the shop. Enter your code below.', 'warning');
       document.getElementById('verify-email').value = currentUser.email;
       showVerify();
+    }
+  } else {
+    // Not logged in
+    switch (lastSection) {
+      case 'register': showRegister(); break;
+      case 'login':
+      default: showLogin(); break;
     }
   }
 }
@@ -1662,9 +1681,9 @@ function showLogin() {
   if (loginSection) loginSection.classList.remove('hidden');
   const userInfo = document.getElementById('user-info');
   if (userInfo) userInfo.classList.add('hidden');
-  // Only keep the verified message if it was just set
   if (!window.justVerified) clearVerifiedLoginMessage();
   window.justVerified = false;
+  localStorage.setItem('currentSection', 'login');
 }
 
 // Registration password show/hide toggle
@@ -1707,4 +1726,35 @@ function showRegister() {
   const userInfo = document.getElementById('user-info');
   if (userInfo) userInfo.classList.add('hidden');
   setupRegisterPasswordToggles();
+  localStorage.setItem('currentSection', 'register');
+}
+
+function showVerify() {
+  hideAllSections();
+  const verifySection = document.getElementById('verify-section');
+  if (verifySection) verifySection.classList.remove('hidden');
+  const userInfo = document.getElementById('user-info');
+  if (userInfo) userInfo.classList.add('hidden');
+  localStorage.setItem('currentSection', 'verify');
+}
+
+function showProducts() {
+  hideAllSections();
+  document.getElementById('products-section').classList.remove('hidden');
+  displayProducts();
+  localStorage.setItem('currentSection', 'products');
+}
+
+async function showOrders() {
+  if (!currentUser) return;
+  hideAllSections();
+  document.getElementById('orders-section').classList.remove('hidden');
+  displayOrders();
+  localStorage.setItem('currentSection', 'orders');
+}
+
+function showBuy() {
+  hideAllSections();
+  document.getElementById('buy-section').classList.remove('hidden');
+  localStorage.setItem('currentSection', 'buy');
 }
