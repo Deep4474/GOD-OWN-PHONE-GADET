@@ -938,6 +938,58 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeApp();
   setupEventListeners();
   setupRegisterPasswordToggles();
+  // --- Menu Navigation Logic ---
+  const sideMenu = document.getElementById('side-menu');
+  const menuHome = document.getElementById('menu-home');
+  const menuProducts = document.getElementById('menu-products');
+  const menuOrders = document.getElementById('menu-orders');
+  const menuProfile = document.getElementById('menu-profile');
+  const logoutBtn = document.getElementById('logout-btn');
+
+  if (menuHome) {
+    menuHome.addEventListener('click', function(e) {
+      e.preventDefault();
+      showProducts();
+      sideMenu.classList.remove('show');
+      sideMenu.classList.add('hidden');
+    });
+  }
+  if (menuProducts) {
+    menuProducts.addEventListener('click', function(e) {
+      e.preventDefault();
+      showProducts();
+      sideMenu.classList.remove('show');
+      sideMenu.classList.add('hidden');
+    });
+  }
+  if (menuOrders) {
+    menuOrders.addEventListener('click', function(e) {
+      e.preventDefault();
+      showOrders();
+      sideMenu.classList.remove('show');
+      sideMenu.classList.add('hidden');
+    });
+  }
+  if (menuProfile) {
+    menuProfile.addEventListener('click', function(e) {
+      e.preventDefault();
+      // If you have a profile section, show it here. Otherwise, show products.
+      if (typeof showProfile === 'function') {
+        showProfile();
+      } else {
+        showProducts();
+      }
+      sideMenu.classList.remove('show');
+      sideMenu.classList.add('hidden');
+    });
+  }
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function() {
+      logoutUser();
+      sideMenu.classList.remove('show');
+      sideMenu.classList.add('hidden');
+    });
+  }
 });
 
 function initializeApp() {
@@ -1019,7 +1071,12 @@ function setupEventListeners() {
   document.getElementById('show-login-link')?.addEventListener('click', showLogin);
   document.getElementById('show-login-link-2')?.addEventListener('click', showLogin);
   
-  document.getElementById('verify-btn')?.addEventListener('click', verifyEmail);
+  // Remove previous event listener before adding a new one to prevent double calls
+  const verifyBtn = document.getElementById('verify-btn');
+  if (verifyBtn) {
+    verifyBtn.replaceWith(verifyBtn.cloneNode(true)); // Remove all listeners
+    document.getElementById('verify-btn').addEventListener('click', verifyEmail);
+  }
   
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) {

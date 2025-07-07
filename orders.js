@@ -6,4 +6,8 @@ router.get('/user', (req, res) => {
   res.json({ orders });
 });
 
+router.get('/', (req, res) => {
+  res.json(orders);
+});
+
 module.exports = router; 

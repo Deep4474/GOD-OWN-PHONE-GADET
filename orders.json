@@ -1,1 +1,32 @@
-[] 
+[
+  {
+    "_id": "1",
+    "userId": "user1",
+    "productName": "iPhone 13",
+    "totalAmount": 500000,
+    "status": "pending",
+    "createdAt": "2024-06-01T10:00:00.000Z",
+    "type": "online",
+    "address": "123 Main St"
+  },
+  {
+    "_id": "2",
+    "userId": "user2",
+    "productName": "Samsung Galaxy S21",
+    "totalAmount": 400000,
+    "status": "completed",
+    "createdAt": "2024-06-02T12:30:00.000Z",
+    "type": "offline",
+    "address": "456 Side St"
+  },
+  {
+    "_id": "3",
+    "userId": "user3",
+    "productName": "Tecno Camon 20",
+    "totalAmount": 150000,
+    "status": "pending",
+    "createdAt": "2024-06-03T09:15:00.000Z",
+    "type": "online",
+    "address": "789 Market Rd"
+  }
+] 
