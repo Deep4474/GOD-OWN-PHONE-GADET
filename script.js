@@ -257,6 +257,8 @@ async function verifyEmail() {
 
   try {
     showLoading('Verifying email...');
+    // Debug log
+    console.log('[DEBUG] Sending verify payload:', { email, code });
     const response = await API.post(API_ENDPOINTS.VERIFY, { email, code });
     if (response.success) {
       // After verification, log the user in and show main content
