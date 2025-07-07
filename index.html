@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-<title>GOD'SOWN PHONE  Gadget</title>
+  <title>GOD'S OWN PHONE GADGET</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="ONGOD Gadget Shop - Buy the latest gadgets online. Smartphones, laptops, tablets, accessories, and more!" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -10,40 +10,54 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
-  <!-- Google Maps API - Enable real map functionality -->
-  <!-- Temporarily disabled due to billing issues -->
-  <!-- <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&libraries=places"></script> -->
+  <style>
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; margin-top: 2rem; }
+    .product-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #0001; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; transition: box-shadow 0.2s; }
+    .product-card:hover { box-shadow: 0 4px 24px #0002; }
+    .product-image-container { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; }
+    .product-card img { max-width: 180px; max-height: 140px; border-radius: 8px; object-fit: cover; }
+    .product-card h4 { margin: 0.5rem 0 0.2rem 0; font-size: 1.2rem; font-weight: 700; }
+    .product-card .description { color: #666; font-size: 0.98rem; margin-bottom: 0.5rem; text-align: center; }
+    .product-card .category { font-size: 0.95rem; color: #888; margin-bottom: 0.5rem; }
+    .product-card .price { font-size: 1.1rem; font-weight: 600; color: #0984e3; margin-bottom: 1rem; }
+    .buy-now-btn { background: #00b894; color: #fff; border: none; border-radius: 5px; padding: 0.6rem 1.2rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .buy-now-btn:hover { background: #009e6d; }
+    .section { background: #fff; border-radius: 10px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .admin-header, .admin-nav, .admin-container, .admin-section { display: none !important; }
+    @media (max-width: 700px) { .product-grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
-
 <body>
   <header style="position:relative;z-index:100;">
     <div style="display:flex;align-items:center;justify-content:space-between;position:relative;">
       <h1 style="margin:0;">📱 GOD'S OWN PHONE GADGET</h1>
       <div style="display:flex;align-items:center;gap:1rem;">
-        <!-- Notification bell -->
-        <button id="notification-bell" style="position:relative;background:none;border:none;font-size:1.7rem;cursor:pointer;">
-          🔔<span class="notification-badge" style="display:none;position:absolute;top:-6px;right:-6px;background:#e74c3c;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:bold;"></span>
-        </button>
-        <!-- Dark mode toggle -->
         <button id="dark-mode-toggle" style="font-size:1.3rem;background:#636e72;color:#fff;border:none;border-radius:5px;padding:0.5rem 1rem;cursor:pointer;">🌙</button>
-        <!-- Hamburger menu -->
         <button id="menu-toggle" style="background:none;border:none;font-size:2rem;cursor:pointer;display:inline-block;">☰</button>
       </div>
     </div>
-    <!-- Slide-out menu -->
-    <nav id="side-menu" class="hidden" style="position:fixed;top:0;right:0;width:240px;height:100vh;background:#23272b;color:#fff;box-shadow:-2px 0 16px #0003;z-index:200;display:flex;flex-direction:column;align-items:flex-start;padding:2rem 1.2rem 1.2rem 1.2rem;transition:transform 0.3s;transform:translateX(100%);">
+    <nav id="side-menu" class="hidden" style="position:fixed;top:0;right:0;width:220px;height:100vh;background:#23272b;color:#fff;box-shadow:-2px 0 16px #0003;z-index:200;display:flex;flex-direction:column;align-items:flex-start;padding:2rem 1.2rem 1.2rem 1.2rem;transition:transform 0.3s;transform:translateX(100%);">
       <button id="close-menu" style="background:none;border:none;color:#fff;font-size:2rem;align-self:flex-end;margin-bottom:1.5rem;">&times;</button>
       <a href="#" class="menu-link" id="menu-home" style="color:#fff;text-decoration:none;font-size:1.1rem;margin-bottom:1.2rem;">🏠 Home</a>
       <a href="#" class="menu-link" id="menu-products" style="color:#fff;text-decoration:none;font-size:1.1rem;margin-bottom:1.2rem;">🛒 Products</a>
-      <a href="#" class="menu-link" id="menu-orders" style="color:#fff;text-decoration:none;font-size:1.1rem;margin-bottom:1.2rem;">📦 Orders</a>
-      <a href="#" class="menu-link" id="menu-profile" style="color:#fff;text-decoration:none;font-size:1.1rem;margin-bottom:1.2rem;">👤 Profile</a>
-      <button id="logout-btn" style="margin-top:2rem;background:#d63031;color:#fff;border:none;border-radius:5px;padding:0.7rem 1.2rem;font-size:1rem;font-weight:600;cursor:pointer;width:100%;">Logout</button>
     </nav>
-    <!-- Notification dropdown -->
-    <div id="notification-dropdown" class="hidden" style="position:absolute;top:3.2rem;right:3.5rem;background:#fff;color:#222;box-shadow:0 2px 16px #0002;border-radius:8px;min-width:260px;max-width:340px;z-index:300;padding:1rem 0;display:none;"></div>
   </header>
-
   <main>
+    <section id="products-section" class="section active">
+      <h2>Our Products</h2>
+      <div class="search-filter" style="margin-bottom:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
+        <input type="text" id="search-input" placeholder="Search products..." style="flex:1;min-width:180px;">
+        <select id="category-filter" style="min-width:140px;">
+          <option value="">All Categories</option>
+          <option value="Smartphones">Smartphones</option>
+          <option value="Laptops">Laptops</option>
+          <option value="Tablets">Tablets</option>
+          <option value="Accessories">Accessories</option>
+          <option value="Wearables">Wearables</option>
+        </select>
+      </div>
+      <div id="product-list" class="product-grid"></div>
+    </section>
     <!-- Login Section -->
     <section id="login-section" class="section">
       <h2>Login</h2>
@@ -55,95 +69,39 @@
         <div class="form-group" style="position: relative;">
           <label for="login-password">Password</label>
           <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password" />
-          <button type="button" id="toggle-login-password" style="position: absolute; right: 10px; top: 32px; background: none; border: none; cursor: pointer;">👁️</button>
         </div>
         <button type="submit" class="btn-primary">Login</button>
       </form>
       <div id="login-message" aria-live="polite"></div>
       <p>Don't have an account? <a href="#" id="show-register-link">Register here</a></p>
     </section>
-
     <!-- Register Section -->
     <section id="register-section" class="section hidden">
       <h2>Create Account</h2>
       <form id="register-form">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" required>
-
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required>
-
-        <label for="confirm-email">Confirm Email</label>
-        <input type="email" id="confirm-email" name="confirm-email" required placeholder="Re-enter your email">
-
-        <div style="display: flex; gap: 1rem;">
-          <div style="flex: 1;">
-            <label for="state">State</label>
-            <select id="state" name="state" required></select>
-          </div>
-          <div style="flex: 1;">
-            <label for="lga">Local Government Area</label>
-            <select id="lga" name="lga" required></select>
-          </div>
+        <div class="form-group">
+          <label for="reg-name">Name</label>
+          <input type="text" id="reg-name" required />
         </div>
-
-        <label for="address">Full Address</label>
-        <input type="text" id="address" name="address" required placeholder="Full address (e.g. 123 Main St, Ikeja)">
-
-        <label for="phone">Phone</label>
-        <input type="tel" id="phone" name="phone" required>
-
-        <label for="password">Password</label>
-        <div class="form-group" style="position: relative;">
-          <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
-          <button type="button" id="toggle-register-password" style="position: absolute; right: 10px; top: 8px; background: none; border: none; cursor: pointer;">👁️</button>
+        <div class="form-group">
+          <label for="reg-email">Email</label>
+          <input type="email" id="reg-email" required />
         </div>
-        <div id="password-strength" style="font-size: 0.9em; color: #888; margin-bottom: 0.5em;"></div>
-
-        <label for="confirm-password">Confirm Password</label>
-        <div class="form-group" style="position: relative;">
-          <input type="password" id="confirm-password" name="confirm-password" required autocomplete="new-password">
-          <button type="button" id="toggle-confirm-password" style="position: absolute; right: 10px; top: 8px; background: none; border: none; cursor: pointer;">👁️</button>
+        <div class="form-group">
+          <label for="reg-password">Password</label>
+          <input type="password" id="reg-password" required />
         </div>
-        <div id="password-match" style="font-size: 0.9em; color: #888; margin-bottom: 0.5em;"></div>
-
-        <button type="submit" id="register-btn">Register</button>
+        <button type="submit" class="btn-success">Register</button>
       </form>
+      <div id="register-message" aria-live="polite"></div>
+      <div id="verify-code-section" class="hidden">
+        <h3>Verify Your Email</h3>
+        <p>Enter the code sent to your email:</p>
+        <input type="text" id="verification-code" placeholder="Verification Code" required />
+        <button id="verify-btn" class="btn-primary">Verify</button>
+      </div>
       <p>Already registered? <a href="#" id="show-login-link">Back to login</a></p>
     </section>
-
-    <!-- Email Verification Section -->
-    <section id="verify-section" class="section hidden">
-      <h2>Email Verification</h2>
-      <p>Please check your email for the verification code and enter it below.</p>
-      <div class="form-group">
-        <input type="email" id="verify-email" placeholder="Email" required />
-      </div>
-      <div class="form-group">
-        <input type="text" id="verification-code" placeholder="Verification Code" required />
-      </div>
-      <button id="verify-btn" class="btn-primary">Verify Email</button>
-      <p><a href="#" id="show-login-link-2">Back to login</a></p>
-    </section>
-
-    <!-- Product Display Section -->
-    <section id="products-section" class="section hidden">
-      <h2>Our Products</h2>
-      <div class="search-filter">
-        <input type="text" id="search-input" placeholder="Search products...">
-        <select id="category-filter">
-          <option value="">All Categories</option>
-          <option value="Smartphones">Smartphones</option>
-          <option value="Laptops">Laptops</option>
-          <option value="Tablets">Tablets</option>
-          <option value="Accessories">Accessories</option>
-          <option value="Wearables">Wearables</option>
-        </select>
-      </div>
-      <div id="product-list" class="product-grid"></div>
-    </section>
-
-    <!-- Buy Section -->
     <section id="buy-section" class="section hidden">
       <h2>Buy Product</h2>
       <form id="buy-form">
@@ -151,12 +109,10 @@
           <p><strong>Selected:</strong> <span id="selected-product-name"></span></p>
           <p><strong>Price:</strong> <span id="selected-product-price"></span></p>
         </div>
-
         <div class="form-group">
           <label for="quantity">Quantity:</label>
           <input type="number" id="quantity" min="1" value="1" />
         </div>
-        
         <div class="form-group">
           <label for="buy-option">Choose Option:</label>
           <select id="buy-option">
@@ -165,7 +121,6 @@
             <option value="Delivery">Delivery</option>
           </select>
         </div>
-
         <div class="order-summary order-summary-compact">
           <h3>Order Summary</h3>
           <div><b>Address:</b> <span id="summary-address"></span></div>
@@ -180,7 +135,6 @@
             <p><strong>Current Address:</strong> <span id="current-address"></span></p>
           </div>
         </div>
-
         <div class="form-group">
           <label for="payment-method">Payment Method:</label>
           <select id="payment-method">
@@ -190,7 +144,6 @@
             <option value="cash">Cash on Delivery</option>
           </select>
         </div>
-
         <div class="form-group">
           <label for="order-email">Email:</label>
           <input type="email" id="order-email" required />
@@ -206,9 +159,7 @@
       </button>
       <button id="back-to-products-btn-2" class="btn-secondary">Back to Products</button>
     </section>
-
   </main>
-
   <div id="customer-care-modal" class="hidden" style="position:fixed;bottom:100px;right:32px;z-index:10000;background:#fff;border-radius:16px;box-shadow:0 8px 32px #0002;width:340px;max-width:95vw;padding:0;display:none;flex-direction:column;">
     <div style="background:#2563eb;color:#fff;padding:1rem 1.2rem;border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:space-between;">
       <span style="font-weight:600;">Customer Care</span>
@@ -224,114 +175,7 @@
       <button type="submit" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:0.5em 1.2em;font-weight:600;cursor:pointer;">Send</button>
     </form>
   </div>
-
   <button id="customer-care-btn" style="position:fixed;bottom:32px;right:32px;z-index:9999;background:#2563eb;color:#fff;border:none;border-radius:50%;width:56px;height:56px;box-shadow:0 2px 12px #0003;font-size:2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">💬</button>
-
   <script src="script.js"></script>
-  <style>
-    .spinner {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      border: 2px solid #f3f3f3;
-      border-top: 2px solid #3498db;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      vertical-align: middle;
-    }
-    .hidden { display: none !important; }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    body.dark-mode {
-      background: #181a1b;
-      color: #f1f1f1;
-    }
-    body.dark-mode header {
-      background: #181a1b;
-      color: #fff;
-    }
-    body.dark-mode .section, body.dark-mode main, body.dark-mode .admin-section {
-      background: #23272b;
-      color: #f1f1f1;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    }
-    body.dark-mode th {
-      background: #23272b;
-      color: #00cec9;
-    }
-    body.dark-mode td {
-      color: #f1f1f1;
-    }
-    body.dark-mode .btn-primary, body.dark-mode button, body.dark-mode .btn-secondary {
-      background: #636e72;
-      color: #fff;
-    }
-    body.dark-mode .btn-primary:hover, body.dark-mode .btn-secondary:hover, body.dark-mode button:hover {
-      background: #00b894;
-      color: #fff;
-    }
-    body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
-      background: #23272b;
-      color: #f1f1f1;
-      border: 1px solid #636e72;
-    }
-    body.dark-mode .message-success {
-      background: #00b894;
-      color: #fff;
-    }
-    body.dark-mode .message-error {
-      background: #d63031;
-      color: #fff;
-    }
-    body.dark-mode .message-warning {
-      background: #fdcb6e;
-      color: #23272b;
-    }
-    body.dark-mode .product-card {
-      background: #23272b;
-      color: #f1f1f1;
-      border: 1px solid #636e72;
-    }
-    body.dark-mode .product-card .price {
-      color: #00cec9;
-    }
-    body.dark-mode .spinner {
-      border-top: 2px solid #636e72;
-    }
-    .notification-badge {
-      display: none;
-    }
-    #side-menu {
-      transition: transform 0.3s;
-      transform: translateX(100%);
-    }
-    #side-menu.show {
-      transform: translateX(0);
-      display: flex !important;
-    }
-    #side-menu .menu-link {
-      display: block;
-      margin-bottom: 1.2rem;
-      color: #fff;
-      text-decoration: none;
-      font-size: 1.1rem;
-      transition: color 0.2s;
-    }
-    #side-menu .menu-link:hover {
-      color: #00cec9;
-    }
-    @media (max-width: 600px) {
-      header h1 {
-        font-size: 1.1rem;
-      }
-      #side-menu {
-        width: 90vw;
-        padding: 1.2rem 0.7rem;
-      }
-    }
-  </style>
 </body>
-
 </html>  

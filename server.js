@@ -10,19 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // CORS configuration
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://127.0.0.1:5500',
-    'http://localhost:5500',
-    'http://127.0.0.1:5501',
-    'http://localhost:5501',
-    'https://phone-2cv4.onrender.com'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
 app.options('*', cors());
 
 // Import routes
