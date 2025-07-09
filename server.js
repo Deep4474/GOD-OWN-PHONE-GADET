@@ -319,6 +319,11 @@ app.delete('/api/auth/user', (req, res) => {
   res.json({ success: true, message: `User ${email} deleted.` });
 });
 
+// --- Root welcome route ---
+app.get('/', (req, res) => {
+  res.send("Welcome to GOD'S OWN PHONE GADGET API!");
+});
+
 // --- Start server ---
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
