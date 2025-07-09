@@ -2,52 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>GOD'S OWN PHONE GADGET</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="ONGOD Gadget Shop - Buy the latest gadgets online. Smartphones, laptops, tablets, accessories, and more!" />
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <title>GOD'S OWN PHONE GADGET - Modern</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; margin-top: 2rem; }
-    .product-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #0001; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; transition: box-shadow 0.2s; }
-    .product-card:hover { box-shadow: 0 4px 24px #0002; }
-    .product-image-container { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; }
-    .product-card img { max-width: 180px; max-height: 140px; border-radius: 8px; object-fit: cover; }
-    .product-card h4 { margin: 0.5rem 0 0.2rem 0; font-size: 1.2rem; font-weight: 700; }
-    .product-card .description { color: #666; font-size: 0.98rem; margin-bottom: 0.5rem; text-align: center; }
-    .product-card .category { font-size: 0.95rem; color: #888; margin-bottom: 0.5rem; }
-    .product-card .price { font-size: 1.1rem; font-weight: 600; color: #0984e3; margin-bottom: 1rem; }
-    .buy-now-btn { background: #00b894; color: #fff; border: none; border-radius: 5px; padding: 0.6rem 1.2rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-    .buy-now-btn:hover { background: #009e6d; }
-    .section { background: #fff; border-radius: 10px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-    .admin-header, .admin-nav, .admin-container, .admin-section { display: none !important; }
-    @media (max-width: 700px) { .product-grid { grid-template-columns: 1fr; } }
-  </style>
 </head>
 <body>
-  <header style="position:relative;z-index:100;">
-    <div style="display:flex;align-items:center;justify-content:space-between;position:relative;">
-      <h1 style="margin:0;">📱 GOD'S OWN PHONE GADGET</h1>
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <button id="dark-mode-toggle" style="font-size:1.3rem;background:#636e72;color:#fff;border:none;border-radius:5px;padding:0.5rem 1rem;cursor:pointer;">🌙</button>
-        <button id="menu-toggle" style="background:none;border:none;font-size:2rem;cursor:pointer;display:inline-block;">☰</button>
+  <main class="main-content container">
+    <header class="main-header">
+      <div class="header-flex">
+        <div class="brand">
+          <span class="brand-icon">📱</span>
+          <span class="brand-title">GOD'S OWN PHONE GADGET</span>
+        </div>
+        <button id="menu-toggle" class="menu-toggle" aria-label="Open menu">☰</button>
       </div>
-    </div>
-    <nav id="side-menu" class="hidden" style="position:fixed;top:0;right:0;width:220px;height:100vh;background:#23272b;color:#fff;box-shadow:-2px 0 16px #0003;z-index:200;display:flex;flex-direction:column;align-items:flex-start;padding:2rem 1.2rem 1.2rem 1.2rem;transition:transform 0.3s;transform:translateX(100%);">
-      <button id="close-menu" style="background:none;border:none;color:#fff;font-size:2rem;align-self:flex-end;margin-bottom:1.5rem;">&times;</button>
-      <a href="#" class="menu-link" id="menu-home" style="color:#fff;text-decoration:none;font-size:1.1rem;margin-bottom:1.2rem;">🏠 Home</a>
-      <a href="#" class="menu-link" id="menu-products" style="color:#fff;text-decoration:none;font-size:1.1rem;margin-bottom:1.2rem;">🛒 Products</a>
+    </header>
+    <nav id="side-menu" class="side-menu-modal">
+      <button id="close-menu" class="close-menu" aria-label="Close menu">&times;</button>
+      <ul class="menu-list">
+        <li><button id="menu-notifications" class="menu-item">🔔 Notifications <span id="notif-badge" class="notif-badge hidden"></span></button></li>
+        <li><button id="menu-darkmode" class="menu-item">🌙 Dark Mode</button></li>
+        <li><button id="menu-profile" class="menu-item">👤 Profile</button></li>
+        <li><button id="menu-settings" class="menu-item">⚙️ Settings</button></li>
+        <li><button id="menu-help" class="menu-item">❓ Help</button></li>
+        <li><button id="menu-myorders" class="menu-item">📦 My Orders</button></li>
+        <li><button id="menu-logout" class="menu-item">🚪 Logout</button></li>
+      </ul>
     </nav>
-  </header>
-  <main>
-    <section id="products-section" class="section active">
+    <section id="auth-section" class="glass-card">
+      <div id="login-view" class="auth-view">
+        <h2>Login</h2>
+        <form id="login-form" autocomplete="on">
+          <div class="form-group">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" placeholder="Email" required />
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" placeholder="Password" required />
+          </div>
+          <button type="submit" class="btn-main">Login</button>
+        </form>
+        <div id="login-message" class="form-message"></div>
+        <p class="switch-link">Don't have an account? <a href="#" id="show-register-link">Register</a></p>
+      </div>
+      <div id="register-view" class="auth-view hidden">
+        <h2>Register</h2>
+        <form id="register-form">
+          <div class="form-group">
+            <label for="reg-name">Name</label>
+            <input type="text" id="reg-name" required />
+          </div>
+          <div class="form-group">
+            <label for="reg-email">Email</label>
+            <input type="email" id="reg-email" required />
+          </div>
+          <div class="form-group">
+            <label for="reg-password">Password</label>
+            <input type="password" id="reg-password" required />
+          </div>
+          <div class="form-group">
+            <label for="reg-confirm-password">Confirm Password</label>
+            <input type="password" id="reg-confirm-password" required />
+          </div>
+          
+          <button type="submit" class="btn-main">Register</button>
+        </form>
+        <div id="register-message" class="form-message"></div>
+        <div id="verify-code-section" class="hidden">
+          <h3>Verify Your Email</h3>
+          <p>Enter the code sent to your email:</p>
+          <input type="text" id="verification-code" placeholder="Verification Code" required />
+          <button id="verify-btn" class="btn-main">Verify</button>
+        </div>
+        <p class="switch-link">Already registered? <a href="#" id="show-login-link">Login</a></p>
+      </div>
+    </section>
+    <section id="products-section" class="glass-card hidden">
       <h2>Our Products</h2>
-      <div class="search-filter" style="margin-bottom:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
-        <input type="text" id="search-input" placeholder="Search products..." style="flex:1;min-width:180px;">
-        <select id="category-filter" style="min-width:140px;">
+      <div class="search-filter">
+        <input type="text" id="search-input" placeholder="Search products..." />
+        <select id="category-filter">
           <option value="">All Categories</option>
           <option value="Smartphones">Smartphones</option>
           <option value="Laptops">Laptops</option>
@@ -58,124 +93,42 @@
       </div>
       <div id="product-list" class="product-grid"></div>
     </section>
-    <!-- Login Section -->
-    <section id="login-section" class="section">
-      <h2>Login</h2>
-      <form id="login-form" autocomplete="on">
-        <div class="form-group">
-          <label for="login-email">Email</label>
-          <input type="email" id="login-email" placeholder="Email" required autocomplete="email" />
-        </div>
-        <div class="form-group" style="position: relative;">
-          <label for="login-password">Password</label>
-          <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password" />
-        </div>
-        <button type="submit" class="btn-primary">Login</button>
-      </form>
-      <div id="login-message" aria-live="polite"></div>
-      <p>Don't have an account? <a href="#" id="show-register-link">Register here</a></p>
-    </section>
-    <!-- Register Section -->
-    <section id="register-section" class="section hidden">
-      <h2>Create Account</h2>
-      <form id="register-form">
-        <div class="form-group">
-          <label for="reg-name">Name</label>
-          <input type="text" id="reg-name" required />
-        </div>
-        <div class="form-group">
-          <label for="reg-email">Email</label>
-          <input type="email" id="reg-email" required />
-        </div>
-        <div class="form-group">
-          <label for="reg-password">Password</label>
-          <input type="password" id="reg-password" required />
-        </div>
-        <button type="submit" class="btn-success">Register</button>
-      </form>
-      <div id="register-message" aria-live="polite"></div>
-      <div id="verify-code-section" class="hidden">
-        <h3>Verify Your Email</h3>
-        <p>Enter the code sent to your email:</p>
-        <input type="text" id="verification-code" placeholder="Verification Code" required />
-        <button id="verify-btn" class="btn-primary">Verify</button>
-      </div>
-      <p>Already registered? <a href="#" id="show-login-link">Back to login</a></p>
-    </section>
-    <section id="buy-section" class="section hidden">
-      <h2>Buy Product</h2>
-      <form id="buy-form">
-        <div class="product-summary">
-          <p><strong>Selected:</strong> <span id="selected-product-name"></span></p>
-          <p><strong>Price:</strong> <span id="selected-product-price"></span></p>
-        </div>
-        <div class="form-group">
-          <label for="quantity">Quantity:</label>
-          <input type="number" id="quantity" min="1" value="1" />
-        </div>
-        <div class="form-group">
-          <label for="buy-option">Choose Option:</label>
-          <select id="buy-option">
-            <option value="">Select</option>
-            <option value="Pick">Pick Up</option>
-            <option value="Delivery">Delivery</option>
-          </select>
-        </div>
-        <div class="order-summary order-summary-compact">
-          <h3>Order Summary</h3>
-          <div><b>Address:</b> <span id="summary-address"></span></div>
-          <div><b>Payment:</b> <span id="summary-payment"></span></div>
-          <div><b>Total:</b> <span id="total-price">₦0</span></div>
-        </div>
-        <button id="toggle-map-btn" type="button" style="margin-top:8px;">Show Map</button>
-        <div id="map-container" class="hidden" style="margin-top: 1.5rem; padding: 1.5rem; border: 1px solid #eee; border-radius: 8px;">
-          <h3 style="margin-top: 0;">Pickup/Delivery Location</h3>
-          <div id="map" style="width: 100%; height: 300px; margin-bottom: 10px; background-color: #f9f9f9;"></div>
-          <div id="address-display">
-            <p><strong>Current Address:</strong> <span id="current-address"></span></p>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="payment-method">Payment Method:</label>
-          <select id="payment-method">
-            <option value="">Select</option>
-            <option value="card">Card</option>
-            <option value="transfer">Bank Transfer</option>
-            <option value="cash">Cash on Delivery</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="order-email">Email:</label>
-          <input type="email" id="order-email" required />
-        </div>
-        <div class="form-group">
-          <label for="order-phone">Phone Number:</label>
-          <input type="text" id="order-phone" required />
-        </div>
-      </form>
-      <button id="place-order-btn" class="btn-primary">
-        <span id="place-order-btn-text">Place Order</span>
-        <span id="place-order-spinner" class="spinner hidden" style="margin-left:8px;"></span>
-      </button>
-      <button id="back-to-products-btn-2" class="btn-secondary">Back to Products</button>
-    </section>
   </main>
-  <div id="customer-care-modal" class="hidden" style="position:fixed;bottom:100px;right:32px;z-index:10000;background:#fff;border-radius:16px;box-shadow:0 8px 32px #0002;width:340px;max-width:95vw;padding:0;display:none;flex-direction:column;">
-    <div style="background:#2563eb;color:#fff;padding:1rem 1.2rem;border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-weight:600;">Customer Care</span>
-      <button id="close-customer-care" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;">&times;</button>
+  <div id="notification-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="close-notif" class="close-modal">&times;</button>
+      <h3>Notifications</h3>
+      <ul id="notif-list" class="notif-list"></ul>
     </div>
-    <div id="customer-care-history" style="background:#f1f5f9;min-height:120px;max-height:220px;overflow-y:auto;padding:1rem;"></div>
-    <form id="customer-care-form" style="display:flex;gap:0.5rem;padding:1rem 1rem 1.2rem 1rem;">
-      <input type="text" id="customer-care-name" placeholder="Your Name" style="flex:1;" required />
-      <input type="email" id="customer-care-email" placeholder="Email" style="flex:1;" required />
-    </form>
-    <form id="customer-care-message-form" style="display:flex;gap:0.5rem;padding:0 1rem 1.2rem 1rem;">
-      <textarea id="customer-care-message" placeholder="Type your message..." style="flex:1;resize:none;min-height:36px;" required></textarea>
-      <button type="submit" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:0.5em 1.2em;font-weight:600;cursor:pointer;">Send</button>
-    </form>
   </div>
-  <button id="customer-care-btn" style="position:fixed;bottom:32px;right:32px;z-index:9999;background:#2563eb;color:#fff;border:none;border-radius:50%;width:56px;height:56px;box-shadow:0 2px 12px #0003;font-size:2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">💬</button>
+  <div id="orders-modal" class="modal hidden">
+    <div class="modal-content" style="max-width:600px;">
+      <button id="close-orders-modal" class="close-modal">&times;</button>
+      <h3>My Orders</h3>
+      <div id="orders-list">Loading...</div>
+    </div>
+  </div>
+  <div id="profile-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="close-profile-modal" class="close-modal">&times;</button>
+      <h3>Profile</h3>
+      <div id="profile-info">Loading...</div>
+    </div>
+  </div>
+  <div id="help-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="close-help-modal" class="close-modal">&times;</button>
+      <h3>Customer Care</h3>
+      <div id="help-info">
+        <p>For assistance, contact us at:</p>
+        <ul>
+          <li>Phone: 0800-123-4567</li>
+          <li>Email: support@godsownphone.com</li>
+        </ul>
+        <p>We are here to help you 24/7!</p>
+      </div>
+    </div>
+  </div>
   <script src="script.js"></script>
 </body>
-</html>  
+</html> 
