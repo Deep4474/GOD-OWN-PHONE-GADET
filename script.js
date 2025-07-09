@@ -353,8 +353,10 @@ function showBuyNowForm(product) {
   function showMap(deliveryMethod, address) {
     if (deliveryMethod === 'Deliver') {
       // Use address if available, else fallback to Lagos
-      const mapQuery = address && address.trim() ? encodeURIComponent(address) : 'Lagos,Nigeria';
-      mapContainer.innerHTML = `<iframe width="100%" height="200" frameborder="0" style="border:0" src="https://www.google.com/maps?q=${mapQuery}&z=13&output=embed" allowfullscreen></iframe>`;
+      const apiKey = 'YOUR_API_KEY'; // Replace with your real API key
+      const mapQuery = encodeURIComponent(address);
+      const mapUrl = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${mapQuery}`;
+      mapContainer.innerHTML = `<iframe width="100%" height="200" frameborder="0" style="border:0" src="${mapUrl}" allowfullscreen></iframe>`;
     } else {
       mapContainer.innerHTML = `<iframe width="100%" height="200" frameborder="0" style="border:0" src="https://www.google.com/maps?q=GOD'S+OWN+PHONE+GADGET+Store+Lagos,Nigeria&z=15&output=embed" allowfullscreen></iframe>`;
     }
