@@ -18,6 +18,10 @@ const notificationsFile = path.join(__dirname, 'customerMessages.json');
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'build')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 // --- Helper functions ---
 function readUsers() {
