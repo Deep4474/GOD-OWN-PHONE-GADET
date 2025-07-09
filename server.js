@@ -3,6 +3,8 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
@@ -18,21 +20,18 @@ const ordersFile = path.join(__dirname, 'orders.json');
 const updatesFile = path.join(__dirname, 'updates.json');
 const notificationsFile = path.join(__dirname, 'customerMessages.json');
 
+// Middleware
 app.use(cors());
 app.use(express.json());
-
-// Security middleware
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 app.use(helmet());
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-});
+}));
 
-// --- Helper functions ---
+// Helper functions
 function safeRead(file) {
   try {
     if (!fs.existsSync(file)) return [];
@@ -45,7 +44,7 @@ function safeWrite(file, data) {
   fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
-// --- Nodemailer transporter (Gmail) ---
+// Nodemailer transporter (Gmail)
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -54,7 +53,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// --- Register ---
+// --- Auth Endpoints ---
 app.post('/api/auth/register', async (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
   if (!name || !email || !password || !confirmPassword) return res.status(400).json({ error: 'Missing fields' });
@@ -84,7 +83,6 @@ app.post('/api/auth/register', async (req, res) => {
   res.json({ user: { name, email }, message: 'Registered. Check your email for the code.' });
 });
 
-// --- Login ---
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
   let users = safeRead(usersFile);
@@ -97,7 +95,6 @@ app.post('/api/auth/login', async (req, res) => {
   res.json({ user: { name: user.name, email: user.email }, token });
 });
 
-// --- Verify Email ---
 app.post('/api/auth/verify', (req, res) => {
   const { email, code } = req.body;
   let users = safeRead(usersFile);
@@ -111,12 +108,38 @@ app.post('/api/auth/verify', (req, res) => {
   res.json({ success: true, message: 'Email verified' });
 });
 
-// --- Get Products ---
+app.get('/api/auth/me', (req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith('Bearer ')) return res.status(401).json({ error: 'No token' });
+  const token = auth.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    let users = safeRead(usersFile);
+    const user = users.find(u => u.email === decoded.email);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json({ name: user.name, email: user.email, verified: user.verified });
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+});
+
+app.delete('/api/auth/user', (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  let users = safeRead(usersFile);
+  const initialLength = users.length;
+  users = users.filter(u => u.email !== email);
+  if (users.length === initialLength) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  safeWrite(usersFile, users);
+  res.json({ success: true, message: `User ${email} deleted.` });
+});
+
+// --- Products ---
 app.get('/api/products', (req, res) => {
   res.json(safeRead(productsFile));
 });
-
-// --- Add new product (admin) ---
 app.post('/api/products', (req, res) => {
   const { name, price, category, description, stock, imageUrl } = req.body;
   if (!name || !price || !category || !description || !stock || !imageUrl) {
@@ -136,21 +159,6 @@ app.post('/api/products', (req, res) => {
   safeWrite(productsFile, products);
   res.json({ success: true, product: newProduct });
 });
-
-// --- Delete product (admin) ---
-app.delete('/api/products/:id', (req, res) => {
-  const { id } = req.params;
-  let products = safeRead(productsFile);
-  const initialLength = products.length;
-  products = products.filter(p => String(p.id) !== String(id));
-  if (products.length === initialLength) {
-    return res.status(404).json({ error: 'Product not found' });
-  }
-  safeWrite(productsFile, products);
-  res.json({ success: true });
-});
-
-// --- Edit product (admin) ---
 app.patch('/api/products/:id', (req, res) => {
   const { id } = req.params;
   const { name, price, category, description, stock, imageUrl } = req.body;
@@ -166,8 +174,19 @@ app.patch('/api/products/:id', (req, res) => {
   safeWrite(productsFile, products);
   res.json({ success: true, product });
 });
+app.delete('/api/products/:id', (req, res) => {
+  const { id } = req.params;
+  let products = safeRead(productsFile);
+  const initialLength = products.length;
+  products = products.filter(p => String(p.id) !== String(id));
+  if (products.length === initialLength) {
+    return res.status(404).json({ error: 'Product not found' });
+  }
+  safeWrite(productsFile, products);
+  res.json({ success: true });
+});
 
-// --- Place Order ---
+// --- Orders ---
 app.post('/api/orders', (req, res) => {
   const { productId, quantity, address, phone, email, deliveryMethod, paymentMethod } = req.body;
   if (!productId || !quantity || !phone || !email || !deliveryMethod || !paymentMethod) {
@@ -197,8 +216,6 @@ app.post('/api/orders', (req, res) => {
   safeWrite(notificationsFile, notifs);
   res.json({ success: true, message: 'Order placed successfully', order: newOrder });
 });
-
-// --- Update order status ---
 app.patch('/api/orders/:id', (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -214,8 +231,6 @@ app.patch('/api/orders/:id', (req, res) => {
   safeWrite(notificationsFile, notifs);
   res.json({ success: true, order });
 });
-
-// --- Get orders for a user or all orders (admin) ---
 app.get('/api/orders', (req, res) => {
   const { email } = req.query;
   const orders = safeRead(ordersFile);
@@ -225,13 +240,13 @@ app.get('/api/orders', (req, res) => {
   res.json(orders);
 });
 
-// --- Get all users (admin) ---
+// --- Users (admin) ---
 app.get('/api/users', (req, res) => {
   const users = safeRead(usersFile).map(u => ({ name: u.name, email: u.email, verified: u.verified }));
   res.json(users);
 });
 
-// --- Send update to all users (admin) ---
+// --- Updates ---
 app.post('/api/updates', (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: 'Message required' });
@@ -241,54 +256,20 @@ app.post('/api/updates', (req, res) => {
   safeWrite(updatesFile, updates);
   res.json({ success: true, update });
 });
-
-// --- Get all updates (for users) ---
 app.get('/api/updates', (req, res) => {
   res.json(safeRead(updatesFile));
 });
 
-// --- Get notifications for a user ---
+// --- Notifications ---
 app.get('/api/notifications', (req, res) => {
   const { email } = req.query;
   if (!email) return res.status(400).json({ error: 'Email required' });
   const notifs = safeRead(notificationsFile).filter(n => n.email === email);
   res.json(notifs);
 });
-
-// --- Delete all notifications (admin/user) ---
 app.delete('/api/notifications', (req, res) => {
   safeWrite(notificationsFile, []);
   res.json({ success: true, message: 'All notifications deleted.' });
-});
-
-// --- Get current user info (token required) ---
-app.get('/api/auth/me', (req, res) => {
-  const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith('Bearer ')) return res.status(401).json({ error: 'No token' });
-  const token = auth.split(' ')[1];
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    let users = safeRead(usersFile);
-    const user = users.find(u => u.email === decoded.email);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json({ name: user.name, email: user.email, verified: user.verified });
-  } catch (err) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-});
-
-// --- Delete User by Email ---
-app.delete('/api/auth/user', (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email required' });
-  let users = safeRead(usersFile);
-  const initialLength = users.length;
-  users = users.filter(u => u.email !== email);
-  if (users.length === initialLength) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-  safeWrite(usersFile, users);
-  res.json({ success: true, message: `User ${email} deleted.` });
 });
 
 // --- Serve frontend (React or static HTML) ---
@@ -301,9 +282,6 @@ app.get('*', (req, res) => {
     res.status(404).send("Frontend not found. Please build your frontend and place it in the 'build' folder.");
   }
 });
-
-// --- Root welcome route (for API only) ---
-// (Handled by frontend catch-all above)
 
 // --- Start server ---
 app.listen(PORT, () => {
