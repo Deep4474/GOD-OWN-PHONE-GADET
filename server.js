@@ -55,8 +55,9 @@ const transporter = nodemailer.createTransport({
 
 // --- Auth Endpoints ---
 app.post('/api/auth/register', async (req, res) => {
-  const { name, email, password, confirmPassword } = req.body;
-  if (!name || !email || !password || !confirmPassword) return res.status(400).json({ error: 'Missing fields' });
+  const { name, email, password, confirmPassword, state, lga, address } = req.body;
+  if (!name || !email || !password || !confirmPassword || !state || !lga || !address)
+    return res.status(400).json({ error: 'Missing fields' });
   if (password !== confirmPassword) return res.status(400).json({ error: 'Passwords do not match' });
   const strongPassword = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
   if (!strongPassword.test(password)) {
@@ -66,7 +67,7 @@ app.post('/api/auth/register', async (req, res) => {
   if (users.find(u => u.email === email)) return res.status(400).json({ error: 'Email already registered' });
   const hashed = await bcrypt.hash(password, 10);
   const code = Math.floor(100000 + Math.random() * 900000).toString();
-  const user = { name, email, password: hashed, verified: false, code };
+  const user = { name, email, password: hashed, verified: false, code, state, lga, address };
   users.push(user);
   safeWrite(usersFile, users);
   try {
