@@ -355,7 +355,13 @@ function showBuyNowForm(product) {
       // Use address if available, else fallback to Lagos
       const apiKey = 'YOUR_API_KEY'; // Replace with your real API key
       const mapQuery = encodeURIComponent(address);
-      const mapUrl = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${mapQuery}`;
+      let mapUrl;
+      if (apiKey && apiKey !== 'YOUR_API_KEY') {
+        mapUrl = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${mapQuery}`;
+      } else {
+        // Fallback to old embed method if API key is not set
+        mapUrl = `https://www.google.com/maps?q=${mapQuery}&output=embed`;
+      }
       mapContainer.innerHTML = `<iframe width="100%" height="200" frameborder="0" style="border:0" src="${mapUrl}" allowfullscreen></iframe>`;
     } else {
       mapContainer.innerHTML = `<iframe width="100%" height="200" frameborder="0" style="border:0" src="https://www.google.com/maps?q=GOD'S+OWN+PHONE+GADGET+Store+Lagos,Nigeria&z=15&output=embed" allowfullscreen></iframe>`;
