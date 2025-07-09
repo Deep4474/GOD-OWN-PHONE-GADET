@@ -272,14 +272,16 @@ app.delete('/api/notifications', (req, res) => {
   res.json({ success: true, message: 'All notifications deleted.' });
 });
 
-// --- Serve frontend (React or static HTML) ---
-app.use(express.static(path.join(__dirname, 'build')));
+// --- Serve static files from the root directory
+app.use(express.static(__dirname));
+
+// Serve index.html for all non-API routes
 app.get('*', (req, res) => {
-  const indexPath = path.join(__dirname, 'build', 'index.html');
+  const indexPath = path.join(__dirname, 'index.html');
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    res.status(404).send("Frontend not found. Please build your frontend and place it in the 'build' folder.");
+    res.status(404).send("Frontend not found. Please add an index.html file to the project root.");
   }
 });
 
