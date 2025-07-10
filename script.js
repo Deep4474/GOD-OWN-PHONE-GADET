@@ -434,6 +434,10 @@ function showBuyNowForm(product) {
       setTimeout(() => {
         modal.classList.add('hidden');
         modal.style.display = 'none';
+        // Automatically open My Orders and refresh the list
+        if (typeof myOrdersBtn !== 'undefined' && myOrdersBtn) {
+          myOrdersBtn.click();
+        }
       }, 1500);
     } catch (err) {
       orderMsg.textContent = err.message || 'Failed to send order.';
