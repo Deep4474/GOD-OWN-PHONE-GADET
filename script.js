@@ -467,11 +467,21 @@ if (myOrdersBtn && ordersModal && closeOrdersModal && ordersList) {
           return p ? p.name : id;
         };
         if (!orders.length) {
-          ordersList.innerHTML = '<p style="text-align:center;">No orders found.</p>';
+          ordersList.innerHTML = `
+            <div style="text-align:center;padding:2em 0;">
+              <p style="font-size:1.1em;">You have not placed any orders yet.</p>
+              <p style="color:#888;">This section will show all orders you send to admin and any updates or actions taken by admin (such as status changes, shipping, etc.).</p>
+              <p style="margin-top:1em;">To get started, browse products and place your first order!</p>
+            </div>
+          `;
         } else {
-          ordersList.innerHTML = `<table style="width:100%;font-size:0.98em;"><thead><tr><th>Product</th><th>Qty</th><th>Status</th><th>Date</th><th>Delivery</th><th>Payment</th><th>Address</th></tr></thead><tbody>
-            ${orders.map(o => `<tr><td>${getProductName(o.productId)}</td><td>${o.quantity}</td><td>${o.status || 'pending'}</td><td>${o.date ? new Date(o.date).toLocaleString() : ''}</td><td>${o.deliveryMethod || ''}</td><td>${o.paymentMethod || ''}</td><td>${o.address || ''}</td></tr>`).join('')}
-          </tbody></table>`;
+          ordersList.innerHTML = `
+            <div style="margin-bottom:1em;font-size:1.05em;color:#444;text-align:center;">
+              Here you can view all orders you have sent to admin and see their current status or any actions taken by admin.
+            </div>
+            <table style="width:100%;font-size:0.98em;"><thead><tr><th>Product</th><th>Qty</th><th>Status</th><th>Date</th><th>Delivery</th><th>Payment</th><th>Address</th></tr></thead><tbody>
+              ${orders.map(o => `<tr><td>${getProductName(o.productId)}</td><td>${o.quantity}</td><td>${o.status || 'pending'}</td><td>${o.date ? new Date(o.date).toLocaleString() : ''}</td><td>${o.deliveryMethod || ''}</td><td>${o.paymentMethod || ''}</td><td>${o.address || ''}</td></tr>`).join('')}
+            </tbody></table>`;
         }
       } catch {
         ordersList.innerHTML = '<p style="color:#d63031;text-align:center;">Failed to load orders.</p>';
