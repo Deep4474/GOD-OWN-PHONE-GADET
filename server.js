@@ -188,7 +188,7 @@ app.delete('/api/products/:id', (req, res) => {
 });
 
 // --- Orders ---
-app.post('/api/orders', (req, res) => {
+app.post('/api/orders', async (req, res) => {
   const { productId, quantity, address, phone, email, deliveryMethod, paymentMethod } = req.body;
   if (!productId || !quantity || !phone || !email || !deliveryMethod || !paymentMethod) {
     return res.status(400).json({ error: 'Missing order details' });
@@ -215,6 +215,19 @@ app.post('/api/orders', (req, res) => {
   const notifs = safeRead(notificationsFile);
   notifs.unshift({ id: Date.now(), email, message: 'Your order has been placed successfully!', date: new Date().toISOString() });
   safeWrite(notificationsFile, notifs);
+  // Send order confirmation email
+  try {
+    await transporter.sendMail({
+      from: `GOD'S OWN PHONE GADGET <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Order Confirmation',
+      text: `Thank you for your order!\n\nOrder Details:\nProduct: ${productId}\nQuantity: ${quantity}\nDelivery Method: ${deliveryMethod}\nPayment Method: ${paymentMethod}\nAddress: ${address || 'N/A'}\nPhone: ${phone}\nStatus: pending\nDate: ${new Date().toLocaleString()}\n\nWe will update you as your order is processed.`,
+      html: `<h3>Thank you for your order!</h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${productId}</li><li><b>Quantity:</b> ${quantity}</li><li><b>Delivery Method:</b> ${deliveryMethod}</li><li><b>Payment Method:</b> ${paymentMethod}</li><li><b>Address:</b> ${address || 'N/A'}</li><li><b>Phone:</b> ${phone}</li><li><b>Status:</b> pending</li><li><b>Date:</b> ${new Date().toLocaleString()}</li></ul><p>We will update you as your order is processed.</p>`
+    });
+  } catch (err) {
+    // Don't fail the order if email fails, just log
+    console.error('Failed to send order confirmation email:', err);
+  }
   res.json({ success: true, message: 'Order placed successfully', order: newOrder });
 });
 app.patch('/api/orders/:id', (req, res) => {
