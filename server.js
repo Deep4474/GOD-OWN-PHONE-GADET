@@ -230,7 +230,7 @@ app.post('/api/orders', async (req, res) => {
   }
   res.json({ success: true, message: 'Order placed successfully', order: newOrder });
 });
-app.patch('/api/orders/:id', (req, res) => {
+app.patch('/api/orders/:id', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
   if (!status) return res.status(400).json({ error: 'Status required' });
@@ -243,6 +243,18 @@ app.patch('/api/orders/:id', (req, res) => {
   const notifs = safeRead(notificationsFile);
   notifs.unshift({ id: Date.now(), email: order.email, message: `Your order status was updated to: ${status}`, date: new Date().toISOString() });
   safeWrite(notificationsFile, notifs);
+  // Send status update email
+  try {
+    await transporter.sendMail({
+      from: `GOD'S OWN PHONE GADGET <${process.env.EMAIL_USER}>`,
+      to: order.email,
+      subject: 'Order Status Update',
+      text: `Your order (ID: ${order.id}) status has been updated to: ${status}.\n\nOrder Details:\nProduct: ${order.productId}\nQuantity: ${order.quantity}\nDelivery Method: ${order.deliveryMethod}\nPayment Method: ${order.paymentMethod}\nAddress: ${order.address || 'N/A'}\nPhone: ${order.phone}\nDate: ${order.date ? new Date(order.date).toLocaleString() : ''}`,
+      html: `<h3>Your order (ID: ${order.id}) status has been updated to: <b>${status}</b></h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${order.productId}</li><li><b>Quantity:</b> ${order.quantity}</li><li><b>Delivery Method:</b> ${order.deliveryMethod}</li><li><b>Payment Method:</b> ${order.paymentMethod}</li><li><b>Address:</b> ${order.address || 'N/A'}</li><li><b>Phone:</b> ${order.phone}</li><li><b>Date:</b> ${order.date ? new Date(order.date).toLocaleString() : ''}</li></ul>`
+    });
+  } catch (err) {
+    console.error('Failed to send order status update email:', err);
+  }
   res.json({ success: true, order });
 });
 app.get('/api/orders', (req, res) => {
