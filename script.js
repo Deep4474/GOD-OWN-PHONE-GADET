@@ -453,13 +453,24 @@ if (myOrdersBtn && ordersModal && closeOrdersModal && ordersList) {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (user.email) {
       try {
+        // Fetch orders for this user
         const res = await fetch(`${API_BASE_URL}/api/orders?email=${encodeURIComponent(user.email)}`);
         const orders = await res.json();
+        // Fetch products for mapping productId to name (if products exist)
+        let products = [];
+        try {
+          const prodRes = await fetch(`${API_BASE_URL}/api/products`);
+          products = await prodRes.json();
+        } catch {}
+        const getProductName = (id) => {
+          const p = products.find(pr => String(pr.id) === String(id));
+          return p ? p.name : id;
+        };
         if (!orders.length) {
           ordersList.innerHTML = '<p style="text-align:center;">No orders found.</p>';
         } else {
-          ordersList.innerHTML = `<table style="width:100%;font-size:0.98em;"><thead><tr><th>Product</th><th>Qty</th><th>Status</th><th>Date</th></tr></thead><tbody>
-            ${orders.map(o => `<tr><td>${o.productId}</td><td>${o.quantity}</td><td>${o.status || 'pending'}</td><td>${o.date ? new Date(o.date).toLocaleString() : ''}</td></tr>`).join('')}
+          ordersList.innerHTML = `<table style="width:100%;font-size:0.98em;"><thead><tr><th>Product</th><th>Qty</th><th>Status</th><th>Date</th><th>Delivery</th><th>Payment</th><th>Address</th></tr></thead><tbody>
+            ${orders.map(o => `<tr><td>${getProductName(o.productId)}</td><td>${o.quantity}</td><td>${o.status || 'pending'}</td><td>${o.date ? new Date(o.date).toLocaleString() : ''}</td><td>${o.deliveryMethod || ''}</td><td>${o.paymentMethod || ''}</td><td>${o.address || ''}</td></tr>`).join('')}
           </tbody></table>`;
         }
       } catch {
