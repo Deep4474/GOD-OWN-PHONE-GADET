@@ -8,6 +8,7 @@ const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const mongoose = require('mongoose');
 
 const app = express();
 const PORT = process.env.PORT || 4003;
@@ -52,6 +53,39 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS  // set in Render env vars
   }
 });
+
+// MongoDB connection
+const MONGO_URI = process.env.MONGO_URI || '';
+if (MONGO_URI) {
+  mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.error('MongoDB connection error:', err));
+}
+
+// Product Schema
+const productSchema = new mongoose.Schema({
+  name: String,
+  price: Number,
+  category: String,
+  description: String,
+  stock: Number,
+  images: [String]
+});
+const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
+
+// Order Schema
+const orderSchema = new mongoose.Schema({
+  productId: mongoose.Schema.Types.Mixed,
+  quantity: Number,
+  address: String,
+  phone: String,
+  email: String,
+  deliveryMethod: String,
+  paymentMethod: String,
+  status: { type: String, default: 'pending' },
+  date: { type: Date, default: Date.now }
+});
+const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 
 // --- Auth Endpoints ---
 app.post('/api/auth/register', async (req, res) => {
@@ -138,13 +172,24 @@ app.delete('/api/auth/user', (req, res) => {
 });
 
 // --- Products ---
-app.get('/api/products', (req, res) => {
+app.get('/api/products', async (req, res) => {
+  if (mongoose.connection.readyState === 1) {
+    const products = await Product.find();
+    return res.json(products);
+  }
   res.json(safeRead(productsFile));
 });
-app.post('/api/products', (req, res) => {
+app.post('/api/products', async (req, res) => {
   const { name, price, category, description, stock, imageUrl } = req.body;
   if (!name || !price || !category || !description || !stock || !imageUrl) {
     return res.status(400).json({ error: 'All fields are required.' });
+  }
+  if (mongoose.connection.readyState === 1) {
+    const newProduct = new Product({
+      name, price, category, description, stock, images: [imageUrl]
+    });
+    await newProduct.save();
+    return res.json({ success: true, product: newProduct });
   }
   const products = safeRead(productsFile);
   const newProduct = {
@@ -160,9 +205,21 @@ app.post('/api/products', (req, res) => {
   safeWrite(productsFile, products);
   res.json({ success: true, product: newProduct });
 });
-app.patch('/api/products/:id', (req, res) => {
+app.patch('/api/products/:id', async (req, res) => {
   const { id } = req.params;
   const { name, price, category, description, stock, imageUrl } = req.body;
+  if (mongoose.connection.readyState === 1) {
+    const product = await Product.findById(id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    if (name) product.name = name;
+    if (price) product.price = price;
+    if (category) product.category = category;
+    if (description) product.description = description;
+    if (stock) product.stock = stock;
+    if (imageUrl) product.images = [imageUrl];
+    await product.save();
+    return res.json({ success: true, product });
+  }
   let products = safeRead(productsFile);
   const product = products.find(p => String(p.id) === String(id));
   if (!product) return res.status(404).json({ error: 'Product not found' });
@@ -175,8 +232,13 @@ app.patch('/api/products/:id', (req, res) => {
   safeWrite(productsFile, products);
   res.json({ success: true, product });
 });
-app.delete('/api/products/:id', (req, res) => {
+app.delete('/api/products/:id', async (req, res) => {
   const { id } = req.params;
+  if (mongoose.connection.readyState === 1) {
+    const result = await Product.findByIdAndDelete(id);
+    if (!result) return res.status(404).json({ error: 'Product not found' });
+    return res.json({ success: true });
+  }
   let products = safeRead(productsFile);
   const initialLength = products.length;
   products = products.filter(p => String(p.id) !== String(id));
@@ -195,6 +257,30 @@ app.post('/api/orders', async (req, res) => {
   }
   if (deliveryMethod === 'Deliver' && !address) {
     return res.status(400).json({ error: 'Address required for delivery' });
+  }
+  if (mongoose.connection.readyState === 1) {
+    const newOrder = new Order({
+      productId, quantity, address: deliveryMethod === 'Deliver' ? address : '', phone, email, deliveryMethod, paymentMethod
+    });
+    await newOrder.save();
+    // Add notification and send email as before
+    const notifs = safeRead(notificationsFile);
+    notifs.unshift({ id: Date.now(), email, message: 'Your order has been placed successfully!', date: new Date().toISOString() });
+    safeWrite(notificationsFile, notifs);
+    try {
+      await transporter.sendMail({
+        from: `GOD'S OWN PHONE GADGET <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: 'Order Confirmation',
+        text: `Thank you for your order!\n\nOrder Details:\nProduct: ${productId}\nQuantity: ${quantity}\nDelivery Method: ${deliveryMethod}\nPayment Method: ${paymentMethod}\nAddress: ${address || 'N/A'}\nPhone: ${phone}\nStatus: pending\nDate: ${new Date().toLocaleString()}\n\nWe will update you as your order is processed.`,
+        html: `<h3>Thank you for your order!</h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${productId}</li><li><b>Quantity:</b> ${quantity}</li><li><b>Delivery Method:</b> ${deliveryMethod}</li><li><b>Payment Method:</b> ${paymentMethod}</li><li><b>Address:</b> ${address || 'N/A'}</li><li><b>Phone:</b> ${phone}</li><li><b>Status:</b> pending</li><li><b>Date:</b> ${new Date().toLocaleString()}</li></ul><p>We will update you as your order is processed.</p>`
+      });
+    } catch (err) {
+      // Don't fail the order if email fails, just log
+      console.error('Failed to send order confirmation email:', err);
+    }
+    res.json({ success: true, message: 'Order placed successfully', order: newOrder });
+    return;
   }
   const orders = safeRead(ordersFile);
   const newOrder = {
@@ -234,6 +320,28 @@ app.patch('/api/orders/:id', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
   if (!status) return res.status(400).json({ error: 'Status required' });
+  if (mongoose.connection.readyState === 1) {
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    order.status = status;
+    await order.save();
+    // Add notification and send email as before
+    const notifs = safeRead(notificationsFile);
+    notifs.unshift({ id: Date.now(), email: order.email, message: `Your order status was updated to: ${status}`, date: new Date().toISOString() });
+    safeWrite(notificationsFile, notifs);
+    try {
+      await transporter.sendMail({
+        from: `GOD'S OWN PHONE GADGET <${process.env.EMAIL_USER}>`,
+        to: order.email,
+        subject: 'Order Status Update',
+        text: `Your order (ID: ${order.id}) status has been updated to: ${status}.\n\nOrder Details:\nProduct: ${order.productId}\nQuantity: ${order.quantity}\nDelivery Method: ${order.deliveryMethod}\nPayment Method: ${order.paymentMethod}\nAddress: ${order.address || 'N/A'}\nPhone: ${order.phone}\nDate: ${order.date ? new Date(order.date).toLocaleString() : ''}`,
+        html: `<h3>Your order (ID: ${order.id}) status has been updated to: <b>${status}</b></h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${order.productId}</li><li><b>Quantity:</b> ${order.quantity}</li><li><b>Delivery Method:</b> ${order.deliveryMethod}</li><li><b>Payment Method:</b> ${order.paymentMethod}</li><li><b>Address:</b> ${order.address || 'N/A'}</li><li><b>Phone:</b> ${order.phone}</li><li><b>Date:</b> ${order.date ? new Date(order.date).toLocaleString() : ''}</li></ul>`
+      });
+    } catch (err) {
+      console.error('Failed to send order status update email:', err);
+    }
+    return res.json({ success: true, order });
+  }
   const orders = safeRead(ordersFile);
   const order = orders.find(o => String(o.id) === String(id));
   if (!order) return res.status(404).json({ error: 'Order not found' });
@@ -257,8 +365,12 @@ app.patch('/api/orders/:id', async (req, res) => {
   }
   res.json({ success: true, order });
 });
-app.get('/api/orders', (req, res) => {
+app.get('/api/orders', async (req, res) => {
   const { email } = req.query;
+  if (mongoose.connection.readyState === 1) {
+    let orders = await Order.find(email ? { email } : {});
+    return res.json(orders);
+  }
   const orders = safeRead(ordersFile);
   if (email) {
     return res.json(orders.filter(o => o.email === email));
