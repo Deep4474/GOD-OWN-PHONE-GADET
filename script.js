@@ -458,8 +458,9 @@ if (myOrdersBtn && ordersModal && closeOrdersModal && ordersList) {
     if (user.email) {
       try {
         // Fetch orders for this user
-        const res = await fetch(`${API_BASE_URL}/api/orders?email=${encodeURIComponent(user.email)}`);
+        const res = await fetch(`${API_BASE_URL}/api/orders?email=${encodeURIComponent(user.email)}&t=${Date.now()}`); // force fresh fetch
         const orders = await res.json();
+        console.log('Fetched orders for user', user.email, orders); // debug log
         // Fetch products for mapping productId to name (if products exist)
         let products = [];
         try {
