@@ -472,12 +472,11 @@ if (myOrdersBtn && ordersModal && closeOrdersModal && ordersList) {
         };
         if (!orders.length) {
           ordersList.innerHTML = `
-            <div style="text-align:center;padding:2em 0;">
-              <p style="font-size:1.1em;">You have not placed any orders yet.</p>
-              <p style="color:#888;">This section will show all orders you send to admin and any updates or actions taken by admin (such as status changes, shipping, etc.).</p>
-              <p style="margin-top:1em;">To get started, browse products and place your first order!</p>
+            <div style="margin-bottom:1em;font-size:1.05em;color:#444;text-align:center;">
+              Here you can view all orders you have sent to admin and see their current status or any actions taken by admin.
             </div>
-          `;
+            <table style="width:100%;font-size:0.98em;"><thead><tr><th>Product</th><th>Qty</th><th>Status</th><th>Date</th><th>Delivery</th><th>Payment</th><th>Address</th></tr></thead><tbody>
+            </tbody></table>`;
         } else {
           ordersList.innerHTML = `
             <div style="margin-bottom:1em;font-size:1.05em;color:#444;text-align:center;">
