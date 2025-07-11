@@ -421,17 +421,15 @@ app.delete('/api/notifications', (req, res) => {
 
 // --- SMS Endpoints ---
 // --- SMS Sending Endpoint (Twilio) ---
-// Replace with your real Twilio credentials and phone numbers
-// For demonstration, using provided token and phone number
 app.post('/api/sms/send', async (req, res) => {
   const { to, message } = req.body;
-  const recipient = to || '+2348051877195'; // Example: Nigeria number in international format
+  const recipient = to || '+2348051877195'; // Nigeria number in international format
   const smsMessage = message || 'Test message from GOD\'S OWN PHONE GADGET';
 
-  // Use your real Twilio credentials here
-  const accountSid = process.env.TWILIO_ACCOUNT_SID || 'YOUR_TWILIO_ACCOUNT_SID';
-  const authToken = process.env.TWILIO_AUTH_TOKEN || 'HLBG825BJNVNBD2R52GH52KC'; // Provided token
-  const fromNumber = process.env.TWILIO_PHONE_NUMBER || 'YOUR_TWILIO_PHONE_NUMBER';
+  // Hardcoded credentials for testing (not recommended for production)
+  const accountSid = process.env.TWILIO_ACCOUNT_SID || 'HLBG825BJNVNBD2R52GH52KC';
+  const authToken = process.env.TWILIO_AUTH_TOKEN || 'HLBG825BJNVNBD2R52GH52KC';
+  const fromNumber = process.env.TWILIO_PHONE_NUMBER || '+2348051877195';
   const twilioClient = require('twilio')(accountSid, authToken);
 
   try {
