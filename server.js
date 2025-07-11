@@ -423,23 +423,53 @@ app.delete('/api/notifications', (req, res) => {
 // --- SMS Sending Endpoint (Twilio) ---
 // Example usage (POST JSON to /api/sms/send):
 // {
-//   "to": "+2348051877195",
+//   "recipients": "all" | "custom" | undefined,
+//   "customNumbers": "+2348012345678, +2348765432109",
 //   "message": "Hello from GOD'S OWN PHONE GADGET!"
 // }
 app.post('/api/sms/send', async (req, res) => {
-  const { to, message } = req.body;
-  const recipient = to || '+2348051877195'; // Nigeria number in international format
-  const smsMessage = message || 'Test message from GOD\'S OWN PHONE GADGET';
+  let { recipients, customNumbers, message, to } = req.body;
+  message = message || "Test message from GOD'S OWN PHONE GADGET";
+  let numbers = [];
+
+  if (recipients === 'all') {
+    // Send to all users (collect all phone numbers from users.json)
+    try {
+      const users = safeRead(usersFile);
+      numbers = users.map(u => u.phone).filter(Boolean);
+      if (!numbers.length) return res.status(400).json({ success: false, error: 'No user phone numbers found.' });
+    } catch (err) {
+      return res.status(500).json({ success: false, error: 'Failed to read users.' });
+    }
+  } else if (recipients === 'custom' && customNumbers) {
+    // Send to custom numbers (comma-separated)
+    numbers = customNumbers.split(',').map(n => n.trim()).filter(Boolean);
+    if (!numbers.length) return res.status(400).json({ success: false, error: 'No valid custom numbers provided.' });
+  } else if (to) {
+    numbers = [to];
+  } else {
+    return res.status(400).json({ success: false, error: 'No recipients specified.' });
+  }
 
   try {
-    const sms = await twilioClient.messages.create({
-      body: smsMessage,
-      from: fromNumber, // Must be a Twilio-verified number
-      to: recipient
-    });
-    res.json({ success: true, sid: sms.sid });
+    const results = [];
+    for (const number of numbers) {
+      try {
+        const sms = await twilioClient.messages.create({
+          body: message,
+          from: fromNumber, // Must be a Twilio-verified number
+          to: number
+        });
+        results.push({ to: number, sid: sms.sid, status: 'sent' });
+      } catch (error) {
+        console.error('Twilio SMS error:', error);
+        results.push({ to: number, error: error.message, status: 'error' });
+      }
+    }
+    // Optionally, save to smsHistoryFile here
+    res.json({ success: true, results });
   } catch (error) {
-    console.error('Twilio SMS error:', error); // Add this line
+    console.error('Twilio SMS error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
