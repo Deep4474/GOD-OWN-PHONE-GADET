@@ -9,6 +9,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
+const twilio = require('twilio');
 
 const app = express();
 const PORT = process.env.PORT || 4003;
@@ -20,6 +21,7 @@ const productsFile = path.join(__dirname, 'products.json');
 const ordersFile = path.join(__dirname, 'orders.json');
 const updatesFile = path.join(__dirname, 'updates.json');
 const notificationsFile = path.join(__dirname, 'customerMessages.json');
+const smsHistoryFile = path.join(__dirname, 'smsHistory.json');
 
 // Middleware
 app.use(cors());
@@ -53,6 +55,13 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS  // set in Render env vars
   }
 });
+
+// Twilio client for SMS
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
 // MongoDB connection
 const MONGO_URI = process.env.MONGO_URI || '';
@@ -409,6 +418,41 @@ app.delete('/api/notifications', (req, res) => {
   safeWrite(notificationsFile, []);
   res.json({ success: true, message: 'All notifications deleted.' });
 });
+
+// --- SMS Endpoints ---
+// --- SMS Sending Endpoint (Twilio) ---
+// Replace with your real Twilio credentials and phone numbers
+// For demonstration, using provided token and phone number
+app.post('/api/sms/send', async (req, res) => {
+  const { to, message } = req.body;
+  const recipient = to || '+2348051877195'; // Example: Nigeria number in international format
+  const smsMessage = message || 'Test message from GOD\'S OWN PHONE GADGET';
+
+  // Use your real Twilio credentials here
+  const accountSid = process.env.TWILIO_ACCOUNT_SID || 'YOUR_TWILIO_ACCOUNT_SID';
+  const authToken = process.env.TWILIO_AUTH_TOKEN || 'HLBG825BJNVNBD2R52GH52KC'; // Provided token
+  const fromNumber = process.env.TWILIO_PHONE_NUMBER || 'YOUR_TWILIO_PHONE_NUMBER';
+  const twilioClient = require('twilio')(accountSid, authToken);
+
+  try {
+    const sms = await twilioClient.messages.create({
+      body: smsMessage,
+      from: fromNumber, // Must be a Twilio-verified number
+      to: recipient
+    });
+    res.json({ success: true, sid: sms.sid });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+// --- End SMS Sending Endpoint ---
+
+// --- SMS History Endpoint ---
+app.get('/api/sms/history', (req, res) => {
+  const history = safeRead(smsHistoryFile);
+  res.json(history);
+});
+// --- End SMS History Endpoint ---
 
 // --- Serve static files from the root directory
 app.use(express.static(__dirname));
