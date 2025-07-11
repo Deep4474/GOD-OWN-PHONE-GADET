@@ -421,6 +421,11 @@ app.delete('/api/notifications', (req, res) => {
 
 // --- SMS Endpoints ---
 // --- SMS Sending Endpoint (Twilio) ---
+// Example usage (POST JSON to /api/sms/send):
+// {
+//   "to": "+2348051877195",
+//   "message": "Hello from GOD'S OWN PHONE GADGET!"
+// }
 app.post('/api/sms/send', async (req, res) => {
   const { to, message } = req.body;
   const recipient = to || '+2348051877195'; // Nigeria number in international format
@@ -434,6 +439,7 @@ app.post('/api/sms/send', async (req, res) => {
     });
     res.json({ success: true, sid: sms.sid });
   } catch (error) {
+    console.error('Twilio SMS error:', error); // Add this line
     res.status(500).json({ success: false, error: error.message });
   }
 });
