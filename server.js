@@ -57,10 +57,10 @@ const transporter = nodemailer.createTransport({
 });
 
 // Twilio client for SMS
-const twilioClient = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+const twilioClient = require('twilio')(accountSid, authToken);
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
 // MongoDB connection
@@ -425,12 +425,6 @@ app.post('/api/sms/send', async (req, res) => {
   const { to, message } = req.body;
   const recipient = to || '+2348051877195'; // Nigeria number in international format
   const smsMessage = message || 'Test message from GOD\'S OWN PHONE GADGET';
-
-  // Hardcoded credentials for testing (not recommended for production)
-  const accountSid = process.env.TWILIO_ACCOUNT_SID || 'HLBG825BJNVNBD2R52GH52KC';
-  const authToken = process.env.TWILIO_AUTH_TOKEN || 'HLBG825BJNVNBD2R52GH52KC';
-  const fromNumber = process.env.TWILIO_PHONE_NUMBER || '+2348051877195';
-  const twilioClient = require('twilio')(accountSid, authToken);
 
   try {
     const sms = await twilioClient.messages.create({
