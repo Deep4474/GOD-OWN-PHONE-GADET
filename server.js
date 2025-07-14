@@ -25,7 +25,11 @@ const smsHistoryFile = path.join(__dirname, 'smsHistory.json');
 
 // Middleware
 app.use(cors({
-  origin: ['https://deep4474.github.io', 'http://localhost:3000'],
+  origin: [
+    'https://deep4474.github.io',
+    'http://localhost:3000',
+    'https://glittery-torrone-d1184e.netlify.app'
+  ],
   credentials: true
 }));
 app.use(express.json());
