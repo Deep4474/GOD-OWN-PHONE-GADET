@@ -286,8 +286,20 @@ app.post('/api/orders', async (req, res) => {
         text: `Thank you for your order!\n\nOrder Details:\nProduct: ${productId}\nQuantity: ${quantity}\nDelivery Method: ${deliveryMethod}\nPayment Method: ${paymentMethod}\nAddress: ${address || 'N/A'}\nPhone: ${phone}\nStatus: pending\nDate: ${new Date().toLocaleString()}\n\nWe will update you as your order is processed.`,
         html: `<h3>Thank you for your order!</h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${productId}</li><li><b>Quantity:</b> ${quantity}</li><li><b>Delivery Method:</b> ${deliveryMethod}</li><li><b>Payment Method:</b> ${paymentMethod}</li><li><b>Address:</b> ${address || 'N/A'}</li><li><b>Phone:</b> ${phone}</li><li><b>Status:</b> pending</li><li><b>Date:</b> ${new Date().toLocaleString()}</li></ul><p>We will update you as your order is processed.</p>`
       });
+      // Send SMS confirmation
+      if (phone) {
+        try {
+          await twilioClient.messages.create({
+            body: `GOD'S OWN PHONE GADGET: Your order for ${quantity} x ${productId} is received. Status: pending. Thank you!`,
+            from: fromNumber,
+            to: phone
+          });
+        } catch (smsErr) {
+          // Optionally handle SMS error
+        }
+      }
     } catch (err) {
-      // Don't fail the order if email fails, just log
+      // Don't fail the order if email or SMS fails, just log
     }
     res.json({ success: true, message: 'Order placed successfully', order: newOrder });
     return;
@@ -320,8 +332,20 @@ app.post('/api/orders', async (req, res) => {
       text: `Thank you for your order!\n\nOrder Details:\nProduct: ${productId}\nQuantity: ${quantity}\nDelivery Method: ${deliveryMethod}\nPayment Method: ${paymentMethod}\nAddress: ${address || 'N/A'}\nPhone: ${phone}\nStatus: pending\nDate: ${new Date().toLocaleString()}\n\nWe will update you as your order is processed.`,
       html: `<h3>Thank you for your order!</h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${productId}</li><li><b>Quantity:</b> ${quantity}</li><li><b>Delivery Method:</b> ${deliveryMethod}</li><li><b>Payment Method:</b> ${paymentMethod}</li><li><b>Address:</b> ${address || 'N/A'}</li><li><b>Phone:</b> ${phone}</li><li><b>Status:</b> pending</li><li><b>Date:</b> ${new Date().toLocaleString()}</li></ul><p>We will update you as your order is processed.</p>`
     });
+    // Send SMS confirmation
+    if (phone) {
+      try {
+        await twilioClient.messages.create({
+          body: `GOD'S OWN PHONE GADGET: Your order for ${quantity} x ${productId} is received. Status: pending. Thank you!`,
+          from: fromNumber,
+          to: phone
+        });
+      } catch (smsErr) {
+        // Optionally handle SMS error
+      }
+    }
   } catch (err) {
-    // Don't fail the order if email fails, just log
+    // Don't fail the order if email or SMS fails, just log
   }
   res.json({ success: true, message: 'Order placed successfully', order: newOrder });
 });
