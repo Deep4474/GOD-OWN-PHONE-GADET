@@ -63,6 +63,9 @@ const fromNumber = process.env.TWILIO_PHONE_NUMBER;
 const twilioClient = require('twilio')(accountSid, authToken);
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
+// Define admin phone numbers
+const ADMIN_PHONES = ['+12512946765', '+2349138154963'];
+
 // MongoDB connection
 const MONGO_URI = process.env.MONGO_URI || '';
 if (MONGO_URI) {
@@ -286,7 +289,7 @@ app.post('/api/orders', async (req, res) => {
         text: `Thank you for your order!\n\nOrder Details:\nProduct: ${productId}\nQuantity: ${quantity}\nDelivery Method: ${deliveryMethod}\nPayment Method: ${paymentMethod}\nAddress: ${address || 'N/A'}\nPhone: ${phone}\nStatus: pending\nDate: ${new Date().toLocaleString()}\n\nWe will update you as your order is processed.`,
         html: `<h3>Thank you for your order!</h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${productId}</li><li><b>Quantity:</b> ${quantity}</li><li><b>Delivery Method:</b> ${deliveryMethod}</li><li><b>Payment Method:</b> ${paymentMethod}</li><li><b>Address:</b> ${address || 'N/A'}</li><li><b>Phone:</b> ${phone}</li><li><b>Status:</b> pending</li><li><b>Date:</b> ${new Date().toLocaleString()}</li></ul><p>We will update you as your order is processed.</p>`
       });
-      // Send SMS confirmation
+      // Send SMS confirmation to user
       if (phone) {
         try {
           await twilioClient.messages.create({
@@ -296,6 +299,18 @@ app.post('/api/orders', async (req, res) => {
           });
         } catch (smsErr) {
           // Optionally handle SMS error
+        }
+      }
+      // Send SMS notification to admins
+      for (const adminPhone of ADMIN_PHONES) {
+        try {
+          await twilioClient.messages.create({
+            body: `ADMIN ALERT: New order from ${email} (${phone}). Product: ${productId}, Qty: ${quantity}, Delivery: ${deliveryMethod}, Payment: ${paymentMethod}.`,
+            from: fromNumber,
+            to: adminPhone
+          });
+        } catch (adminSmsErr) {
+          // Optionally handle admin SMS error
         }
       }
     } catch (err) {
@@ -332,7 +347,7 @@ app.post('/api/orders', async (req, res) => {
       text: `Thank you for your order!\n\nOrder Details:\nProduct: ${productId}\nQuantity: ${quantity}\nDelivery Method: ${deliveryMethod}\nPayment Method: ${paymentMethod}\nAddress: ${address || 'N/A'}\nPhone: ${phone}\nStatus: pending\nDate: ${new Date().toLocaleString()}\n\nWe will update you as your order is processed.`,
       html: `<h3>Thank you for your order!</h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${productId}</li><li><b>Quantity:</b> ${quantity}</li><li><b>Delivery Method:</b> ${deliveryMethod}</li><li><b>Payment Method:</b> ${paymentMethod}</li><li><b>Address:</b> ${address || 'N/A'}</li><li><b>Phone:</b> ${phone}</li><li><b>Status:</b> pending</li><li><b>Date:</b> ${new Date().toLocaleString()}</li></ul><p>We will update you as your order is processed.</p>`
     });
-    // Send SMS confirmation
+    // Send SMS confirmation to user
     if (phone) {
       try {
         await twilioClient.messages.create({
@@ -342,6 +357,18 @@ app.post('/api/orders', async (req, res) => {
         });
       } catch (smsErr) {
         // Optionally handle SMS error
+      }
+    }
+    // Send SMS notification to admins
+    for (const adminPhone of ADMIN_PHONES) {
+      try {
+        await twilioClient.messages.create({
+          body: `ADMIN ALERT: New order from ${email} (${phone}). Product: ${productId}, Qty: ${quantity}, Delivery: ${deliveryMethod}, Payment: ${paymentMethod}.`,
+          from: fromNumber,
+          to: adminPhone
+        });
+      } catch (adminSmsErr) {
+        // Optionally handle admin SMS error
       }
     }
   } catch (err) {
@@ -370,6 +397,30 @@ app.patch('/api/orders/:id', async (req, res) => {
         text: `Your order (ID: ${order.id}) status has been updated to: ${status}.\n\nOrder Details:\nProduct: ${order.productId}\nQuantity: ${order.quantity}\nDelivery Method: ${order.deliveryMethod}\nPayment Method: ${order.paymentMethod}\nAddress: ${order.address || 'N/A'}\nPhone: ${order.phone}\nDate: ${order.date ? new Date(order.date).toLocaleString() : ''}`,
         html: `<h3>Your order (ID: ${order.id}) status has been updated to: <b>${status}</b></h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${order.productId}</li><li><b>Quantity:</b> ${order.quantity}</li><li><b>Delivery Method:</b> ${order.deliveryMethod}</li><li><b>Payment Method:</b> ${order.paymentMethod}</li><li><b>Address:</b> ${order.address || 'N/A'}</li><li><b>Phone:</b> ${order.phone}</li><li><b>Date:</b> ${order.date ? new Date(order.date).toLocaleString() : ''}</li></ul>`
       });
+      // Send SMS to user
+      if (order.phone) {
+        try {
+          await twilioClient.messages.create({
+            body: `GOD'S OWN PHONE GADGET: Your order status is now '${status}'.`,
+            from: fromNumber,
+            to: order.phone
+          });
+        } catch (smsErr) {
+          // Optionally handle SMS error
+        }
+      }
+      // Send SMS to admins
+      for (const adminPhone of ADMIN_PHONES) {
+        try {
+          await twilioClient.messages.create({
+            body: `ADMIN ALERT: Order for ${order.email} (${order.phone}) updated to '${status}'. Product: ${order.productId}, Qty: ${order.quantity}.`,
+            from: fromNumber,
+            to: adminPhone
+          });
+        } catch (adminSmsErr) {
+          // Optionally handle admin SMS error
+        }
+      }
     } catch (err) {
     }
     return res.json({ success: true, order });
@@ -392,6 +443,30 @@ app.patch('/api/orders/:id', async (req, res) => {
       text: `Your order (ID: ${order.id}) status has been updated to: ${status}.\n\nOrder Details:\nProduct: ${order.productId}\nQuantity: ${order.quantity}\nDelivery Method: ${order.deliveryMethod}\nPayment Method: ${order.paymentMethod}\nAddress: ${order.address || 'N/A'}\nPhone: ${order.phone}\nDate: ${order.date ? new Date(order.date).toLocaleString() : ''}`,
       html: `<h3>Your order (ID: ${order.id}) status has been updated to: <b>${status}</b></h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${order.productId}</li><li><b>Quantity:</b> ${order.quantity}</li><li><b>Delivery Method:</b> ${order.deliveryMethod}</li><li><b>Payment Method:</b> ${order.paymentMethod}</li><li><b>Address:</b> ${order.address || 'N/A'}</li><li><b>Phone:</b> ${order.phone}</li><li><b>Date:</b> ${order.date ? new Date(order.date).toLocaleString() : ''}</li></ul>`
     });
+    // Send SMS to user
+    if (order.phone) {
+      try {
+        await twilioClient.messages.create({
+          body: `GOD'S OWN PHONE GADGET: Your order status is now '${status}'.`,
+          from: fromNumber,
+          to: order.phone
+        });
+      } catch (smsErr) {
+        // Optionally handle SMS error
+      }
+    }
+    // Send SMS to admins
+    for (const adminPhone of ADMIN_PHONES) {
+      try {
+        await twilioClient.messages.create({
+          body: `ADMIN ALERT: Order for ${order.email} (${order.phone}) updated to '${status}'. Product: ${order.productId}, Qty: ${order.quantity}.`,
+          from: fromNumber,
+          to: adminPhone
+        });
+      } catch (adminSmsErr) {
+        // Optionally handle admin SMS error
+      }
+    }
   } catch (err) {
   }
   res.json({ success: true, order });
