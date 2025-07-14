@@ -228,14 +228,12 @@ document.getElementById('register-form').onsubmit = async function(e) {
     document.getElementById('register-view').classList.remove('hidden');
     document.getElementById('login-view').classList.add('hidden');
     document.getElementById('verify-code-section').classList.remove('hidden');
-    console.log('Attempting to show verification form');
   } catch (err) {
     registerMsg.textContent = err.message;
     // Show the register view and verification form even on error
     document.getElementById('register-view').classList.remove('hidden');
     document.getElementById('login-view').classList.add('hidden');
     document.getElementById('verify-code-section').classList.remove('hidden');
-    console.log('Attempting to show verification form (error case)');
   }
 };
 document.getElementById('verify-btn').onclick = async function() {
@@ -460,7 +458,6 @@ if (myOrdersBtn && ordersModal && closeOrdersModal && ordersList) {
         // Fetch orders for this user
         const res = await fetch(`${API_BASE_URL}/api/orders?email=${encodeURIComponent(user.email)}&t=${Date.now()}`); // force fresh fetch
         const orders = await res.json();
-        console.log('Fetched orders for user', user.email, orders); // debug log
         // Fetch products for mapping productId to name (if products exist)
         let products = [];
         try {

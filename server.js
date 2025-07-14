@@ -67,8 +67,10 @@ const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 const MONGO_URI = process.env.MONGO_URI || '';
 if (MONGO_URI) {
   mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('MongoDB connection error:', err));
+    .then(() => {
+    })
+    .catch(err => {
+    });
 }
 
 // Product Schema
@@ -286,7 +288,6 @@ app.post('/api/orders', async (req, res) => {
       });
     } catch (err) {
       // Don't fail the order if email fails, just log
-      console.error('Failed to send order confirmation email:', err);
     }
     res.json({ success: true, message: 'Order placed successfully', order: newOrder });
     return;
@@ -321,7 +322,6 @@ app.post('/api/orders', async (req, res) => {
     });
   } catch (err) {
     // Don't fail the order if email fails, just log
-    console.error('Failed to send order confirmation email:', err);
   }
   res.json({ success: true, message: 'Order placed successfully', order: newOrder });
 });
@@ -347,7 +347,6 @@ app.patch('/api/orders/:id', async (req, res) => {
         html: `<h3>Your order (ID: ${order.id}) status has been updated to: <b>${status}</b></h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${order.productId}</li><li><b>Quantity:</b> ${order.quantity}</li><li><b>Delivery Method:</b> ${order.deliveryMethod}</li><li><b>Payment Method:</b> ${order.paymentMethod}</li><li><b>Address:</b> ${order.address || 'N/A'}</li><li><b>Phone:</b> ${order.phone}</li><li><b>Date:</b> ${order.date ? new Date(order.date).toLocaleString() : ''}</li></ul>`
       });
     } catch (err) {
-      console.error('Failed to send order status update email:', err);
     }
     return res.json({ success: true, order });
   }
@@ -370,7 +369,6 @@ app.patch('/api/orders/:id', async (req, res) => {
       html: `<h3>Your order (ID: ${order.id}) status has been updated to: <b>${status}</b></h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${order.productId}</li><li><b>Quantity:</b> ${order.quantity}</li><li><b>Delivery Method:</b> ${order.deliveryMethod}</li><li><b>Payment Method:</b> ${order.paymentMethod}</li><li><b>Address:</b> ${order.address || 'N/A'}</li><li><b>Phone:</b> ${order.phone}</li><li><b>Date:</b> ${order.date ? new Date(order.date).toLocaleString() : ''}</li></ul>`
     });
   } catch (err) {
-    console.error('Failed to send order status update email:', err);
   }
   res.json({ success: true, order });
 });
@@ -462,16 +460,13 @@ app.post('/api/sms/send', async (req, res) => {
         });
         results.push({ to: number, sid: sms.sid, status: 'sent' });
       } catch (error) {
-        console.error('Twilio SMS error:', error);
-        results.push({ to: number, error: error.message, status: 'error' });
       }
     }
     // Optionally, save to smsHistoryFile here
     res.json({ success: true, results });
   } catch (error) {
-    console.error('Twilio SMS error:', error);
-    res.status(500).json({ success: false, error: error.message });
   }
+  res.status(500).json({ success: false, error: error.message });
 });
 // --- End SMS Sending Endpoint ---
 
@@ -497,5 +492,4 @@ app.get('*', (req, res) => {
 
 // --- Start server ---
 app.listen(PORT, () => {
-  console.log(`Backend running on http://localhost:${PORT}`);
 }); 
