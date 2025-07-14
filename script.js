@@ -602,3 +602,19 @@ if (stateSelect && lgaSelect) {
   };
 } 
 
+// Disable right-click
+window.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+});
+// Disable F12, Ctrl+Shift+I, Ctrl+U
+window.addEventListener('keydown', function(e) {
+  if (
+    e.keyCode === 123 || // F12
+    (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
+    (e.ctrlKey && e.keyCode === 85) // Ctrl+U
+  ) {
+    e.preventDefault();
+    return false;
+  }
+}); 
+
