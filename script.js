@@ -529,6 +529,25 @@ if (helpBtn && helpModal && closeHelpModal) {
   };
 }
 
+// --- Password visibility toggle ---
+function setupPasswordToggle(inputId, toggleBtnId) {
+  const input = document.getElementById(inputId);
+  const toggleBtn = document.getElementById(toggleBtnId);
+  if (input && toggleBtn) {
+    toggleBtn.addEventListener('click', function() {
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      toggleBtn.textContent = isPassword ? '🙈' : '👁️';
+      toggleBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+    });
+  }
+}
+document.addEventListener('DOMContentLoaded', function() {
+  setupPasswordToggle('login-password', 'toggle-login-password');
+  setupPasswordToggle('reg-password', 'toggle-reg-password');
+  setupPasswordToggle('reg-confirm-password', 'toggle-reg-confirm-password');
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('token');
   const stage = localStorage.getItem('stage');
