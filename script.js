@@ -285,6 +285,13 @@ function filterAndRenderProducts() {
     filtered = filtered.filter(p => p.category === categoryFilter.value);
   }
   renderProducts(filtered);
+  // Update UI to show selected category
+  const selectedCat = categoryFilter && categoryFilter.value;
+  const catLabel = document.getElementById('selected-category-label');
+  if (catLabel) {
+    catLabel.textContent = selectedCat ? `Category: ${selectedCat}` : '';
+    catLabel.style.display = selectedCat ? 'block' : 'none';
+  }
 }
 
 function renderProducts(products) {
@@ -299,7 +306,7 @@ function renderProducts(products) {
       <img src="${product.images[0]}" alt="${product.name}" />
       <h4>${product.name}</h4>
       <p class="description">${product.description}</p>
-      <p class="category">${product.category}</p>
+      <span class="category-badge" data-category="${product.category}">${product.category}</span>
       <p class="price">₦${product.price.toLocaleString()}</p>
       <button class="btn-main buy-now-btn" data-idx="${idx}">Buy Now</button>
     </div>
@@ -310,6 +317,17 @@ function renderProducts(products) {
     btn.onclick = function() {
       const idx = this.getAttribute('data-idx');
       showBuyNowForm(products[idx]);
+    };
+  });
+  // Add event listeners for category badges
+  document.querySelectorAll('.category-badge').forEach(badge => {
+    badge.onclick = function() {
+      const cat = this.getAttribute('data-category');
+      const categoryFilter = document.getElementById('category-filter');
+      if (categoryFilter) {
+        categoryFilter.value = cat;
+        filterAndRenderProducts();
+      }
     };
   });
 }
