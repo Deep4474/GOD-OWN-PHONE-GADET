@@ -257,15 +257,34 @@ document.getElementById('verify-btn').onclick = async function() {
   }
 };
 
+let allProducts = [];
+
 // --- Products logic ---
 async function loadProducts() {
   try {
-    const products = await apiGet(API_ENDPOINTS.PRODUCTS);
-    renderProducts(products);
+    allProducts = await apiGet(API_ENDPOINTS.PRODUCTS);
+    filterAndRenderProducts();
   } catch (err) {
     const productList = document.getElementById('product-list');
     if (productList) productList.innerHTML = '<p style="text-align:center;">Failed to load products</p>';
   }
+}
+
+function filterAndRenderProducts() {
+  const searchInput = document.getElementById('search-input');
+  const categoryFilter = document.getElementById('category-filter');
+  let filtered = allProducts;
+  if (searchInput && searchInput.value.trim()) {
+    const q = searchInput.value.trim().toLowerCase();
+    filtered = filtered.filter(p =>
+      (p.name && p.name.toLowerCase().includes(q)) ||
+      (p.description && p.description.toLowerCase().includes(q))
+    );
+  }
+  if (categoryFilter && categoryFilter.value) {
+    filtered = filtered.filter(p => p.category === categoryFilter.value);
+  }
+  renderProducts(filtered);
 }
 
 function renderProducts(products) {
@@ -565,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     showLogin();
   }
-}); 
+});
 
 // Nigerian States and LGAs (full list)
 const statesAndLGAs = {
@@ -619,7 +638,7 @@ if (stateSelect && lgaSelect) {
     lgaSelect.innerHTML = '<option value="">Select LGA</option>' +
       lgas.map(lga => `<option value="${lga}">${lga}</option>`).join('');
   };
-} 
+}
 
 // Disable right-click
 window.addEventListener('contextmenu', function(e) {
