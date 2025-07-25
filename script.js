@@ -570,7 +570,10 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem('token');
   const stage = localStorage.getItem('stage');
-  if (token && stage === 'products') {
+  if (document.getElementById('products-section')) {
+    showProducts();
+    loadProducts();
+  } else if (token && stage === 'products') {
     showProducts();
     loadProducts();
   } else if (stage === 'verify') {
