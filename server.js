@@ -28,7 +28,9 @@ app.use(cors({
   origin: [
     'https://deep4474.github.io',
     'http://localhost:3000',
-    'https://glittery-torrone-d1184e.netlify.app'
+    'https://glittery-torrone-d1184e.netlify.app',
+    'http://127.0.0.1:5500', // Added for local development
+    'https://godsownpane.netlify.app' // Added for production frontend
   ],
   credentials: true
 }));
