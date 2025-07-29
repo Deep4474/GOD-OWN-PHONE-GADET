@@ -273,14 +273,14 @@ document.getElementById('register-form').onsubmit = async function(e) {
       lga: document.getElementById('reg-lga').value,
       address: document.getElementById('reg-address').value
     });
-    registerMsg.textContent = 'Registration successful! Logging you in...';
-    // Auto-login after registration
-    localStorage.setItem('user', JSON.stringify(res.user));
-    localStorage.setItem('token', res.token);
-    localStorage.setItem('stage', 'products');
-    handleLoginSuccess(res.token);
-    showProducts();
-    loadProducts();
+    registerMsg.textContent = 'Registration successful! Please verify your email.';
+    // Save pending verification state
+    window.pendingVerificationEmail = email;
+    localStorage.setItem('pendingVerificationEmail', email);
+    localStorage.setItem('stage', 'verify');
+    document.getElementById('register-view').classList.remove('hidden');
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('verify-code-section').classList.remove('hidden');
   } catch (err) {
     registerMsg.textContent = err.message;
     // Show the register view and verification form even on error
@@ -300,11 +300,15 @@ document.getElementById('verify-btn').onclick = async function() {
   try {
     registerMsg.textContent = 'Verifying...';
     const res = await apiPost(API_ENDPOINTS.VERIFY, { email, code });
-    registerMsg.textContent = 'Email verified! You can now log in.';
+    registerMsg.textContent = 'Email verified! Welcome.';
     document.getElementById('verify-code-section').classList.add('hidden');
     localStorage.removeItem('pendingVerificationEmail');
-    localStorage.setItem('stage', 'login');
-    showLogin();
+    localStorage.setItem('user', JSON.stringify(res.user));
+    localStorage.setItem('token', res.token);
+    localStorage.setItem('stage', 'products');
+    handleLoginSuccess(res.token);
+    showProducts();
+    loadProducts();
   } catch (err) {
     registerMsg.textContent = err.message;
   }
