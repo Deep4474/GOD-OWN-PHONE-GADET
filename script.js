@@ -30,10 +30,20 @@ function checkAuthOnLoad() {
 }
 window.addEventListener('DOMContentLoaded', checkAuthOnLoad);
 
+// Hide menu and menu toggle on login section
+function showLoginSection() {
+  document.getElementById('login-section').style.display = 'block';
+  document.getElementById('main-content').style.display = 'none';
+  if (sideMenu) sideMenu.style.display = 'none';
+  if (menuToggle) menuToggle.style.display = 'none';
+}
+
 // After successful login, save token and show main content:
 function handleLoginSuccess(token) {
   localStorage.setItem('token', token);
   showMainContent();
+  if (sideMenu) sideMenu.style.display = '';
+  if (menuToggle) menuToggle.style.display = '';
 }
 // Example: call handleLoginSuccess(token) after login API returns token
 // --- API CONFIG ---
