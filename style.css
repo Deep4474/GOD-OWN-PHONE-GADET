@@ -162,7 +162,7 @@ body {
 /* Responsive product grid: 2 columns on mobile (for #product-list) */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, 1fr) !important;
   gap: 1.5rem;
   margin-top: 2rem;
 }
@@ -488,4 +488,4 @@ body.dark-mode .category-badge {
 body.dark-mode .category-badge:hover {
   background: #4fc3f7;
   color: #181818;
-} 
+}
