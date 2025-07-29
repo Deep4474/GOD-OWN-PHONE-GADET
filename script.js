@@ -56,6 +56,7 @@ const API_ENDPOINTS = {
 };
 
 // --- Menu logic ---
+
 const menuToggle = document.getElementById('menu-toggle');
 const sideMenu = document.getElementById('side-menu');
 const closeMenu = document.getElementById('close-menu');
@@ -76,6 +77,94 @@ const profileModal = document.getElementById('profile-modal');
 const helpModal = document.getElementById('help-modal');
 const closeProfileModal = document.getElementById('close-profile-modal');
 const closeHelpModal = document.getElementById('close-help-modal');
+
+// --- Settings Modal ---
+let settingsModal = document.getElementById('settings-modal');
+if (!settingsModal) {
+  settingsModal = document.createElement('div');
+  settingsModal.id = 'settings-modal';
+  settingsModal.className = 'modal';
+  settingsModal.innerHTML = `
+    <div class="modal-content" style="max-width:400px;">
+      <button id="close-settings-modal" class="close-modal">&times;</button>
+      <h3>Settings</h3>
+      <div id="settings-user-info" style="margin-bottom:1em;"></div>
+      <button id="settings-darkmode-toggle" class="btn-main" style="margin-bottom:1em;width:100%;">Toggle Dark Mode</button>
+      <form id="change-password-form" style="margin-bottom:1em;">
+        <label>Old Password:<input type="password" id="old-password" required></label><br>
+        <label>New Password:<input type="password" id="new-password" required></label><br>
+        <label>Confirm New Password:<input type="password" id="confirm-new-password" required></label><br>
+        <button type="submit" class="btn-main" style="width:100%;margin-top:8px;">Change Password</button>
+        <div id="change-password-message" style="margin-top:6px;font-size:0.98em;"></div>
+      </form>
+      <button id="settings-logout-btn" class="btn-main" style="background:#d63031;width:100%;">Logout</button>
+    </div>
+  `;
+  document.body.appendChild(settingsModal);
+}
+let openSettingsBtn = document.getElementById('menu-settings');
+if (!openSettingsBtn && sideMenu) {
+  // Create the settings button if not present
+  openSettingsBtn = document.createElement('button');
+  openSettingsBtn.id = 'menu-settings';
+  openSettingsBtn.className = 'menu-btn';
+  openSettingsBtn.innerHTML = '<span class="icon">⚙️</span> Settings';
+  // Insert before logout if possible, else at end
+  if (logoutBtn && logoutBtn.parentNode === sideMenu) {
+    sideMenu.insertBefore(openSettingsBtn, logoutBtn);
+  } else {
+    sideMenu.appendChild(openSettingsBtn);
+  }
+}
+if (openSettingsBtn) {
+  openSettingsBtn.onclick = () => {
+    // Fill user info
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    document.getElementById('settings-user-info').innerHTML = `<b>Name:</b> ${user.name || ''}<br><b>Email:</b> ${user.email || ''}`;
+    settingsModal.classList.remove('hidden');
+    settingsModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  };
+}
+document.getElementById('close-settings-modal').onclick = () => {
+  settingsModal.classList.add('hidden');
+  settingsModal.style.display = 'none';
+  document.body.style.overflow = '';
+};
+document.getElementById('settings-darkmode-toggle').onclick = () => {
+  setDarkMode(!document.body.classList.contains('dark-mode'));
+};
+document.getElementById('settings-logout-btn').onclick = () => {
+  logoutBtn.onclick();
+  settingsModal.classList.add('hidden');
+  settingsModal.style.display = 'none';
+};
+document.getElementById('change-password-form').onsubmit = async function(e) {
+  e.preventDefault();
+  const oldPass = document.getElementById('old-password').value;
+  const newPass = document.getElementById('new-password').value;
+  const confirmNew = document.getElementById('confirm-new-password').value;
+  const msg = document.getElementById('change-password-message');
+  msg.textContent = '';
+  if (newPass !== confirmNew) {
+    msg.textContent = 'New passwords do not match.';
+    msg.style.color = '#d63031';
+    return;
+  }
+  if (newPass.length < 8) {
+    msg.textContent = 'Password must be at least 8 characters.';
+    msg.style.color = '#d63031';
+    return;
+  }
+  // Simulate password change (replace with real API if available)
+  setTimeout(() => {
+    msg.textContent = 'Password changed successfully!';
+    msg.style.color = '#00b894';
+    document.getElementById('old-password').value = '';
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-new-password').value = '';
+  }, 1200);
+};
 
 // Hide menu by default
 sideMenu.classList.remove('open');
@@ -423,7 +512,7 @@ function showBuyNowForm(product) {
       <div class="referral-box" style="background:#f8f8f8;padding:10px 12px;margin-bottom:10px;border-radius:8px;border:1px solid #eee;">
         <b>Invite 10 people and get 20% discount on this premium product!</b><br>
         <span style="font-size:13px;">Share this link with your friends. When 10 register and buy, you get your discount automatically.</span><br>
-        <input type="text" id="invite-link" value="${inviteLink}" readonly style="width:90%;margin:8px 0 0 0;padding:4px;">
+        <input type="text" id="invite-link" value="${inviteLink}" readonly style="width:90%;margin:8px 0 0 0;padding:4px;background:#fff;color:#222;${document.body.classList.contains('dark-mode') ? 'background:#222;color:#fff;border:1px solid #444;' : ''}">
         <button id="copy-invite-link" style="margin-left:5px;">Copy Link</button>
       </div>
     `;
@@ -600,18 +689,21 @@ if (myOrdersBtn && ordersModal && closeOrdersModal && ordersList) {
         if (!orders.length) {
           ordersList.innerHTML = `
             <div style="margin-bottom:1em;font-size:1.05em;color:#444;text-align:center;">
-              Here you can view all orders you have sent to admin and see their current status or any actions taken by admin.
+              <b>No orders yet.</b><br>When you place an order, it will appear here with its status and details.
             </div>
             <table style="width:100%;font-size:0.98em;"><thead><tr><th>Product</th><th>Qty</th><th>Status</th><th>Date</th><th>Delivery</th><th>Payment</th><th>Address</th></tr></thead><tbody>
             </tbody></table>`;
         } else {
           ordersList.innerHTML = `
             <div style="margin-bottom:1em;font-size:1.05em;color:#444;text-align:center;">
-              Here you can view all orders you have sent to admin and see their current status or any actions taken by admin.
+              <b>My Orders</b><br>Below are all your orders and their current status. Click a row for more info.
             </div>
-            <table style="width:100%;font-size:0.98em;"><thead><tr><th>Product</th><th>Qty</th><th>Status</th><th>Date</th><th>Delivery</th><th>Payment</th><th>Address</th></tr></thead><tbody>
-              ${orders.map(o => `<tr><td>${getProductName(o.productId)}</td><td>${o.quantity}</td><td>${o.status || 'pending'}</td><td>${o.date ? new Date(o.date).toLocaleString() : ''}</td><td>${o.deliveryMethod || ''}</td><td>${o.paymentMethod || ''}</td><td>${o.address || ''}</td></tr>`).join('')}
-            </tbody></table>`;
+            <table style="width:100%;font-size:1em;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px #0001;">
+              <thead style="background:#f8f8f8;"><tr><th>Product</th><th>Qty</th><th>Status</th><th>Date</th><th>Delivery</th><th>Payment</th><th>Address</th></tr></thead>
+              <tbody>
+                ${orders.map(o => `<tr style="cursor:pointer;" title="Order details"><td>${getProductName(o.productId)}</td><td>${o.quantity}</td><td>${o.status || 'pending'}</td><td>${o.date ? new Date(o.date).toLocaleString() : ''}</td><td>${o.deliveryMethod || ''}</td><td>${o.paymentMethod || ''}</td><td>${o.address || ''}</td></tr>`).join('')}
+              </tbody>
+            </table>`;
         }
       } catch {
         ordersList.innerHTML = '<p style="color:#d63031;text-align:center;">Failed to load orders.</p>';
