@@ -1,3 +1,16 @@
+// Show selected category label above product grid
+const categoryFilter = document.getElementById('category-filter');
+const selectedCategoryLabel = document.getElementById('selected-category-label');
+categoryFilter.addEventListener('change', function() {
+  const selected = categoryFilter.value;
+  if (selected) {
+    selectedCategoryLabel.style.display = 'block';
+    selectedCategoryLabel.textContent = selected;
+  } else {
+    selectedCategoryLabel.style.display = 'none';
+    selectedCategoryLabel.textContent = '';
+  }
+});
 // --- Auth Gate for Main Content ---
 function showMainContent() {
   document.getElementById('main-content').style.display = 'block';
@@ -312,11 +325,11 @@ function filterAndRenderProducts() {
     filtered = filtered.filter(p => p.category === categoryFilter.value);
   }
   renderProducts(filtered);
-  // Update UI to show selected category
+  // Update UI to show selected category (just the name)
   const selectedCat = categoryFilter && categoryFilter.value;
   const catLabel = document.getElementById('selected-category-label');
   if (catLabel) {
-    catLabel.textContent = selectedCat ? `Category: ${selectedCat}` : '';
+    catLabel.textContent = selectedCat ? selectedCat : '';
     catLabel.style.display = selectedCat ? 'block' : 'none';
   }
 }
@@ -330,15 +343,25 @@ function renderProducts(products) {
   }
   productList.innerHTML = products.map((product, idx) => `
     <div class="product-card">
-      <img src="${product.images[0]}" alt="${product.name}" />
+      <img src="${product.images[0]}" alt="${product.name}" class="product-img" data-idx="${idx}" style="cursor:pointer;" />
       <h4>${product.name}</h4>
-      <p class="description">${product.description}</p>
+      <p class="description" id="desc-${idx}" style="display:none;">${product.description}</p>
       <span class="category-badge" data-category="${product.category}">${product.category}</span>
       <p class="price">₦${product.price.toLocaleString()}</p>
       <button class="btn-main buy-now-btn" data-idx="${idx}">Buy Now</button>
     </div>
   `).join('');
 
+  // Add event listeners for product images to toggle description
+  document.querySelectorAll('.product-img').forEach(img => {
+    img.onclick = function() {
+      const idx = this.getAttribute('data-idx');
+      const desc = document.getElementById('desc-' + idx);
+      if (desc) {
+        desc.style.display = desc.style.display === 'none' ? 'block' : 'none';
+      }
+    };
+  });
   // Add event listeners for buy now buttons
   document.querySelectorAll('.buy-now-btn').forEach(btn => {
     btn.onclick = function() {
@@ -399,6 +422,8 @@ function showBuyNowForm(product) {
   `;
   modal.classList.remove('hidden');
   modal.style.display = 'block';
+  // Prevent background scroll
+  document.body.style.overflow = 'hidden';
 
   // Get registered address from localStorage
   const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -465,6 +490,8 @@ function showBuyNowForm(product) {
   document.getElementById('close-order-modal').onclick = () => {
     modal.classList.add('hidden');
     modal.style.display = 'none';
+    // Restore background scroll
+    document.body.style.overflow = '';
   };
 
   document.getElementById('order-form').onsubmit = async function(e) {
@@ -496,6 +523,8 @@ function showBuyNowForm(product) {
       setTimeout(() => {
         modal.classList.add('hidden');
         modal.style.display = 'none';
+        // Restore background scroll
+        document.body.style.overflow = '';
         // Automatically open My Orders and refresh the list
         if (typeof myOrdersBtn !== 'undefined' && myOrdersBtn) {
           myOrdersBtn.click();

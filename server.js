@@ -196,55 +196,24 @@ app.delete('/api/auth/user', (req, res) => {
 
 // --- Products ---
 app.get('/api/products', async (req, res) => {
-  if (mongoose.connection.readyState === 1) {
-    const products = await Product.find();
-    return res.json(products);
-  }
-  res.json(safeRead(productsFile));
+  const products = await Product.find();
+  return res.json(products);
 });
 app.post('/api/products', async (req, res) => {
   const { name, price, category, description, stock, imageUrl } = req.body;
   if (!name || !price || !category || !description || !stock || !imageUrl) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
-  if (mongoose.connection.readyState === 1) {
-    const newProduct = new Product({
-      name, price, category, description, stock, images: [imageUrl]
-    });
-    await newProduct.save();
-    return res.json({ success: true, product: newProduct });
-  }
-  const products = safeRead(productsFile);
-  const newProduct = {
-    id: Date.now(),
-    name,
-    price,
-    category,
-    description,
-    stock,
-    images: [imageUrl]
-  };
-  products.push(newProduct);
-  safeWrite(productsFile, products);
-  res.json({ success: true, product: newProduct });
+  const newProduct = new Product({
+    name, price, category, description, stock, images: [imageUrl]
+  });
+  await newProduct.save();
+  return res.json({ success: true, product: newProduct });
 });
 app.patch('/api/products/:id', async (req, res) => {
   const { id } = req.params;
   const { name, price, category, description, stock, imageUrl } = req.body;
-  if (mongoose.connection.readyState === 1) {
-    const product = await Product.findById(id);
-    if (!product) return res.status(404).json({ error: 'Product not found' });
-    if (name) product.name = name;
-    if (price) product.price = price;
-    if (category) product.category = category;
-    if (description) product.description = description;
-    if (stock) product.stock = stock;
-    if (imageUrl) product.images = [imageUrl];
-    await product.save();
-    return res.json({ success: true, product });
-  }
-  let products = safeRead(productsFile);
-  const product = products.find(p => String(p.id) === String(id));
+  const product = await Product.findById(id);
   if (!product) return res.status(404).json({ error: 'Product not found' });
   if (name) product.name = name;
   if (price) product.price = price;
@@ -252,24 +221,14 @@ app.patch('/api/products/:id', async (req, res) => {
   if (description) product.description = description;
   if (stock) product.stock = stock;
   if (imageUrl) product.images = [imageUrl];
-  safeWrite(productsFile, products);
-  res.json({ success: true, product });
+  await product.save();
+  return res.json({ success: true, product });
 });
 app.delete('/api/products/:id', async (req, res) => {
   const { id } = req.params;
-  if (mongoose.connection.readyState === 1) {
-    const result = await Product.findByIdAndDelete(id);
-    if (!result) return res.status(404).json({ error: 'Product not found' });
-    return res.json({ success: true });
-  }
-  let products = safeRead(productsFile);
-  const initialLength = products.length;
-  products = products.filter(p => String(p.id) !== String(id));
-  if (products.length === initialLength) {
-    return res.status(404).json({ error: 'Product not found' });
-  }
-  safeWrite(productsFile, products);
-  res.json({ success: true });
+  const result = await Product.findByIdAndDelete(id);
+  if (!result) return res.status(404).json({ error: 'Product not found' });
+  return res.json({ success: true });
 });
 
 // --- Orders ---
