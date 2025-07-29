@@ -1,59 +1,33 @@
 [
- {
-  "id": 2025072901,
-  "name": "Samsung Galaxy S24 Ultra",
-  "price": 1350000,
-  "category": "Smartphones",
-  "description": "Samsung Galaxy S24 Ultra, 512GB, Titanium Gray, 5G, Dual SIM. 200MP Camera, 12GB RAM, 5000mAh Battery.",
-  "stock": 8,
-  "images": [
-    "https://images.samsung.com/is/image/samsung/p6pim/levant/sm-s928bztgmea/gallery/levant-galaxy-s24-ultra-s928-sm-s928bztgmea-539151534?$650_519_PNG$",
-    "https://images.samsung.com/is/image/samsung/p6pim/levant/sm-s928bztgmea/gallery/levant-galaxy-s24-ultra-s928-sm-s928bztgmea-539151536?$650_519_PNG$",
-    "https://images.samsung.com/is/image/samsung/p6pim/levant/sm-s928bztgmea/gallery/levant-galaxy-s24-ultra-s928-sm-s928bztgmea-539151535?$650_519_PNG$"
-  ]
-},
- {
-  "id": 2025072902,
-  "name": "Apple iPhone 15 Pro Max",
-  "price": 1450000,
-  "category": "Smartphones",
-  "description": "Apple iPhone 15 Pro Max, 256GB, Natural Titanium, 5G, Dual SIM.",
-  "stock": 10,
-    "images": [
-    "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-15-pro-max-finish-select-202309-6-7inch_GEO_EMEA?wid=940&hei=1112&fmt=png-alpha&.v=1692925225538"
-  ]
-}
-
-,
   {
-    "id": 2025072903,
-    "name": "HP Pavilion 15 Laptop",
-    "price": 480000,
-    "category": "Laptops",
-    "description": "HP Pavilion 15, Intel Core i5, 8GB RAM, 512GB SSD, 15.6'' FHD.",
-    "stock": 7,
-    "images": ["https://fdn2.gsmarena.com/vv/pics/hp/hp-pavilion-15-2021-1.jpg"]
+    "id": 1722259301,
+    "name": "Samsung Galaxy A15 4G (6GB, 128GB)",
+    "price": 145000,
+    "category": "Phones",
+    "description": "Samsung Galaxy A15 4G, 6.5'' FHD+ Display, 6GB RAM, 128GB ROM, 5000mAh, Android 14, Blue.",
+    "stock": 10,
+    "images": ["https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-a15-4g-1.jpg"]
   },
   {
-    "id": 2025072904,
-    "name": "Apple MacBook Air M2",
-    "price": 950000,
-    "category": "Laptops",
-    "description": "Apple MacBook Air 13-inch, M2 chip, 8GB RAM, 256GB SSD, Midnight.",
-    "stock": 4,
-    "images": ["https://fdn2.gsmarena.com/vv/pics/apple/apple-macbook-air-m2-1.jpg"]
+    "id": 1722259302,
+    "name": "Apple iPhone 15 Pro Max",
+    "price": 1450000,
+    "category": "Phones",
+    "description": "Apple iPhone 15 Pro Max, 256GB, Natural Titanium, 5G, Dual SIM.",
+    "stock": 8,
+    "images": ["https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-max-1.jpg"]
   },
   {
-    "id": 2025072905,
-    "name": "Samsung Galaxy Tab S9+",
-    "price": 650000,
-    "category": "Tablets",
-    "description": "Samsung Galaxy Tab S9+, 256GB, Wi-Fi, Beige.",
-    "stock": 6,
-    "images": ["https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-tab-s9-plus-1.jpg"]
+    "id": 1722259303,
+    "name": "Xiaomi Redmi Note 13 Pro",
+    "price": 210000,
+    "category": "Phones",
+    "description": "Xiaomi Redmi Note 13 Pro, 256GB, 8GB RAM, 108MP Camera, 5000mAh.",
+    "stock": 18,
+    "images": ["https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-redmi-note13-pro-1.jpg"]
   },
   {
-    "id": 2025072906,
+    "id": 1722259304,
     "name": "Oraimo FreePods 4",
     "price": 25000,
     "category": "Accessories",
@@ -62,16 +36,7 @@
     "images": ["https://cdn-img.oraimo.com/fit-in/600x600/NG/album/oeb-e105d/oeb-e105d-7.jpg"]
   },
   {
-    "id": 2025072907,
-    "name": "Apple AirPods Pro (2nd Gen)",
-    "price": 120000,
-    "category": "Accessories",
-    "description": "Apple AirPods Pro (2nd Generation) with MagSafe Charging Case.",
-    "stock": 10,
-    "images": ["https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/MQD83?wid=2000&hei=2000&fmt=jpeg&qlt=95&.v=1660803972361"]
-  },
-  {
-    "id": 2025072908,
+    "id": 1722259305,
     "name": "Samsung Galaxy Watch 6",
     "price": 180000,
     "category": "Wearables",
@@ -80,7 +45,7 @@
     "images": ["https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-watch6-1.jpg"]
   },
   {
-    "id": 2025072909,
+    "id": 1722259306,
     "name": "JBL Flip 6 Bluetooth Speaker",
     "price": 85000,
     "category": "Accessories",
@@ -89,16 +54,7 @@
     "images": ["https://www.jbl.com/on/demandware.static/-/Sites-masterCatalog_Harman/default/dw7e3e2e7e/1.JBL_Flip6_Hero_Black_1605x1605px.png"]
   },
   {
-    "id": 2025072910,
-    "name": "Oraimo Watch 2 Pro",
-    "price": 42000,
-    "category": "Wearables",
-    "description": "Oraimo Watch 2 Pro, 1.75'' HD, Bluetooth Calling, 100+ Sports Modes.",
-    "stock": 15,
-    "images": ["https://cdn-img.oraimo.com/fit-in/600x600/NG/album/osw-32/osw-32-1.jpg"]
-  },
-  {
-    "id": 2025072911,
+    "id": 1722259307,
     "name": "Sony PlayStation 5 Console",
     "price": 650000,
     "category": "Gaming",
@@ -107,7 +63,7 @@
     "images": ["https://m.media-amazon.com/images/I/619BkvKW35L._AC_SL1500_.jpg"]
   },
   {
-    "id": 2025072912,
+    "id": 1722259308,
     "name": "LG 55'' 4K UHD Smart TV",
     "price": 420000,
     "category": "Electronics",
@@ -116,16 +72,7 @@
     "images": ["https://www.lg.com/africa/images/tvs/md07552999/gallery/medium01.jpg"]
   },
   {
-    "id": 2025072913,
-    "name": "Logitech MX Master 3S Mouse",
-    "price": 55000,
-    "category": "Accessories",
-    "description": "Logitech MX Master 3S, Wireless Performance Mouse, 8K DPI, Quiet Clicks, USB-C.",
-    "stock": 12,
-    "images": ["https://m.media-amazon.com/images/I/61v7l3p2HJL._AC_SL1500_.jpg"]
-  },
-  {
-    "id": 2025072914,
+    "id": 1722259309,
     "name": "Anker PowerCore 20000mAh Power Bank",
     "price": 32000,
     "category": "Accessories",
@@ -134,75 +81,13 @@
     "images": ["https://static.anker.com/2020/9/pc/1617267080_anker-powercore-essential-20000.jpg"]
   },
   {
-    "id": 2025072915,
-    "name": "Xiaomi Redmi Note 13 Pro",
-    "price": 210000,
-    "category": "Smartphones",
-    "description": "Xiaomi Redmi Note 13 Pro, 256GB, 8GB RAM, 108MP Camera, 5000mAh.",
-    "stock": 18,
-    "images": ["https://i01.appmifile.com/webfile/globalimg/products/pc/redmi-note-13-pro/overview01.png"]
-  },
-  {
-    "id": 2025072916,
-    "name": "Samsung 1TB Portable SSD T7",
-    "price": 95000,
-    "category": "Storage",
-    "description": "Samsung T7 Portable SSD, 1TB, USB 3.2, Blue.",
-    "stock": 14,
-    "images": ["https://images-na.ssl-images-amazon.com/images/I/71VbHaAqbML._AC_SL1500_.jpg"]
-  },
-  {
-    "id": 2025072917,
+    "id": 1722259310,
     "name": "Canon EOS M50 Mark II Camera",
     "price": 420000,
     "category": "Cameras",
     "description": "Canon EOS M50 Mark II Mirrorless Camera, 15-45mm Lens, 24.1MP, 4K Video.",
     "stock": 6,
     "images": ["https://www.canon-europe.com/media/eos-m50-mark-ii-ef-m-15-45mm-f3-5-6-3-is-stm-kit-black_tcm13-1988572.png"]
-  },
-  {
-    "id": 2025072918,
-    "name": "Apple Watch Series 9",
-    "price": 350000,
-    "category": "Wearables",
-    "description": "Apple Watch Series 9, 45mm, GPS, Midnight Aluminum Case.",
-    "stock": 9,
-    "images": ["https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/MR9A3_VW_34FR+watch-case-45-alum-midnight-s9_VW_34FR+watch-face-45-alum-midnight-s9_VW_34FR_WF_CO_GEO_EMEA?wid=2000&hei=2000&fmt=jpeg&qlt=95&.v=1693186745912"]
-  },
-  {
-    "id": 2025072919,
-    "name": "Amazon Echo Dot (5th Gen)",
-    "price": 25000,
-    "category": "Smart Home",
-    "description": "Amazon Echo Dot (5th Gen) Smart Speaker with Alexa, Charcoal.",
-    "stock": 25,
-    "images": ["https://m.media-amazon.com/images/I/61u48FEsQKL._AC_SL1000_.jpg"]
-  },
-  {
-    "id": 2025072920,
-    "name": "HP DeskJet 2710e All-in-One Printer",
-    "price": 60000,
-    "category": "Printers",
-    "description": "HP DeskJet 2710e All-in-One Wireless Colour Printer, Print/Scan/Copy.",
-    "stock": 8,
-    "images": ["https://ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c06924167.png"]
-  },
-  {
-    "id": 2025072921,
-    "name": "Oraimo Smart Clipper 2",
-    "price": 18000,
-    "category": "Personal Care",
-    "description": "Oraimo Smart Clipper 2 Professional Hair Clipper, Cordless, Rechargeable.",
-    "stock": 30,
-    "images": ["https://cdn-img.oraimo.com/fit-in/600x600/NG/album/opc-tr12/opc-tr12-1.jpg"]
-  },
-  {
-    "id": 2025072922,
-    "name": "Tecno Camon 20 Premier",
-    "price": 270000,
-    "category": "Smartphones",
-    "description": "Tecno Camon 20 Premier, 512GB, 8GB RAM, 108MP Camera, 5000mAh.",
-    "stock": 11,
-    "images": ["https://www.tecno-mobile.com/storage/app/media/phones/camon-20-premier-5g/gallery/1.png"]
   }
 ]
+ 
