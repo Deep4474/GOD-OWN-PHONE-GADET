@@ -1,3 +1,30 @@
+// --- Auth Gate for Main Content ---
+function showMainContent() {
+  document.getElementById('main-content').style.display = 'block';
+  document.getElementById('auth-section').style.display = 'none';
+}
+function showAuthSection() {
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('auth-section').style.display = 'block';
+}
+function isLoggedIn() {
+  return !!localStorage.getItem('token');
+}
+function checkAuthOnLoad() {
+  if (isLoggedIn()) {
+    showMainContent();
+  } else {
+    showAuthSection();
+  }
+}
+window.addEventListener('DOMContentLoaded', checkAuthOnLoad);
+
+// After successful login, save token and show main content:
+function handleLoginSuccess(token) {
+  localStorage.setItem('token', token);
+  showMainContent();
+}
+// Example: call handleLoginSuccess(token) after login API returns token
 // --- API CONFIG ---
 const API_BASE_URL = 'https://phone-2cv4.onrender.com';
 const API_ENDPOINTS = {
@@ -185,8 +212,8 @@ document.getElementById('login-form').onsubmit = async function(e) {
     const res = await apiPost(API_ENDPOINTS.LOGIN, { email, password });
     loginMsg.textContent = 'Login successful!';
     localStorage.setItem('user', JSON.stringify(res.user));
-    localStorage.setItem('token', res.token);
     localStorage.setItem('stage', 'products');
+    handleLoginSuccess(res.token); // Show main content after login
     showProducts();
     loadProducts();
   } catch (err) {

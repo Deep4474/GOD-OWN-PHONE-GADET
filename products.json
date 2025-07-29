@@ -6,7 +6,7 @@
     "category": "Smartphones",
     "description": "Apple iPhone 14 Pro Max, 256GB, Deep Purple, 5G, Dual SIM.",
     "stock": 15,
-    "images": ["https://www.googleadservices.com/pagead/aclk?sa=L&ai=DChsSEwi1gKev19-OAxUXllAGHQ7SPCcYACICCAEQBhoCZGc&co=1&ase=2&gclid=CjwKCAjwv5zEBhBwEiwAOg2YKMdwaAfvjv0SOB3nkEtZA-Yrwbe7XUQK3gBJiPLkei3T8MwTfzejOBoCW-sQAvD_BwE&ohost=www.google.com&cid=CAESeuD2qwMsedWbl8dQBG86DVj_qDXKMp33w20HmKRgHweX1_31F8vdSNiEIQ4bf_rvftl2PBzDp4AXWyqkuUro0TaaLU0Mfs4i17HaScQGwKTPdZfwPzi1OhoGjbLM8upjHaMxEEccWqSmkSjVqe29BDW-UYr73FnVTB9b&category=acrcp_v1_40&sig=AOD64_1lWfsqCWJVWUaBTfk2fmU9GGcDYQ&ctype=5&q=&nis=4&ved=2ahUKEwivm6Gv19-OAxXIWUEAHT2fHowQwg8oAXoECAQQCg&adurl="]
+    "images": ["https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-14-pro-max-deep-purple-select?wid=940&hei=1112&fmt=png-alpha&.v=1660753619946"]
   },
   {
     "id": 1717171002,
@@ -15,7 +15,7 @@
     "category": "Smartphones",
     "description": "Samsung Galaxy S23 Ultra, 512GB, Phantom Black, 5G, Dual SIM.",
     "stock": 12,
-    "images": ["hhttps://www.google.com/imgres?q=Samsung%20Galaxy%20S23%20Ultra%20pict&imgurl=https%3A%2F%2Fwww.phonemart.ng%2Fwp-content%2Fuploads%2F2023%2F04%2Fimages-56.jpeg.webp&imgrefurl=https%3A%2F%2Fwww.phonemart.ng%2Fproduct%2Fsamsung-galaxy-s23-ultra-256gb-8gb-dual-sim-black%2F&docid=jFL-V5_rEvn-FM&tbnid=lmfSfYb9l4JUZM&vet=12ahUKEwiCvfC32N-OAxUkQkEAHR8JLWgQM3oECBoQAA..i&w=554&h=554&hcb=2&ved=2ahUKEwiCvfC32N-OAxUkQkEAHR8JLWgQM3oECBoQAA"]
+    "images": ["https://images.samsung.com/is/image/samsung/p6pim/levant/sm-s918bzkgmea/gallery/levant-galaxy-s23-ultra-s918-sm-s918bzkgmea-thumb-534642295"]
   },
   {
     "id": 1717171003,
@@ -24,7 +24,7 @@
     "category": "Smartphones",
     "description": "Tecno Camon 20 Premier, 256GB, Glacier Glow, 4G LTE.",
     "stock": 20,
-    "images": ["https://www.google.com/imgres?q=Tecno%20Camon%2020%20Premier%20pict&imgurl=https%3A%2F%2Ffdn2.gsmarena.com%2Fvv%2Fpics%2Ftecno%2Ftecno-camon20-premier-5g-2.jpg&imgrefurl=https%3A%2F%2Fwww.gsmarena.com%2Ftecno_camon_20_premier-pictures-12256.php&docid=VXJg_0HMEYJkwM&tbnid=CWABtEDcDXBEeM&vet=12ahUKEwilk7zN2N-OAxWxTkEAHXnDFFcQM3oECBEQAA..i&w=470&h=600&hcb=2&ved=2ahUKEwilk7zN2N-OAxWxTkEAHXnDFFcQM3oECBEQAA"]
+    "images": ["https://fdn2.gsmarena.com/vv/pics/tecno/tecno-camon20-premier-5g-2.jpg"]
   },
   {
     "id": 1717171004,
@@ -33,7 +33,7 @@
     "category": "Smartphones",
     "description": "Infinix Note 12, 128GB, Force Black, 4G LTE.",
     "stock": 18,
-    "images": ["https://www.google.com/imgres?q=Infinix%20Note%2012pict&imgurl=https%3A%2F%2Ffdn2.gsmarena.com%2Fvv%2Fpics%2Finfinix%2Finfinix-note12-pro-4g-1.jpg&imgrefurl=https%3A%2F%2Fwww.gsmarena.com%2Finfinix_note_12_pro-pictures-11695.php&docid=90-4xkkdjnSJ4M&tbnid=XNKrANPbccZUzM&vet=12ahUKEwin3-_92t-OAxWJ9wIHHQodDJEQM3oECCAQAA..i&w=484&h=600&hcb=2&ved=2ahUKEwin3-_92t-OAxWJ9wIHHQodDJEQM3oECCAQAA"]
+    "images": ["https://fdn2.gsmarena.com/vv/pics/infinix/infinix-note12-pro-4g-1.jpg"]
   },
   {
     "id": 1717171005,
@@ -42,7 +42,7 @@
     "category": "Accessories",
     "description": "Oraimo FreePods 4 True Wireless Earbuds, ENC, 36H Playtime.",
     "stock": 30,
-    "images": ["https://www.google.com/imgres?q=Oraimo%20FreePods%204pict&imgurl=https%3A%2F%2Fcdn-img.oraimo.com%2Ffit-in%2F600x600%2FNG%2Falbum%2Foeb-e105d%2Foeb-e105d-7.jpg&imgrefurl=https%3A%2F%2Fng.oraimo.com%2Fproduct%2Foraimo-freepods-4-active-noise-cancellation-easy-control-app-35-5-hr-long-playtime-noise-reduction-in-calls-true-wireless-stereo-earbuds%3Fsrsltid%3DAfmBOopPVGBlKNqQ8BB3CxujvjRuRh3dYXaUdPUbdEqRL16q4_D4sKd7&docid=Y_7aGGbjFgPIBM&tbnid=b5L4o_I0oqHGpM&vet=12ahUKEwj6yPiN29-OAxUR0wIHHS8qA9sQM3oECA4QAA..i&w=600&h=600&hcb=2&ved=2ahUKEwj6yPiN29-OAxUR0wIHHS8qA9sQM3oECA4QAA"]
+    "images": ["https://cdn-img.oraimo.com/fit-in/600x600/NG/album/oeb-e105d/oeb-e105d-7.jpg"]
   },
   {
     "id": 1717171006,
@@ -178,5 +178,50 @@
     "description": "Samsung Galaxy A54, 128GB, Awesome Lime, 5G, Dual SIM.",
     "stock": 13,
     "images": ["https://i.imgur.com/jQfQ2Qp.jpg"]
+  },
+  {
+    "id": 1717171021,
+    "name": "HP Pavilion 15 Laptop",
+    "price": 480000,
+    "category": "Laptops",
+    "description": "HP Pavilion 15, Intel Core i5, 8GB RAM, 512GB SSD, 15.6'' FHD.",
+    "stock": 7,
+    "images": ["https://ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c06924167.png"]
+  },
+  {
+    "id": 1717171022,
+    "name": "Apple MacBook Air M2",
+    "price": 950000,
+    "category": "Laptops",
+    "description": "Apple MacBook Air 13-inch, M2 chip, 8GB RAM, 256GB SSD, Midnight.",
+    "stock": 4,
+    "images": ["https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/macbook-air-midnight-select-20220606?wid=904&hei=840&fmt=jpeg&qlt=80&.v=1654122880566"]
+  },
+  {
+    "id": 1717171023,
+    "name": "Samsung Galaxy Tab A9+",
+    "price": 210000,
+    "category": "Tablets",
+    "description": "Samsung Galaxy Tab A9+, 64GB, Wi-Fi, Graphite.",
+    "stock": 10,
+    "images": ["https://images.samsung.com/is/image/samsung/p6pim/levant/sm-x210nzaamea/gallery/levant-galaxy-tab-a9-plus-x210-sm-x210nzaamea-thumb-538073847"]
+  },
+  {
+    "id": 1717171024,
+    "name": "Oraimo Watch 2 Pro",
+    "price": 42000,
+    "category": "Wearables",
+    "description": "Oraimo Watch 2 Pro, 1.75'' HD, Bluetooth Calling, 100+ Sports Modes.",
+    "stock": 15,
+    "images": ["https://cdn-img.oraimo.com/fit-in/600x600/NG/album/osw-32/osw-32-1.jpg"]
+  },
+  {
+    "id": 1717171025,
+    "name": "JBL Flip 6 Bluetooth Speaker",
+    "price": 85000,
+    "category": "Accessories",
+    "description": "JBL Flip 6 Portable Waterproof Bluetooth Speaker, 12H Playtime.",
+    "stock": 9,
+    "images": ["https://www.jbl.com/on/demandware.static/-/Sites-masterCatalog_Harman/default/dw7e3e2e7e/1.JBL_Flip6_Hero_Black_1605x1605px.png"]
   }
 ]
