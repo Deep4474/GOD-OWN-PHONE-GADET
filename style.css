@@ -158,8 +158,8 @@ body {
     flex-wrap: wrap;
   }
   
-  /* Product grid responsive styles */
-/* Responsive product grid: 2 columns on mobile */
+/* Product grid responsive styles */
+/* Responsive product grid: 2 columns on mobile (for #product-list) */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

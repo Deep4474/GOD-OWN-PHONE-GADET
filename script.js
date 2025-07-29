@@ -2,14 +2,12 @@
 const categoryFilter = document.getElementById('category-filter');
 const selectedCategoryLabel = document.getElementById('selected-category-label');
 categoryFilter.addEventListener('change', function() {
-  const selected = categoryFilter.value;
-  if (selected) {
-    selectedCategoryLabel.style.display = 'block';
-    selectedCategoryLabel.textContent = selected;
-  } else {
-    selectedCategoryLabel.style.display = 'none';
-    selectedCategoryLabel.textContent = '';
-  }
+  filterAndRenderProducts();
+});
+
+// Ensure filter is applied on load if a category is pre-selected
+document.addEventListener('DOMContentLoaded', function() {
+  filterAndRenderProducts();
 });
 // --- Auth Gate for Main Content ---
 function showMainContent() {
@@ -160,7 +158,10 @@ logoutBtn.onclick = () => {
   localStorage.removeItem('pendingVerificationEmail');
   localStorage.removeItem('stage');
   alert('You have been logged out.');
-  window.location.reload();
+  showLogin();
+  // Hide main content and show login section
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('auth-section').style.display = 'block';
 };
 
 // --- Navigation logic (unchanged) ---
@@ -314,6 +315,12 @@ function filterAndRenderProducts() {
   const searchInput = document.getElementById('search-input');
   const categoryFilter = document.getElementById('category-filter');
   let filtered = allProducts;
+  // Always filter by category if selected
+  const selectedCategory = categoryFilter && categoryFilter.value;
+  if (selectedCategory) {
+    filtered = filtered.filter(p => (p.category && p.category.toLowerCase() === selectedCategory.toLowerCase()));
+  }
+  // Then filter by search if any
   if (searchInput && searchInput.value.trim()) {
     const q = searchInput.value.trim().toLowerCase();
     filtered = filtered.filter(p =>
@@ -321,16 +328,12 @@ function filterAndRenderProducts() {
       (p.description && p.description.toLowerCase().includes(q))
     );
   }
-  if (categoryFilter && categoryFilter.value) {
-    filtered = filtered.filter(p => p.category === categoryFilter.value);
-  }
   renderProducts(filtered);
   // Update UI to show selected category (just the name)
-  const selectedCat = categoryFilter && categoryFilter.value;
   const catLabel = document.getElementById('selected-category-label');
   if (catLabel) {
-    catLabel.textContent = selectedCat ? selectedCat : '';
-    catLabel.style.display = selectedCat ? 'block' : 'none';
+    catLabel.textContent = selectedCategory ? selectedCategory : '';
+    catLabel.style.display = selectedCategory ? 'block' : 'none';
   }
 }
 
