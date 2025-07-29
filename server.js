@@ -197,7 +197,49 @@ app.delete('/api/auth/user', (req, res) => {
 // --- Products ---
 app.get('/api/products', (req, res) => {
   const products = safeRead(productsFile);
-  return res.json(products);
+  // Add calculated fields for each product
+  const productsWithCalc = products.map(p => {
+    const isPremium = !!p.premium;
+    const basePrice = Number(p.price);
+    const discount = isPremium ? (p.discountPercent || 0) : (p.discountPercent || 0);
+    const pickup = isPremium ? (p.pickupPercent || 0) : (p.pickupPercent || 0);
+    const delivery = isPremium ? (p.deliveryPercent || 0) : (p.deliveryPercent || 0);
+    // For now, assume user has not referred enough people, so discount applies only if frontend tells us
+    const totalPickup = Math.round(basePrice + (basePrice * pickup / 100));
+    const totalDelivery = Math.round(basePrice + (basePrice * delivery / 100));
+    const totalWithDiscountPickup = Math.round((basePrice - (basePrice * discount / 100)) + ((basePrice - (basePrice * discount / 100)) * pickup / 100));
+    const totalWithDiscountDelivery = Math.round((basePrice - (basePrice * discount / 100)) + ((basePrice - (basePrice * discount / 100)) * delivery / 100));
+    return {
+      ...p,
+      calc: {
+        totalPickup,
+        totalDelivery,
+        totalWithDiscountPickup,
+        totalWithDiscountDelivery,
+        discount,
+        pickup,
+        delivery
+      }
+    };
+  });
+  return res.json(productsWithCalc);
+// --- Real Map API ---
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+app.post('/api/map', async (req, res) => {
+  const { address } = req.body;
+  if (!address) return res.status(400).json({ error: 'Address required' });
+  try {
+    // Use OpenStreetMap Nominatim API (no key required)
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+    const response = await fetch(url, { headers: { 'User-Agent': 'GODS-OWN-PHONE-GADGET/1.0' } });
+    const data = await response.json();
+    if (!data || !data[0]) return res.status(404).json({ error: 'Address not found' });
+    const { lat, lon, display_name } = data[0];
+    return res.json({ lat, lon, display_name });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to fetch map coordinates', details: err.message });
+  }
+});
 });
 app.post('/api/products', (req, res) => {
   const { name, price, category, description, stock, imageUrl } = req.body;
@@ -254,9 +296,25 @@ app.post('/api/orders', async (req, res) => {
   if (deliveryMethod === 'Deliver' && !address) {
     return res.status(400).json({ error: 'Address required for delivery' });
   }
+  // Calculate total and discount for the order
+  const products = safeRead(productsFile);
+  const product = products.find(p => String(p.id) === String(productId));
+  if (!product) return res.status(404).json({ error: 'Product not found' });
+  const isPremium = !!product.premium;
+  const basePrice = Number(product.price) * Number(quantity);
+  const discount = isPremium ? (product.discountPercent || 0) : (product.discountPercent || 0);
+  const pickup = isPremium ? (product.pickupPercent || 0) : (product.pickupPercent || 0);
+  const delivery = isPremium ? (product.deliveryPercent || 0) : (product.deliveryPercent || 0);
+  // For now, assume user has not referred enough people, so discount applies only if frontend tells us (can be improved)
+  let totalPickup = Math.round(basePrice + (basePrice * pickup / 100));
+  let totalDelivery = Math.round(basePrice + (basePrice * delivery / 100));
+  let totalWithDiscountPickup = Math.round((basePrice - (basePrice * discount / 100)) + ((basePrice - (basePrice * discount / 100)) * pickup / 100));
+  let totalWithDiscountDelivery = Math.round((basePrice - (basePrice * discount / 100)) + ((basePrice - (basePrice * discount / 100)) * delivery / 100));
+  // Save order as before
   if (mongoose.connection.readyState === 1) {
     const newOrder = new Order({
-      productId, quantity, address: deliveryMethod === 'Deliver' ? address : '', phone, email, deliveryMethod, paymentMethod
+      productId, quantity, address: deliveryMethod === 'Deliver' ? address : '', phone, email, deliveryMethod, paymentMethod,
+      totalPickup, totalDelivery, totalWithDiscountPickup, totalWithDiscountDelivery
     });
     await newOrder.save();
     // Add notification and send email as before
@@ -268,15 +326,15 @@ app.post('/api/orders', async (req, res) => {
         from: `GOD'S OWN PHONE GADGET <${process.env.EMAIL_USER}>`,
         to: email,
         subject: 'Order Confirmation',
-        text: `Thank you for your order!\n\nOrder Details:\nProduct: ${productId}\nQuantity: ${quantity}\nDelivery Method: ${deliveryMethod}\nPayment Method: ${paymentMethod}\nAddress: ${address || 'N/A'}\nPhone: ${phone}\nStatus: pending\nDate: ${new Date().toLocaleString()}\n\nWe will update you as your order is processed.`,
-        html: `<h3>Thank you for your order!</h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${productId}</li><li><b>Quantity:</b> ${quantity}</li><li><b>Delivery Method:</b> ${deliveryMethod}</li><li><b>Payment Method:</b> ${paymentMethod}</li><li><b>Address:</b> ${address || 'N/A'}</li><li><b>Phone:</b> ${phone}</li><li><b>Status:</b> pending</li><li><b>Date:</b> ${new Date().toLocaleString()}</li></ul><p>We will update you as your order is processed.</p>`
+        text: `Thank you for your order!\n\nOrder Details:\nProduct: ${product.name}\nQuantity: ${quantity}\nDelivery Method: ${deliveryMethod}\nPayment Method: ${paymentMethod}\nAddress: ${address || 'N/A'}\nPhone: ${phone}\nStatus: pending\nDate: ${new Date().toLocaleString()}\nTotal: ${deliveryMethod === 'Deliver' ? totalDelivery : totalPickup}\n\nWe will update you as your order is processed.`,
+        html: `<h3>Thank you for your order!</h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${product.name}</li><li><b>Quantity:</b> ${quantity}</li><li><b>Delivery Method:</b> ${deliveryMethod}</li><li><b>Payment Method:</b> ${paymentMethod}</li><li><b>Address:</b> ${address || 'N/A'}</li><li><b>Phone:</b> ${phone}</li><li><b>Status:</b> pending</li><li><b>Date:</b> ${new Date().toLocaleString()}</li><li><b>Total:</b> ${deliveryMethod === 'Deliver' ? totalDelivery : totalPickup}</li></ul><p>We will update you as your order is processed.</p>`
       });
       let smsErrors = [];
       // Send SMS confirmation to user
       if (phone) {
         try {
           await twilioClient.messages.create({
-            body: `GOD'S OWN PHONE GADGET: Your order for ${quantity} x ${productId} is received. Status: pending. Thank you!`,
+            body: `GOD'S OWN PHONE GADGET: Your order for ${quantity} x ${product.name} is received. Status: pending. Total: ${deliveryMethod === 'Deliver' ? totalDelivery : totalPickup}. Thank you!`,
             from: fromNumber,
             to: phone
           });
@@ -288,7 +346,7 @@ app.post('/api/orders', async (req, res) => {
       for (const adminPhone of ADMIN_PHONES) {
         try {
           await twilioClient.messages.create({
-            body: `ADMIN ALERT: New order from ${email} (${phone}). Product: ${productId}, Qty: ${quantity}, Delivery: ${deliveryMethod}, Payment: ${paymentMethod}.`,
+            body: `ADMIN ALERT: New order from ${email} (${phone}). Product: ${product.name}, Qty: ${quantity}, Delivery: ${deliveryMethod}, Payment: ${paymentMethod}. Total: ${deliveryMethod === 'Deliver' ? totalDelivery : totalPickup}.`,
             from: fromNumber,
             to: adminPhone
           });
@@ -302,7 +360,7 @@ app.post('/api/orders', async (req, res) => {
     } catch (err) {
       return res.status(500).json({ error: 'Order placed, but failed to send email or SMS', details: err.message });
     }
-    res.json({ success: true, message: 'Order placed successfully', order: newOrder });
+    res.json({ success: true, message: 'Order placed successfully', order: newOrder, totalPickup, totalDelivery, totalWithDiscountPickup, totalWithDiscountDelivery });
     return;
   }
   const orders = safeRead(ordersFile);
@@ -316,7 +374,11 @@ app.post('/api/orders', async (req, res) => {
     deliveryMethod,
     paymentMethod,
     status: 'pending',
-    date: new Date().toISOString()
+    date: new Date().toISOString(),
+    totalPickup,
+    totalDelivery,
+    totalWithDiscountPickup,
+    totalWithDiscountDelivery
   };
   orders.push(newOrder);
   safeWrite(ordersFile, orders);
@@ -330,15 +392,15 @@ app.post('/api/orders', async (req, res) => {
       from: `GOD'S OWN PHONE GADGET <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Order Confirmation',
-      text: `Thank you for your order!\n\nOrder Details:\nProduct: ${productId}\nQuantity: ${quantity}\nDelivery Method: ${deliveryMethod}\nPayment Method: ${paymentMethod}\nAddress: ${address || 'N/A'}\nPhone: ${phone}\nStatus: pending\nDate: ${new Date().toLocaleString()}\n\nWe will update you as your order is processed.`,
-      html: `<h3>Thank you for your order!</h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${productId}</li><li><b>Quantity:</b> ${quantity}</li><li><b>Delivery Method:</b> ${deliveryMethod}</li><li><b>Payment Method:</b> ${paymentMethod}</li><li><b>Address:</b> ${address || 'N/A'}</li><li><b>Phone:</b> ${phone}</li><li><b>Status:</b> pending</li><li><b>Date:</b> ${new Date().toLocaleString()}</li></ul><p>We will update you as your order is processed.</p>`
+      text: `Thank you for your order!\n\nOrder Details:\nProduct: ${product.name}\nQuantity: ${quantity}\nDelivery Method: ${deliveryMethod}\nPayment Method: ${paymentMethod}\nAddress: ${address || 'N/A'}\nPhone: ${phone}\nStatus: pending\nDate: ${new Date().toLocaleString()}\nTotal: ${deliveryMethod === 'Deliver' ? totalDelivery : totalPickup}\n\nWe will update you as your order is processed.`,
+      html: `<h3>Thank you for your order!</h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${product.name}</li><li><b>Quantity:</b> ${quantity}</li><li><b>Delivery Method:</b> ${deliveryMethod}</li><li><b>Payment Method:</b> ${paymentMethod}</li><li><b>Address:</b> ${address || 'N/A'}</li><li><b>Phone:</b> ${phone}</li><li><b>Status:</b> pending</li><li><b>Date:</b> ${new Date().toLocaleString()}</li><li><b>Total:</b> ${deliveryMethod === 'Deliver' ? totalDelivery : totalPickup}</li></ul><p>We will update you as your order is processed.</p>`
     });
     let smsErrors = [];
     // Send SMS confirmation to user
     if (phone) {
       try {
         await twilioClient.messages.create({
-          body: `GOD'S OWN PHONE GADGET: Your order for ${quantity} x ${productId} is received. Status: pending. Thank you!`,
+          body: `GOD'S OWN PHONE GADGET: Your order for ${quantity} x ${product.name} is received. Status: pending. Total: ${deliveryMethod === 'Deliver' ? totalDelivery : totalPickup}. Thank you!`,
           from: fromNumber,
           to: phone
         });
@@ -350,7 +412,7 @@ app.post('/api/orders', async (req, res) => {
     for (const adminPhone of ADMIN_PHONES) {
       try {
         await twilioClient.messages.create({
-          body: `ADMIN ALERT: New order from ${email} (${phone}). Product: ${productId}, Qty: ${quantity}, Delivery: ${deliveryMethod}, Payment: ${paymentMethod}.`,
+          body: `ADMIN ALERT: New order from ${email} (${phone}). Product: ${product.name}, Qty: ${quantity}, Delivery: ${deliveryMethod}, Payment: ${paymentMethod}. Total: ${deliveryMethod === 'Deliver' ? totalDelivery : totalPickup}.`,
           from: fromNumber,
           to: adminPhone
         });
@@ -364,7 +426,7 @@ app.post('/api/orders', async (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: 'Order placed, but failed to send email or SMS', details: err.message });
   }
-  res.json({ success: true, message: 'Order placed successfully', order: newOrder });
+  res.json({ success: true, message: 'Order placed successfully', order: newOrder, totalPickup, totalDelivery, totalWithDiscountPickup, totalWithDiscountDelivery });
 });
 app.patch('/api/orders/:id', async (req, res) => {
   const { id } = req.params;
