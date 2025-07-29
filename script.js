@@ -413,10 +413,26 @@ function showBuyNowForm(product) {
     modal.className = 'modal';
     document.body.appendChild(modal);
   }
+  // Referral/invite logic for premium products
+  let referralHtml = '';
+  if (product.premium) {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const inviteBase = window.location.origin || 'https://godsownpane.netlify.app';
+    const inviteLink = `${inviteBase}/?ref=${encodeURIComponent(user.email || 'guest')}&product=${product.id}`;
+    referralHtml = `
+      <div class="referral-box" style="background:#f8f8f8;padding:10px 12px;margin-bottom:10px;border-radius:8px;border:1px solid #eee;">
+        <b>Invite 10 people and get 20% discount on this premium product!</b><br>
+        <span style="font-size:13px;">Share this link with your friends. When 10 register and buy, you get your discount automatically.</span><br>
+        <input type="text" id="invite-link" value="${inviteLink}" readonly style="width:90%;margin:8px 0 0 0;padding:4px;">
+        <button id="copy-invite-link" style="margin-left:5px;">Copy Link</button>
+      </div>
+    `;
+  }
   modal.innerHTML = `
     <div class="modal-content">
       <button id="close-order-modal" class="close-modal">&times;</button>
       <h3>Buy Now: ${product.name}</h3>
+      ${referralHtml}
       <form id="order-form">
         <label>Quantity:<input type="number" id="order-qty" min="1" value="1" required></label><br>
         <label>Delivery Method:<br>
@@ -442,6 +458,21 @@ function showBuyNowForm(product) {
       <div id="order-message"></div>
     </div>
   `;
+  // Copy invite link logic
+  if (product.premium) {
+    setTimeout(() => {
+      const copyBtn = document.getElementById('copy-invite-link');
+      const inviteInput = document.getElementById('invite-link');
+      if (copyBtn && inviteInput) {
+        copyBtn.onclick = function() {
+          inviteInput.select();
+          document.execCommand('copy');
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 1200);
+        };
+      }
+    }, 200);
+  }
   modal.classList.remove('hidden');
   modal.style.display = 'block';
   document.body.style.overflow = 'hidden';
