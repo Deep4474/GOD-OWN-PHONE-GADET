@@ -234,14 +234,16 @@ document.getElementById('login-form').onsubmit = async function(e) {
   try {
     loginMsg.textContent = 'Logging in...';
     const res = await apiPost(API_ENDPOINTS.LOGIN, { email, password });
-    loginMsg.textContent = 'Login successful!';
+    // If login is successful, show welcome back message
+    loginMsg.textContent = 'Welcome back!';
     localStorage.setItem('user', JSON.stringify(res.user));
     localStorage.setItem('stage', 'products');
     handleLoginSuccess(res.token); // Show main content after login
     showProducts();
     loadProducts();
   } catch (err) {
-    loginMsg.textContent = err.message;
+    // If password is incorrect or any error, show error message
+    loginMsg.textContent = err.message || 'Incorrect email or password.';
   }
 };
 document.getElementById('register-form').onsubmit = async function(e) {
@@ -271,14 +273,14 @@ document.getElementById('register-form').onsubmit = async function(e) {
       lga: document.getElementById('reg-lga').value,
       address: document.getElementById('reg-address').value
     });
-    registerMsg.textContent = 'Registration successful! Check your email for a code.';
-    window.pendingVerificationEmail = email;
-    localStorage.setItem('pendingVerificationEmail', email);
-    localStorage.setItem('stage', 'verify');
-    // Show the register view and verification form
-    document.getElementById('register-view').classList.remove('hidden');
-    document.getElementById('login-view').classList.add('hidden');
-    document.getElementById('verify-code-section').classList.remove('hidden');
+    registerMsg.textContent = 'Registration successful! Logging you in...';
+    // Auto-login after registration
+    localStorage.setItem('user', JSON.stringify(res.user));
+    localStorage.setItem('token', res.token);
+    localStorage.setItem('stage', 'products');
+    handleLoginSuccess(res.token);
+    showProducts();
+    loadProducts();
   } catch (err) {
     registerMsg.textContent = err.message;
     // Show the register view and verification form even on error
@@ -438,12 +440,11 @@ function showBuyNowForm(product) {
   `;
   modal.classList.remove('hidden');
   modal.style.display = 'block';
-  // Prevent background scroll
   document.body.style.overflow = 'hidden';
 
   // Get registered address from localStorage
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const registeredAddress = user.address || '';
+  const registeredAddress = user.address || 'Lagos, Nigeria';
 
   // Pre-fill address field if available
   const addressInput = document.getElementById('order-address');
@@ -453,24 +454,12 @@ function showBuyNowForm(product) {
 
   // Map logic
   const mapContainer = document.getElementById('map-container');
-  function showMap(deliveryMethod, address) {
-    if (deliveryMethod === 'Deliver') {
-      // Use address if available, else fallback to Lagos
-      const apiKey = 'YOUR_API_KEY'; // Replace with your real API key
-      const mapQuery = encodeURIComponent(address);
-      let mapUrl;
-      if (apiKey && apiKey !== 'YOUR_API_KEY') {
-        mapUrl = `https://www.google.com/maps?q=${address}&output=embed`;
-      } else {
-        // Fallback to old embed method if API key is not set
-        mapUrl = `https://www.google.com/maps?q=${address}&output=embed`;
-      }
-      mapContainer.innerHTML = `<iframe width="100%" height="200" frameborder="0" style="border:0" src="${mapUrl}" allowfullscreen></iframe>`;
-    } else {
-      mapContainer.innerHTML = `<iframe width="100%" height="200" frameborder="0" style="border:0" src="https://www.google.com/maps?q=${address}&output=embed" allowfullscreen></iframe>`;
-    }
+  function showMap(address) {
+    const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+    mapContainer.innerHTML = `<iframe width="100%" height="200" frameborder="0" style="border:0" src="${mapUrl}" allowfullscreen></iframe>`;
   }
-  showMap('Pick Up');
+  // Show map for registered address by default
+  showMap(registeredAddress);
 
   // Delivery method logic
   const deliveryRadios = modal.querySelectorAll('input[name="delivery-method"]');
@@ -480,15 +469,12 @@ function showBuyNowForm(product) {
       if (this.value === 'Deliver') {
         addressFields.style.display = '';
         document.getElementById('order-address').required = true;
-        // Pre-fill with registered address if not already filled
-        if (addressInput && !addressInput.value && registeredAddress) {
-          addressInput.value = registeredAddress;
-        }
-        showMap('Deliver', addressInput.value || registeredAddress);
+        // Show map for address input (if filled) or registered address
+        showMap(addressInput.value || registeredAddress);
       } else {
         addressFields.style.display = 'none';
         document.getElementById('order-address').required = false;
-        showMap('Pick Up');
+        showMap(registeredAddress);
       }
     };
   });
@@ -498,7 +484,7 @@ function showBuyNowForm(product) {
     addressInput.addEventListener('input', function() {
       const selectedDelivery = modal.querySelector('input[name="delivery-method"]:checked').value;
       if (selectedDelivery === 'Deliver') {
-        showMap('Deliver', addressInput.value);
+        showMap(addressInput.value);
       }
     });
   }
@@ -506,7 +492,6 @@ function showBuyNowForm(product) {
   document.getElementById('close-order-modal').onclick = () => {
     modal.classList.add('hidden');
     modal.style.display = 'none';
-    // Restore background scroll
     document.body.style.overflow = '';
   };
 
