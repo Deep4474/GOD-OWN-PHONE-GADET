@@ -199,35 +199,49 @@ app.get('/api/products', (req, res) => {
   const products = safeRead(productsFile);
   return res.json(products);
 });
-app.post('/api/products', async (req, res) => {
+app.post('/api/products', (req, res) => {
   const { name, price, category, description, stock, imageUrl } = req.body;
   if (!name || !price || !category || !description || !stock || !imageUrl) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
-  const newProduct = new Product({
-    name, price, category, description, stock, images: [imageUrl]
-  });
-  await newProduct.save();
+  const products = safeRead(productsFile);
+  const newProduct = {
+    id: Date.now(),
+    name,
+    price: Number(price),
+    category,
+    description,
+    stock: Number(stock),
+    images: [imageUrl]
+  };
+  products.push(newProduct);
+  safeWrite(productsFile, products);
   return res.json({ success: true, product: newProduct });
 });
-app.patch('/api/products/:id', async (req, res) => {
+app.patch('/api/products/:id', (req, res) => {
   const { id } = req.params;
   const { name, price, category, description, stock, imageUrl } = req.body;
-  const product = await Product.findById(id);
+  let products = safeRead(productsFile);
+  const product = products.find(p => String(p.id) === String(id));
   if (!product) return res.status(404).json({ error: 'Product not found' });
   if (name) product.name = name;
-  if (price) product.price = price;
+  if (price) product.price = Number(price);
   if (category) product.category = category;
   if (description) product.description = description;
-  if (stock) product.stock = stock;
+  if (stock) product.stock = Number(stock);
   if (imageUrl) product.images = [imageUrl];
-  await product.save();
+  safeWrite(productsFile, products);
   return res.json({ success: true, product });
 });
-app.delete('/api/products/:id', async (req, res) => {
+app.delete('/api/products/:id', (req, res) => {
   const { id } = req.params;
-  const result = await Product.findByIdAndDelete(id);
-  if (!result) return res.status(404).json({ error: 'Product not found' });
+  let products = safeRead(productsFile);
+  const initialLength = products.length;
+  products = products.filter(p => String(p.id) !== String(id));
+  if (products.length === initialLength) {
+    return res.status(404).json({ error: 'Product not found' });
+  }
+  safeWrite(productsFile, products);
   return res.json({ success: true });
 });
 
