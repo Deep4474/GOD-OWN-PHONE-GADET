@@ -1,186 +1,24 @@
 [
   {
-    "id": 1717171001,
-    "name": "iPhone 14 Pro Max",
-    "price": 1200000,
+    "id": 2025072901,
+    "name": "Samsung Galaxy S24 Ultra",
+    "price": 1350000,
     "category": "Smartphones",
-    "description": "Apple iPhone 14 Pro Max, 256GB, Deep Purple, 5G, Dual SIM.",
-    "stock": 15,
-    "images": ["https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-14-pro-max-deep-purple-select?wid=940&hei=1112&fmt=png-alpha&.v=1660753619946"]
-  },
-  {
-    "id": 1717171002,
-    "name": "Samsung Galaxy S23 Ultra",
-    "price": 1100000,
-    "category": "Smartphones",
-    "description": "Samsung Galaxy S23 Ultra, 512GB, Phantom Black, 5G, Dual SIM.",
-    "stock": 12,
-    "images": ["https://images.samsung.com/is/image/samsung/p6pim/levant/sm-s918bzkgmea/gallery/levant-galaxy-s23-ultra-s918-sm-s918bzkgmea-thumb-534642295"]
-  },
-  {
-    "id": 1717171003,
-    "name": "Tecno Camon 20 Premier",
-    "price": 250000,
-    "category": "Smartphones",
-    "description": "Tecno Camon 20 Premier, 256GB, Glacier Glow, 4G LTE.",
-    "stock": 20,
-    "images": ["https://fdn2.gsmarena.com/vv/pics/tecno/tecno-camon20-premier-5g-2.jpg"]
-  },
-  {
-    "id": 1717171004,
-    "name": "Infinix Note 12",
-    "price": 180000,
-    "category": "Smartphones",
-    "description": "Infinix Note 12, 128GB, Force Black, 4G LTE.",
-    "stock": 18,
-    "images": ["https://fdn2.gsmarena.com/vv/pics/infinix/infinix-note12-pro-4g-1.jpg"]
-  },
-  {
-    "id": 1717171005,
-    "name": "Oraimo FreePods 4",
-    "price": 25000,
-    "category": "Accessories",
-    "description": "Oraimo FreePods 4 True Wireless Earbuds, ENC, 36H Playtime.",
-    "stock": 30,
-    "images": ["https://cdn-img.oraimo.com/fit-in/600x600/NG/album/oeb-e105d/oeb-e105d-7.jpg"]
-  },
-  {
-    "id": 1717171006,
-    "name": "Apple AirPods Pro (2nd Gen)",
-    "price": 120000,
-    "category": "Accessories",
-    "description": "Apple AirPods Pro (2nd Generation) with MagSafe Charging Case.",
-    "stock": 10,
-    "images": ["https://i.imgur.com/3QfQ2Qp.jpg"]
-  },
-  {
-    "id": 1717171007,
-    "name": "Samsung Galaxy Watch 5",
-    "price": 150000,
-    "category": "Wearables",
-    "description": "Samsung Galaxy Watch 5, 44mm, Bluetooth, Graphite.",
+    "description": "Samsung Galaxy S24 Ultra, 512GB, Titanium Gray, 5G, Dual SIM. 200MP Camera, 12GB RAM, 5000mAh Battery.",
     "stock": 8,
-    "images": ["https://i.imgur.com/2QfQ2Qp.jpg"]
+    "images": ["https://images.samsung.com/is/image/samsung/p6pim/levant/sm-s928bzsgmea/gallery/levant-galaxy-s24-ultra-s928-sm-s928bzsgmea-thumb-539217982"]
   },
   {
-    "id": 1717171008,
-    "name": "Xiaomi Redmi Power Bank 20000mAh",
-    "price": 18000,
-    "category": "Accessories",
-    "description": "Xiaomi Redmi 20000mAh Fast Charging Power Bank, Dual USB Output.",
-    "stock": 25,
-    "images": ["https://i.imgur.com/1QfQ2Qp.jpg"]
-  },
-  {
-    "id": 1717171009,
-    "name": "Oraimo Smart Watch OSW-16",
-    "price": 35000,
-    "category": "Wearables",
-    "description": "Oraimo OSW-16 Smart Watch, 1.69'' HD, 13 Sports Modes, IP68 Waterproof.",
-    "stock": 14,
-    "images": ["https://i.imgur.com/0QfQ2Qp.jpg"]
-  },
-  {
-    "id": 1717171010,
-    "name": "Apple iPad 10th Gen",
-    "price": 450000,
-    "category": "Tablets",
-    "description": "Apple iPad 10th Generation, 64GB, Wi-Fi, Silver.",
-    "stock": 7,
-    "images": ["https://i.imgur.com/9QfQ2Qp.jpg"]
-  },
-  {
-    "id": 1717171011,
-    "name": "Samsung Galaxy Tab S8",
-    "price": 400000,
-    "category": "Tablets",
-    "description": "Samsung Galaxy Tab S8, 128GB, Wi-Fi, Graphite.",
-    "stock": 6,
-    "images": ["https://i.imgur.com/aQfQ2Qp.jpg"]
-  },
-  {
-    "id": 1717171012,
-    "name": "Anker Soundcore Bluetooth Speaker",
-    "price": 22000,
-    "category": "Accessories",
-    "description": "Anker Soundcore Mini Bluetooth Speaker, 15H Playtime, FM Radio.",
-    "stock": 22,
-    "images": ["https://i.imgur.com/bQfQ2Qp.jpg"]
-  },
-  {
-    "id": 1717171013,
-    "name": "Oraimo Car Charger",
-    "price": 8000,
-    "category": "Accessories",
-    "description": "Oraimo Car Charger, Dual USB, Fast Charging, 3.4A.",
-    "stock": 40,
-    "images": ["https://i.imgur.com/cQfQ2Qp.jpg"]
-  },
-  {
-    "id": 1717171014,
-    "name": "Apple Watch Series 8",
-    "price": 350000,
-    "category": "Wearables",
-    "description": "Apple Watch Series 8, 45mm, GPS, Midnight Aluminum Case.",
-    "stock": 5,
-    "images": ["https://i.imgur.com/dQfQ2Qp.jpg"]
-  },
-  {
-    "id": 1717171015,
-    "name": "Samsung Galaxy Buds2 Pro",
-    "price": 90000,
-    "category": "Accessories",
-    "description": "Samsung Galaxy Buds2 Pro, Noise Cancelling, Graphite.",
-    "stock": 16,
-    "images": ["https://i.imgur.com/eQfQ2Qp.jpg"]
-  },
-  {
-    "id": 1717171016,
-    "name": "Infinix Hot 30",
-    "price": 120000,
+    "id": 2025072902,
+    "name": "Apple iPhone 15 Pro Max",
+    "price": 1450000,
     "category": "Smartphones",
-    "description": "Infinix Hot 30, 128GB, Racing Black, 4G LTE.",
-    "stock": 19,
-    "images": ["https://i.imgur.com/fQfQ2Qp.jpg"]
+    "description": "Apple iPhone 15 Pro Max, 256GB, Natural Titanium, 5G, Dual SIM.",
+    "stock": 10,
+    "images": ["https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-15-pro-max-natural-titanium-select?wid=940&hei=1112&fmt=png-alpha&.v=1692925225538"]
   },
   {
-    "id": 1717171017,
-    "name": "Oraimo Power Bank 27000mAh",
-    "price": 20000,
-    "category": "Accessories",
-    "description": "Oraimo 27000mAh Power Bank, Fast Charging, Dual USB Output.",
-    "stock": 28,
-    "images": ["https://i.imgur.com/gQfQ2Qp.jpg"]
-  },
-  {
-    "id": 1717171018,
-    "name": "Tecno Pop 7 Pro",
-    "price": 95000,
-    "category": "Smartphones",
-    "description": "Tecno Pop 7 Pro, 64GB, Turquoise Cyan, 4G LTE.",
-    "stock": 17,
-    "images": ["https://i.imgur.com/hQfQ2Qp.jpg"]
-  },
-  {
-    "id": 1717171019,
-    "name": "Oraimo Bluetooth Headset",
-    "price": 12000,
-    "category": "Accessories",
-    "description": "Oraimo Bluetooth Headset, Wireless, Noise Cancelling.",
-    "stock": 35,
-    "images": ["https://i.imgur.com/iQfQ2Qp.jpg"]
-  },
-  {
-    "id": 1717171020,
-    "name": "Samsung Galaxy A54",
-    "price": 320000,
-    "category": "Smartphones",
-    "description": "Samsung Galaxy A54, 128GB, Awesome Lime, 5G, Dual SIM.",
-    "stock": 13,
-    "images": ["https://i.imgur.com/jQfQ2Qp.jpg"]
-  },
-  {
-    "id": 1717171021,
+    "id": 2025072903,
     "name": "HP Pavilion 15 Laptop",
     "price": 480000,
     "category": "Laptops",
@@ -189,7 +27,7 @@
     "images": ["https://ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c06924167.png"]
   },
   {
-    "id": 1717171022,
+    "id": 2025072904,
     "name": "Apple MacBook Air M2",
     "price": 950000,
     "category": "Laptops",
@@ -198,30 +36,57 @@
     "images": ["https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/macbook-air-midnight-select-20220606?wid=904&hei=840&fmt=jpeg&qlt=80&.v=1654122880566"]
   },
   {
-    "id": 1717171023,
-    "name": "Samsung Galaxy Tab A9+",
-    "price": 210000,
+    "id": 2025072905,
+    "name": "Samsung Galaxy Tab S9+",
+    "price": 650000,
     "category": "Tablets",
-    "description": "Samsung Galaxy Tab A9+, 64GB, Wi-Fi, Graphite.",
+    "description": "Samsung Galaxy Tab S9+, 256GB, Wi-Fi, Beige.",
+    "stock": 6,
+    "images": ["https://images.samsung.com/is/image/samsung/p6pim/levant/sm-x810nzeaegy/gallery/levant-galaxy-tab-s9-plus-x810-sm-x810nzeaegy-thumb-537964964"]
+  },
+  {
+    "id": 2025072906,
+    "name": "Oraimo FreePods 4",
+    "price": 25000,
+    "category": "Accessories",
+    "description": "Oraimo FreePods 4 True Wireless Earbuds, ENC, 36H Playtime.",
+    "stock": 30,
+    "images": ["https://cdn-img.oraimo.com/fit-in/600x600/NG/album/oeb-e105d/oeb-e105d-7.jpg"]
+  },
+  {
+    "id": 2025072907,
+    "name": "Apple AirPods Pro (2nd Gen)",
+    "price": 120000,
+    "category": "Accessories",
+    "description": "Apple AirPods Pro (2nd Generation) with MagSafe Charging Case.",
     "stock": 10,
-    "images": ["https://images.samsung.com/is/image/samsung/p6pim/levant/sm-x210nzaamea/gallery/levant-galaxy-tab-a9-plus-x210-sm-x210nzaamea-thumb-538073847"]
+    "images": ["https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/MQD83?wid=2000&hei=2000&fmt=jpeg&qlt=95&.v=1660803972361"]
   },
   {
-    "id": 1717171024,
-    "name": "Oraimo Watch 2 Pro",
-    "price": 42000,
+    "id": 2025072908,
+    "name": "Samsung Galaxy Watch 6",
+    "price": 180000,
     "category": "Wearables",
-    "description": "Oraimo Watch 2 Pro, 1.75'' HD, Bluetooth Calling, 100+ Sports Modes.",
-    "stock": 15,
-    "images": ["https://cdn-img.oraimo.com/fit-in/600x600/NG/album/osw-32/osw-32-1.jpg"]
+    "description": "Samsung Galaxy Watch 6, 44mm, Bluetooth, Graphite.",
+    "stock": 8,
+    "images": ["https://images.samsung.com/is/image/samsung/p6pim/levant/2307/gallery/levant-galaxy-watch6-44mm-sm-r940nzsamea-thumb-537964964"]
   },
   {
-    "id": 1717171025,
+    "id": 2025072909,
     "name": "JBL Flip 6 Bluetooth Speaker",
     "price": 85000,
     "category": "Accessories",
     "description": "JBL Flip 6 Portable Waterproof Bluetooth Speaker, 12H Playtime.",
     "stock": 9,
     "images": ["https://www.jbl.com/on/demandware.static/-/Sites-masterCatalog_Harman/default/dw7e3e2e7e/1.JBL_Flip6_Hero_Black_1605x1605px.png"]
+  },
+  {
+    "id": 2025072910,
+    "name": "Oraimo Watch 2 Pro",
+    "price": 42000,
+    "category": "Wearables",
+    "description": "Oraimo Watch 2 Pro, 1.75'' HD, Bluetooth Calling, 100+ Sports Modes.",
+    "stock": 15,
+    "images": ["https://cdn-img.oraimo.com/fit-in/600x600/NG/album/osw-32/osw-32-1.jpg"]
   }
 ]
