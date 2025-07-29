@@ -359,9 +359,12 @@ function renderProducts(products) {
   document.querySelectorAll('.product-img').forEach(img => {
     img.onclick = function() {
       const idx = this.getAttribute('data-idx');
+      // Hide all descriptions first
+      document.querySelectorAll('.description').forEach(desc => desc.style.display = 'none');
+      // Show only the clicked one
       const desc = document.getElementById('desc-' + idx);
       if (desc) {
-        desc.style.display = desc.style.display === 'none' ? 'block' : 'none';
+        desc.style.display = 'block';
       }
     };
   });
@@ -734,5 +737,5 @@ window.addEventListener('keydown', function(e) {
     e.preventDefault();
     return false;
   }
-}); 
+});
 
