@@ -543,7 +543,7 @@ function renderProducts(products) {
   productList.innerHTML = products.map((product, idx) => {
     if (product.premium) {
       return `
-        <div class="product-card premium-product-card" style="border:2px solid #ffe7b2;box-shadow:0 2px 12px #ffe7b2;position:relative;">
+        <div class="product-card premium-product-card" data-idx="${idx}" style="border:2px solid #ffe7b2;box-shadow:0 2px 12px #ffe7b2;position:relative;cursor:pointer;">
           <img src="${product.images[0]}" alt="${product.name}" class="product-img" data-idx="${idx}" style="cursor:pointer;" />
           <h4 style="color:#b97a00;">${product.name} <span style="font-size:0.9em;background:#ffe7b2;color:#b97a00;padding:2px 8px;border-radius:6px;">Premium</span></h4>
           <p class="description" id="desc-${idx}" style="display:none;">${product.description}</p>
@@ -568,7 +568,8 @@ function renderProducts(products) {
 
   // Add event listeners for product images to toggle description
   document.querySelectorAll('.product-img').forEach(img => {
-    img.onclick = function() {
+    img.onclick = function(e) {
+      e.stopPropagation();
       const idx = this.getAttribute('data-idx');
       // Hide all descriptions first
       document.querySelectorAll('.description').forEach(desc => desc.style.display = 'none');
@@ -581,21 +582,33 @@ function renderProducts(products) {
   });
   // Add event listeners for buy now buttons (non-premium)
   document.querySelectorAll('.buy-now-btn').forEach(btn => {
-    btn.onclick = function() {
+    btn.onclick = function(e) {
+      e.stopPropagation();
       const idx = this.getAttribute('data-idx');
       showBuyNowForm(products[idx]);
     };
   });
   // Add event listeners for premium share buttons
   document.querySelectorAll('.share-premium-btn').forEach(btn => {
-    btn.onclick = function() {
+    btn.onclick = function(e) {
+      e.stopPropagation();
+      const idx = this.getAttribute('data-idx');
+      showPremiumShareModal(products[idx]);
+    };
+  });
+  // Make the whole premium card clickable for share modal
+  document.querySelectorAll('.premium-product-card').forEach(card => {
+    card.onclick = function(e) {
+      // Prevent double open if button or image is clicked
+      if (e.target.classList.contains('share-premium-btn') || e.target.classList.contains('product-img')) return;
       const idx = this.getAttribute('data-idx');
       showPremiumShareModal(products[idx]);
     };
   });
   // Add event listeners for category badges
   document.querySelectorAll('.category-badge').forEach(badge => {
-    badge.onclick = function() {
+    badge.onclick = function(e) {
+      e.stopPropagation();
       const cat = this.getAttribute('data-category');
       const categoryFilter = document.getElementById('category-filter');
       if (categoryFilter) {
@@ -688,15 +701,22 @@ function showPremiumShareModal(product) {
         }
       };
     }
-    document.getElementById('close-order-modal').onclick = () => {
-      modal.classList.add('hidden');
-      modal.style.display = 'none';
-      document.body.style.overflow = '';
-    };
+    const closeBtn = document.getElementById('close-order-modal');
+    if (closeBtn) {
+      closeBtn.onclick = () => {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+        // Restore menu toggle if needed
+        if (typeof menuToggle !== 'undefined' && menuToggle) menuToggle.style.display = 'inline-block';
+      };
+    }
   }, 200);
   modal.classList.remove('hidden');
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
 }
 
 // --- Buy Now Modal Logic ---
@@ -828,6 +848,7 @@ function showBuyNowForm(product) {
   modal.style.display = 'flex';
   // Prevent background scroll
   document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
 
   // Get registered address from localStorage
   const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -881,6 +902,7 @@ function showBuyNowForm(product) {
     modal.style.display = 'none';
     // Restore background scroll
     document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   };
 
   document.getElementById('order-form').onsubmit = async function(e) {
