@@ -794,7 +794,13 @@ function showBuyNowForm(product) {
   const mapContainer = document.getElementById('map-container');
   function showMap(address) {
     const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
-    mapContainer.innerHTML = `<iframe width="100%" height="200" frameborder="0" style="border:0" src="${mapUrl}" allowfullscreen></iframe>`;
+    const realMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+    mapContainer.innerHTML = `
+      <iframe width="100%" height="200" frameborder="0" style="border:0" src="${mapUrl}" allowfullscreen></iframe>
+      <div style="margin-top:6px;text-align:right;">
+        <a href="${realMapUrl}" target="_blank" rel="noopener" style="font-size:0.98em;color:#1976d2;text-decoration:underline;">Open in Google Maps</a>
+      </div>
+    `;
   }
 
   // Always show map for registered address by default
