@@ -500,7 +500,32 @@ function showBuyNowForm(product) {
     modal = document.createElement('div');
     modal.id = 'order-modal';
     modal.className = 'modal';
+    // Overlay styles for modal
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100vw';
+    modal.style.height = '100vh';
+    modal.style.zIndex = '9999';
+    modal.style.background = 'rgba(0,0,0,0.35)';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.overflowY = 'auto';
     document.body.appendChild(modal);
+  } else {
+    // Ensure modal is styled correctly if it already exists
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100vw';
+    modal.style.height = '100vh';
+    modal.style.zIndex = '9999';
+    modal.style.background = 'rgba(0,0,0,0.35)';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.overflowY = 'auto';
   }
   // Referral/invite logic for premium products
   let referralHtml = '';
@@ -518,30 +543,30 @@ function showBuyNowForm(product) {
     `;
   }
   modal.innerHTML = `
-    <div class="modal-content">
-      <button id="close-order-modal" class="close-modal">&times;</button>
-      <h3>Buy Now: ${product.name}</h3>
+    <div class="modal-content" style="background:#fff;max-width:420px;width:95vw;padding:24px 18px 18px 18px;border-radius:12px;box-shadow:0 4px 24px #0002;position:relative;">
+      <button id="close-order-modal" class="close-modal" style="position:absolute;top:10px;right:10px;font-size:1.5em;background:none;border:none;cursor:pointer;">&times;</button>
+      <h3 style="margin-top:0;">Buy Now: ${product.name}</h3>
       ${referralHtml}
       <form id="order-form">
-        <label>Quantity:<input type="number" id="order-qty" min="1" value="1" required></label><br>
+        <label>Quantity:<input type="number" id="order-qty" min="1" value="1" required style="width:60px;"></label><br>
         <label>Delivery Method:<br>
           <input type="radio" name="delivery-method" value="Pick Up" checked> Pick Up
           <input type="radio" name="delivery-method" value="Deliver"> Deliver
         </label><br>
         <div id="address-fields" style="display:none;">
-          <label>Address:<input type="text" id="order-address"></label><br>
+          <label>Address:<input type="text" id="order-address" style="width:90%;"></label><br>
         </div>
-        <label>Phone:<input type="text" id="order-phone" required></label><br>
-        <label>Email:<input type="email" id="order-email" required></label><br>
+        <label>Phone:<input type="text" id="order-phone" required style="width:90%;"></label><br>
+        <label>Email:<input type="email" id="order-email" required style="width:90%;"></label><br>
         <label>Payment Method:
-          <select id="payment-method" required>
+          <select id="payment-method" required style="width:90%;">
             <option value="Pay on Delivery">Pay on Delivery</option>
             <option value="Card">Card</option>
             <option value="Bank Transfer">Bank Transfer</option>
           </select>
         </label><br>
         <div id="map-container" style="margin:10px 0;"></div>
-        <button type="submit" class="btn-main" id="order-submit-btn">Send Order</button>
+        <button type="submit" class="btn-main" id="order-submit-btn" style="width:100%;margin-top:10px;">Send Order</button>
         <div id="order-spinner" style="display:none;text-align:center;margin-top:1em;"><div class="loader"></div> Sending order...</div>
       </form>
       <div id="order-message"></div>
@@ -563,7 +588,8 @@ function showBuyNowForm(product) {
     }, 200);
   }
   modal.classList.remove('hidden');
-  modal.style.display = 'block';
+  modal.style.display = 'flex';
+  // Prevent background scroll
   document.body.style.overflow = 'hidden';
 
   // Get registered address from localStorage
@@ -616,6 +642,7 @@ function showBuyNowForm(product) {
   document.getElementById('close-order-modal').onclick = () => {
     modal.classList.add('hidden');
     modal.style.display = 'none';
+    // Restore background scroll
     document.body.style.overflow = '';
   };
 
