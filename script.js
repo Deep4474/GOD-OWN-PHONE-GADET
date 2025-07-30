@@ -1,3 +1,52 @@
+// --- Premium Buy Now Share Link Logic ---
+document.addEventListener('DOMContentLoaded', function() {
+  const premiumBuyBtns = document.querySelectorAll('.premium-buy-btn');
+  const shareModal = document.getElementById('premium-share-modal');
+  const shareLinkInput = document.getElementById('premium-share-link');
+  const copyBtn = document.getElementById('copy-premium-share-link');
+  const copiedMsg = document.getElementById('share-link-copied');
+  const closeShareModal = document.getElementById('close-premium-share-modal');
+
+  function getShareLink(productId) {
+    // You can update the domain as needed
+    const baseUrl = window.location.origin + window.location.pathname;
+    return `${baseUrl}?product=${productId}`;
+  }
+
+  premiumBuyBtns.forEach(btn => {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      const productId = btn.getAttribute('data-product-id');
+      const link = getShareLink(productId);
+      shareLinkInput.value = link;
+      copiedMsg.style.display = 'none';
+      shareModal.classList.remove('hidden');
+    });
+  });
+
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      shareLinkInput.select();
+      shareLinkInput.setSelectionRange(0, 99999);
+      document.execCommand('copy');
+      copiedMsg.style.display = 'block';
+      setTimeout(() => { copiedMsg.style.display = 'none'; }, 1500);
+    });
+  }
+
+  if (closeShareModal) {
+    closeShareModal.addEventListener('click', function () {
+      shareModal.classList.add('hidden');
+    });
+  }
+
+  // Optional: close modal on outside click
+  window.addEventListener('click', function (e) {
+    if (e.target === shareModal) {
+      shareModal.classList.add('hidden');
+    }
+  });
+});
 // Show selected category label above product grid
 const categoryFilter = document.getElementById('category-filter');
 const selectedCategoryLabel = document.getElementById('selected-category-label');

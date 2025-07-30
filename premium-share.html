@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LAMAR PHONES & GADGETS - Premium Share</title>
+  <link rel="stylesheet" href="style.css" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src * data:;">
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+</head>
+<body>
+  <main class="main-content container" style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div class="glass-card" style="max-width:420px;width:100%;margin:32px auto;padding:32px 24px;text-align:center;">
+      <img src="WhatsApp Image 2025-07-25 at 10.22.35_16414460.jpg" alt="LAMAR PHONES & GADGETS Logo" style="height:70px;margin-bottom:18px;border-radius:10px;" />
+      <h2 style="color:#b97a00;margin-bottom:10px;">Share a Premium Product</h2>
+      <p style="color:#444;margin-bottom:18px;">Generate and share a special link for your friends or customers to view a premium product directly.</p>
+      <form id="share-form" style="margin-bottom:18px;">
+        <input type="text" id="product-id-input" placeholder="Enter Premium Product ID" style="width:80%;padding:8px;font-size:1em;margin-bottom:10px;" required />
+        <button type="submit" class="btn-main" style="width:100%;">Generate Share Link</button>
+      </form>
+      <div id="share-link-section" style="display:none;">
+        <input id="generated-share-link" type="text" readonly style="width:90%;padding:8px;font-size:1em;margin-bottom:10px;" />
+        <button id="copy-generated-link" class="btn-main" style="width:100%;">Copy Link</button>
+        <div id="generated-link-copied" style="color:green;display:none;margin-top:8px;">Link copied!</div>
+      </div>
+    </div>
+  </main>
+  <script>
+    const form = document.getElementById('share-form');
+    const productIdInput = document.getElementById('product-id-input');
+    const shareLinkSection = document.getElementById('share-link-section');
+    const generatedShareLink = document.getElementById('generated-share-link');
+    const copyBtn = document.getElementById('copy-generated-link');
+    const copiedMsg = document.getElementById('generated-link-copied');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const productId = productIdInput.value.trim();
+      if (!productId) return;
+      const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/index.html');
+      const link = `${baseUrl}?product=${encodeURIComponent(productId)}`;
+      generatedShareLink.value = link;
+      shareLinkSection.style.display = 'block';
+      copiedMsg.style.display = 'none';
+    });
+
+    copyBtn.addEventListener('click', function() {
+      generatedShareLink.select();
+      generatedShareLink.setSelectionRange(0, 99999);
+      document.execCommand('copy');
+      copiedMsg.style.display = 'block';
+      setTimeout(() => { copiedMsg.style.display = 'none'; }, 1500);
+    });
+  </script>
+</body>
+</html>
