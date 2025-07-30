@@ -1,4 +1,5 @@
 // ...existing code...
+require('dotenv').config();
 // --- Share Link Endpoint ---
 // Returns a referral/share link for a product and user
 app.get('/api/share-link', (req, res) => {
@@ -14,7 +15,6 @@ app.get('/api/share-link', (req, res) => {
   res.json({ success: true, link });
 });
 // --- End Share Link Endpoint ---
-require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
