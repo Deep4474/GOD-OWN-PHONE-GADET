@@ -736,13 +736,15 @@ function showBuyNowForm(product) {
     if (isNaN(invitedCount)) invitedCount = 0;
     if (invitedCount < 10) {
       showOrderForm = false;
+      // Use higher contrast for mobile/dark mode
+      const isDark = document.body.classList.contains('dark-mode');
       referralHtml = `
-        <div class="referral-box" style="background:#f8f8f8;padding:16px 12px 18px 12px;margin-bottom:10px;border-radius:8px;border:1px solid #eee;text-align:center;">
-          <b style="font-size:1.1em;">Invite 10 people to unlock 20% discount on this premium product!</b><br>
-          <span style="font-size:13px;">Share this link with your friends. When 10 register and buy, you get your discount automatically.</span><br>
-          <input type="text" id="invite-link" value="${inviteLink}" readonly style="width:90%;margin:8px 0 0 0;padding:4px;background:#fff;color:#222;${document.body.classList.contains('dark-mode') ? 'background:#222;color:#fff;border:1px solid #444;' : ''}">
+        <div class="referral-box" style="background:${isDark ? '#222' : '#fff'};padding:16px 12px 18px 12px;margin-bottom:10px;border-radius:8px;border:1px solid ${isDark ? '#444' : '#bbb'};text-align:center;box-shadow:0 2px 8px #0001;">
+          <b style="font-size:1.1em;color:${isDark ? '#ffe082' : '#b97a00'};">Invite 10 people to unlock 20% discount on this premium product!</b><br>
+          <span style="font-size:13px;color:${isDark ? '#fff' : '#222'};">Share this link with your friends. When 10 register and buy, you get your discount automatically.</span><br>
+          <input type="text" id="invite-link" value="${inviteLink}" readonly style="width:90%;margin:8px 0 0 0;padding:4px;background:${isDark ? '#333' : '#f8f8f8'};color:${isDark ? '#fff' : '#222'};border:1px solid ${isDark ? '#666' : '#bbb'};font-size:1em;border-radius:6px;">
           <button id="copy-invite-link" style="margin-left:5px;">Copy Link</button>
-          <div style="margin-top:10px;font-size:1em;color:#555;">Progress: <b id="referral-progress">${invitedCount}</b>/10 invited</div>
+          <div style="margin-top:10px;font-size:1em;color:${isDark ? '#ffe082' : '#b97a00'};">Progress: <b id="referral-progress">${invitedCount}</b>/10 invited</div>
           <div id="referral-info-msg" style="margin-top:8px;color:#d63031;font-size:0.98em;"></div>
         </div>
       `;
