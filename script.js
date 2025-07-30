@@ -666,12 +666,22 @@ function showBuyNowForm(product) {
   // Initial total
   setTimeout(updateTotalAmount, 250);
 
-  // Update total on qty, delivery method, or address change
+  // Debounce helper to avoid too many API calls while typing address
+  function debounce(fn, delay) {
+    let timer = null;
+    return function(...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
+
   setTimeout(() => {
     document.getElementById('order-qty').addEventListener('input', updateTotalAmount);
     modal.querySelectorAll('input[name="delivery-method"]').forEach(r => r.addEventListener('change', updateTotalAmount));
     const addressInput = document.getElementById('order-address');
-    if (addressInput) addressInput.addEventListener('input', updateTotalAmount);
+    if (addressInput) {
+      addressInput.addEventListener('input', debounce(updateTotalAmount, 400));
+    }
   }, 300);
   modal.classList.remove('hidden');
   modal.style.display = 'flex';
