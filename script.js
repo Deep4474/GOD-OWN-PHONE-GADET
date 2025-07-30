@@ -726,42 +726,29 @@ function showBuyNowForm(product) {
   }
   // Referral/invite logic for premium products
   let referralHtml = '';
-  let showOrderForm = true;
   if (product.premium) {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const inviteBase = window.location.origin || 'https://godsownpane.netlify.app';
     const inviteLink = `${inviteBase}/?ref=${encodeURIComponent(user.email || 'guest')}&product=${product.id}`;
-    // Simulate referral count (replace with real backend check if available)
     let invitedCount = parseInt(localStorage.getItem(`referral_count_${product.id}`) || '0', 10);
     if (isNaN(invitedCount)) invitedCount = 0;
-    if (invitedCount < 10) {
-      showOrderForm = false;
-      // Use higher contrast for mobile/dark mode
-      const isDark = document.body.classList.contains('dark-mode');
-      referralHtml = `
-        <div class="referral-box" style="background:${isDark ? '#222' : '#fff'};padding:16px 12px 18px 12px;margin-bottom:10px;border-radius:8px;border:1px solid ${isDark ? '#444' : '#bbb'};text-align:center;box-shadow:0 2px 8px #0001;">
-          <b style="font-size:1.1em;color:${isDark ? '#ffe082' : '#b97a00'};">Invite 10 people to unlock 20% discount on this premium product!</b><br>
-          <span style="font-size:13px;color:${isDark ? '#fff' : '#222'};">Share this link with your friends. When 10 register and buy, you get your discount automatically.</span><br>
-          <input type="text" id="invite-link" value="${inviteLink}" readonly style="width:90%;margin:8px 0 0 0;padding:4px;background:${isDark ? '#333' : '#f8f8f8'};color:${isDark ? '#fff' : '#222'};border:1px solid ${isDark ? '#666' : '#bbb'};font-size:1em;border-radius:6px;">
-          <button id="copy-invite-link" style="margin-left:5px;">Copy Link</button>
-          <div style="margin-top:10px;font-size:1em;color:${isDark ? '#ffe082' : '#b97a00'};">Progress: <b id="referral-progress">${invitedCount}</b>/10 invited</div>
-          <div id="referral-info-msg" style="margin-top:8px;color:#d63031;font-size:0.98em;"></div>
-        </div>
-      `;
-    } else {
-      referralHtml = `
-        <div class="referral-box" style="background:#e8ffe8;padding:10px 12px;margin-bottom:10px;border-radius:8px;border:1px solid #b2f2b2;text-align:center;">
-          <b style="color:#00b894;">Congratulations! You have invited 10 people. You can now buy this product at 20% discount.</b>
-        </div>
-      `;
-    }
+    const isDark = document.body.classList.contains('dark-mode');
+    referralHtml = `
+      <div class="referral-box" style="background:${isDark ? '#222' : '#fff'};padding:16px 12px 18px 12px;margin-bottom:10px;border-radius:8px;border:1px solid ${isDark ? '#444' : '#bbb'};text-align:center;box-shadow:0 2px 8px #0001;">
+        <b style="font-size:1.1em;color:${isDark ? '#ffe082' : '#b97a00'};">Invite 10 people to unlock 20% discount on this premium product!</b><br>
+        <span style="font-size:13px;color:${isDark ? '#fff' : '#222'};">Share this link with your friends. When 10 register and buy, you get your discount automatically.</span><br>
+        <input type="text" id="invite-link" value="${inviteLink}" readonly style="width:90%;margin:8px 0 0 0;padding:4px;background:${isDark ? '#333' : '#f8f8f8'};color:${isDark ? '#fff' : '#222'};border:1px solid ${isDark ? '#666' : '#bbb'};font-size:1em;border-radius:6px;">
+        <button id="copy-invite-link" style="margin-left:5px;">Copy Link</button>
+        <div style="margin-top:10px;font-size:1em;color:${isDark ? '#ffe082' : '#b97a00'};">Progress: <b id="referral-progress">${invitedCount}</b>/10 invited</div>
+        <div id="referral-info-msg" style="margin-top:8px;color:#d63031;font-size:0.98em;"></div>
+      </div>
+    `;
   }
   modal.innerHTML = `
     <div class="modal-content" style="background:#fff;max-width:420px;width:95vw;padding:24px 18px 18px 18px;border-radius:12px;box-shadow:0 4px 24px #0002;position:relative;">
       <button id="close-order-modal" class="close-modal" style="position:absolute;top:10px;right:10px;font-size:1.5em;background:none;border:none;cursor:pointer;">&times;</button>
       <h3 style="margin-top:0;">Buy Now: ${product.name}</h3>
       ${referralHtml}
-      ${(!product.premium || showOrderForm) ? `
       <form id="order-form">
         <label>Quantity:<input type="number" id="order-qty" min="1" value="1" required style="width:60px;"></label><br>
         <label>Delivery Method:<br>
@@ -785,7 +772,6 @@ function showBuyNowForm(product) {
         <div id="order-spinner" style="display:none;text-align:center;margin-top:1em;"><div class="loader"></div> Sending order...</div>
       </form>
       <div id="order-message"></div>
-      ` : ''}
     </div>
   `;
   // Copy invite link logic and simulate referral progress for demo
