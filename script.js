@@ -508,7 +508,6 @@ function showBuyNowForm(product) {
           <div style="background:#f8f8f8;padding:10px 8px 10px 8px;margin-bottom:10px;border-radius:8px;border:1px solid #eee;">
             <b>Delivery Address:</b><br>
             <input type="text" id="order-address" style="width:95%;margin-top:4px;" placeholder="Enter delivery address">
-            <div id="map-container" style="margin:10px 0 0 0;"></div>
             <span style="font-size:0.95em;color:#888;">Delivery fee is calculated based on your address.</span>
           </div>
         </div>
@@ -620,30 +619,11 @@ function showBuyNowForm(product) {
     addressInput.value = registeredAddress;
   }
 
-  // Map logic (only for delivery)
-  function showMap(address) {
-    const mapContainer = document.getElementById('map-container');
-    if (!mapContainer) return;
-    if (!address) {
-      mapContainer.innerHTML = '';
-      return;
-    }
-    const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
-    const realMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-    mapContainer.innerHTML = `
-      <iframe width="100%" height="200" frameborder="0" style="border:0" src="${mapUrl}" allowfullscreen></iframe>
-      <div style="margin-top:6px;text-align:right;">
-        <a href="${realMapUrl}" target="_blank" rel="noopener" style="font-size:0.98em;color:#1976d2;text-decoration:underline;">Open in Google Maps</a>
-      </div>
-    `;
-  }
-
-  // Show map for registered address by default if available
+  // Map logic removed: no map preview for address
   setTimeout(() => {
     const addressInput = document.getElementById('order-address');
     if (addressInput && registeredAddress) {
       addressInput.value = registeredAddress;
-      showMap(registeredAddress);
     }
   }, 200);
 
@@ -667,7 +647,6 @@ function showBuyNowForm(product) {
         deliverySection.style.display = '';
         if (addressInput) {
           addressInput.required = true;
-          showMap(addressInput.value || registeredAddress);
         }
       } else {
         pickupSection.style.display = '';
@@ -685,10 +664,6 @@ function showBuyNowForm(product) {
     // Update map live as address changes (when Deliver is selected)
     if (addressInput) {
       addressInput.addEventListener('input', function() {
-        const selectedDelivery = modal.querySelector('input[name="delivery-method"]:checked').value;
-        if (selectedDelivery === 'Deliver') {
-          showMap(addressInput.value);
-        }
         updateTotalAmount();
       });
     }
