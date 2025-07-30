@@ -699,10 +699,10 @@ function showBuyNowForm(product) {
     modal.style.justifyContent = 'center';
     modal.style.overflowY = 'auto';
   }
-  // Prevent background scroll (body and products section)
+  // Hide products section and prevent background scroll
   document.body.style.overflow = 'hidden';
   const productsSection = document.getElementById('products-section');
-  if (productsSection) productsSection.style.overflow = 'hidden';
+  if (productsSection) productsSection.style.display = 'none';
   // Referral/invite logic for premium products
   let referralHtml = '';
   if (product.premium) {
@@ -761,7 +761,7 @@ function showBuyNowForm(product) {
         modal.style.display = 'none';
         document.body.style.overflow = '';
         const productsSection = document.getElementById('products-section');
-        if (productsSection) productsSection.style.overflow = '';
+        if (productsSection) productsSection.style.display = '';
       };
     }
     // Also close on clicking outside modal content
@@ -770,7 +770,7 @@ function showBuyNowForm(product) {
         modal.style.display = 'none';
         document.body.style.overflow = '';
         const productsSection = document.getElementById('products-section');
-        if (productsSection) productsSection.style.overflow = '';
+        if (productsSection) productsSection.style.display = '';
       }
     };
   }, 200);
