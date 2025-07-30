@@ -5,9 +5,12 @@ categoryFilter.addEventListener('change', function() {
   filterAndRenderProducts();
 });
 
-// Ensure filter is applied on load if a category is pre-selected
+// Ensure products are loaded and shown on page load if already logged in
 document.addEventListener('DOMContentLoaded', function() {
-  filterAndRenderProducts();
+  if (isLoggedIn()) {
+    showProducts();
+    loadProducts();
+  }
 });
 // --- Auth Gate for Main Content ---
 function showMainContent() {
