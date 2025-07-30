@@ -943,24 +943,30 @@ function showBuyNowForm(product) {
   }, 200);
 
   // Delivery method logic: show/hide sections
-  // Use requestAnimationFrame to ensure DOM is ready on all devices (including mobile)
-  function setupDeliverySections() {
+  // Robustly setup delivery sections for all devices (including mobile)
+  function robustSetupDeliverySections(retries = 0) {
     const deliveryRadios = modal.querySelectorAll('input[name="delivery-method"]');
     const pickupSection = document.getElementById('pickup-section');
     const deliverySection = document.getElementById('delivery-section');
     const addressInput = document.getElementById('order-address');
+    if (!deliveryRadios.length || !pickupSection || !deliverySection) {
+      if (retries < 10) {
+        setTimeout(() => robustSetupDeliverySections(retries + 1), 60);
+      }
+      return;
+    }
     function updateSections() {
       const selected = modal.querySelector('input[name="delivery-method"]:checked');
       if (selected && selected.value === 'Deliver') {
-        if (pickupSection) pickupSection.style.display = 'none';
-        if (deliverySection) deliverySection.style.display = '';
+        pickupSection.style.display = 'none';
+        deliverySection.style.display = '';
         if (addressInput) {
           addressInput.required = true;
           showMap(addressInput.value || registeredAddress);
         }
       } else {
-        if (pickupSection) pickupSection.style.display = '';
-        if (deliverySection) deliverySection.style.display = 'none';
+        pickupSection.style.display = '';
+        deliverySection.style.display = 'none';
         if (addressInput) addressInput.required = false;
       }
       updateTotalAmount();
@@ -981,8 +987,7 @@ function showBuyNowForm(product) {
       });
     }
   }
-  // Use rAF for best compatibility
-  requestAnimationFrame(setupDeliverySections);
+  robustSetupDeliverySections();
 
   document.getElementById('close-order-modal').onclick = () => {
     modal.classList.add('hidden');
