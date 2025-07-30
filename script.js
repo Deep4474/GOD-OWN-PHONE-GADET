@@ -1,5 +1,5 @@
 // API base URL
-const API_BASE_URL = '';
+const API_BASE_URL = 'https://phone-2cv4.onrender.com';
 const API_ENDPOINTS = {
   REGISTER: '/api/auth/register',
   LOGIN: '/api/auth/login',
