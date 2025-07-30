@@ -609,14 +609,56 @@ function showBuyNowForm(product) {
   }
 
   async function estimateDeliveryFeeDynamic(toAddress) {
-    // New logic: 4000 NGN for Lagos to Ibadan, 4000 NGN for any other destination (flat fee)
-    if (!toAddress) return 4000;
+    // Delivery fee: Ibadan = 5,000; each additional state away from Ibadan adds 5,000
+    if (!toAddress) return 5000;
     const addr = toAddress.toLowerCase();
-    if (addr.includes('ibadan')) {
-      return 4000;
+    // Ordered list: Ibadan, Lagos, Ogun, Osun, Ondo, Ekiti, Kwara, Ilorin, Jos, Abuja, Kano, etc.
+    const states = [
+      'ibadan',
+      'lagos',
+      'ogun',
+      'osun',
+      'ondo',
+      'ekiti',
+      'kwara',
+      'ilorin',
+      'jos',
+      'abuja',
+      'kano',
+      'kaduna',
+      'enugu',
+      'anambra',
+      'kogi',
+      'benue',
+      'niger',
+      'sokoto',
+      'borno',
+      'yobe',
+      'zamfara',
+      'gombe',
+      'bauchi',
+      'cross river',
+      'rivers',
+      'bayelsa',
+      'ebonyi',
+      'imo',
+      'abia',
+      'akwa ibom',
+      'taraba',
+      'adamawa',
+      'nasarawa',
+      'kastina',
+      'kebbi',
+      'jigawa'
+    ];
+    let fee = 5000;
+    for (let i = 0; i < states.length; i++) {
+      if (addr.includes(states[i])) {
+        fee = 5000 * (i + 1);
+        break;
+      }
     }
-    // For any other destination, also 4000
-    return 4000;
+    return fee;
   }
 
   function updateTotalAmount() {
@@ -667,7 +709,7 @@ function showBuyNowForm(product) {
     modal.querySelectorAll('input[name="delivery-method"]').forEach(r => r.addEventListener('change', updateTotalAmount));
     const addressInput = document.getElementById('order-address');
     if (addressInput) {
-      addressInput.addEventListener('input', debounce(updateTotalAmount, 400));
+          addressInput.addEventListener('input', updateTotalAmount);
     }
   }, 300);
   modal.classList.remove('hidden');
