@@ -1,3 +1,4 @@
+// ...existing code...
 // --- Share Link Endpoint ---
 // Returns a referral/share link for a product and user
 app.get('/api/share-link', (req, res) => {
