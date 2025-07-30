@@ -420,14 +420,28 @@ async function loadProducts() {
   }
 }
 
-// --- Premium Banner Logic ---
 
-// Show only the referral/invite modal for premium product
-function showPremiumReferralModal(product) {
-  let modal = document.getElementById('order-modal');
+// --- Premium Section Logic ---
+// This function will handle the Buy Now for premium section only
+function setupPremiumSection() {
+  const premiumSection = document.getElementById('premium-section');
+  if (!premiumSection) return;
+  premiumSection.addEventListener('click', function(e) {
+    if (e.target.classList.contains('premium-buy-btn')) {
+      e.preventDefault();
+      const productId = e.target.getAttribute('data-product-id');
+      showPremiumBuyModal(productId);
+    }
+  });
+}
+
+function showPremiumBuyModal(productId) {
+  // You can fetch product details by ID if needed
+  // For demo, just show a simple modal
+  let modal = document.getElementById('premium-modal');
   if (!modal) {
     modal = document.createElement('div');
-    modal.id = 'order-modal';
+    modal.id = 'premium-modal';
     modal.className = 'modal';
     modal.style.position = 'fixed';
     modal.style.top = '0';
@@ -441,72 +455,33 @@ function showPremiumReferralModal(product) {
     modal.style.justifyContent = 'center';
     modal.style.overflowY = 'auto';
     document.body.appendChild(modal);
-  } else {
-    modal.style.position = 'fixed';
-    modal.style.top = '0';
-    modal.style.left = '0';
-    modal.style.width = '100vw';
-    modal.style.height = '100vh';
-    modal.style.zIndex = '9999';
-    modal.style.background = 'rgba(0,0,0,0.35)';
-    modal.style.display = 'flex';
-    modal.style.alignItems = 'center';
-    modal.style.justifyContent = 'center';
-    modal.style.overflowY = 'auto';
   }
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const inviteBase = window.location.origin || 'https://godsownpane.netlify.app';
-  const inviteLink = `${inviteBase}/?ref=${encodeURIComponent(user.email || 'guest')}&product=${product.id}`;
-  let invitedCount = parseInt(localStorage.getItem(`referral_count_${product.id}`) || '0', 10);
-  if (isNaN(invitedCount)) invitedCount = 0;
   modal.innerHTML = `
     <div class="modal-content" style="background:#fff;max-width:420px;width:95vw;padding:24px 18px 18px 18px;border-radius:12px;box-shadow:0 4px 24px #0002;position:relative;">
-      <button id="close-order-modal" class="close-modal" style="position:absolute;top:10px;right:10px;font-size:1.5em;background:none;border:none;cursor:pointer;">&times;</button>
-      <h3 style="margin-top:0;">Invite & Get Discount: ${product.name}</h3>
-      <div class="referral-box" style="background:#f8f8f8;padding:16px 12px 18px 12px;margin-bottom:10px;border-radius:8px;border:1px solid #eee;text-align:center;">
-        <b style="font-size:1.1em;">Invite 10 people to unlock 20% discount on this premium product!</b><br>
-        <span style="font-size:13px;">Share this link with your friends. When 10 register and buy, you get your discount automatically.</span><br>
-        <input type="text" id="invite-link" value="${inviteLink}" readonly style="width:90%;margin:8px 0 0 0;padding:4px;background:#fff;color:#222;${document.body.classList.contains('dark-mode') ? 'background:#222;color:#fff;border:1px solid #444;' : ''}">
-        <button id="copy-invite-link" style="margin-left:5px;">Copy Link</button>
-        <div style="margin-top:10px;font-size:1em;color:#555;">Progress: <b id="referral-progress">${invitedCount}</b>/10 invited</div>
-        <div id="referral-info-msg" style="margin-top:8px;color:#d63031;font-size:0.98em;"></div>
-      </div>
+      <button id="close-premium-modal" class="close-modal" style="position:absolute;top:10px;right:10px;font-size:1.5em;background:none;border:none;cursor:pointer;">&times;</button>
+      <h3 style="margin-top:0;">Premium Product Purchase</h3>
+      <div style="margin:1em 0;">This is the premium buy modal for product ID: <b>${productId}</b></div>
+      <button class="btn-main" id="premium-buy-confirm">Confirm Purchase</button>
     </div>
   `;
-  setTimeout(() => {
-    const copyBtn = document.getElementById('copy-invite-link');
-    const inviteInput = document.getElementById('invite-link');
-    const progress = document.getElementById('referral-progress');
-    const infoMsg = document.getElementById('referral-info-msg');
-    if (copyBtn && inviteInput && progress) {
-      copyBtn.onclick = function() {
-        inviteInput.select();
-        document.execCommand('copy');
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 1200);
-        // Simulate referral increment for demo (remove in production)
-        let count = parseInt(progress.textContent, 10) || 0;
-        if (count < 10) {
-          count++;
-          progress.textContent = count;
-          localStorage.setItem(`referral_count_${product.id}`, count);
-          if (count >= 10 && infoMsg) {
-            infoMsg.style.color = '#00b894';
-            infoMsg.textContent = 'You have invited 10 people! You can now buy at a discount.';
-          }
-        }
-      };
-    }
-    document.getElementById('close-order-modal').onclick = () => {
-      modal.classList.add('hidden');
-      modal.style.display = 'none';
-      document.body.style.overflow = '';
-    };
-  }, 200);
+  document.getElementById('close-premium-modal').onclick = () => {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  };
+  document.getElementById('premium-buy-confirm').onclick = () => {
+    alert('Premium product purchased!');
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  };
   modal.classList.remove('hidden');
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
+
+// Call this on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', setupPremiumSection);
 
 function filterAndRenderProducts() {
   const searchInput = document.getElementById('search-input');
