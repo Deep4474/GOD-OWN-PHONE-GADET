@@ -413,7 +413,6 @@ let allProducts = [];
 async function loadProducts() {
   try {
     allProducts = await apiGet(API_ENDPOINTS.PRODUCTS);
-    renderPremiumBanner();
     filterAndRenderProducts();
   } catch (err) {
     const productList = document.getElementById('product-list');
@@ -422,49 +421,6 @@ async function loadProducts() {
 }
 
 // --- Premium Banner Logic ---
-function renderPremiumBanner() {
-  const bannerContainer = document.getElementById('premium-banner-container');
-  if (!bannerContainer) return;
-  const premiumProducts = allProducts.filter(p => p.premium);
-  if (!premiumProducts.length) {
-    bannerContainer.innerHTML = '';
-    return;
-  }
-  let idx = 0;
-  function showPremium(idx) {
-    const p = premiumProducts[idx];
-    bannerContainer.innerHTML = `
-      <div class="premium-banner" style="background:#ffe7b2;padding:1em 0;text-align:center;position:relative;cursor:pointer;">
-        <img src="${p.images[0]}" alt="${p.name}" style="height:48px;vertical-align:middle;margin-right:10px;border-radius:8px;box-shadow:0 2px 8px #0001;" />
-        <span style="font-weight:bold;font-size:1.1em;color:#b97a00;">${p.name}</span>
-        <span style="margin-left:1em;color:#333;">Share to 10 people & get 20% off!</span>
-        <button class="btn-main" id="premium-banner-btn" style="margin-left:1em;">Get Discount</button>
-        <button class="close-premium-banner" style="position:absolute;right:10px;top:10px;background:none;border:none;font-size:1.2em;">&times;</button>
-      </div>
-    `;
-    // Banner click or button click opens referral modal
-    const bannerDiv = bannerContainer.querySelector('.premium-banner');
-    bannerDiv.onclick = (e) => {
-      if (e.target.classList.contains('close-premium-banner')) {
-        bannerContainer.style.display = 'none';
-        return;
-      }
-      showPremiumReferralModal(p);
-    };
-    bannerContainer.querySelector('#premium-banner-btn').onclick = (e) => {
-      e.stopPropagation();
-      showPremiumReferralModal(p);
-    };
-  }
-  showPremium(idx);
-  if (window._premiumBannerInterval) clearInterval(window._premiumBannerInterval);
-  if (premiumProducts.length > 1) {
-    window._premiumBannerInterval = setInterval(() => {
-      idx = (idx + 1) % premiumProducts.length;
-      showPremium(idx);
-    }, 6000);
-  }
-}
 
 // Show only the referral/invite modal for premium product
 function showPremiumReferralModal(product) {
