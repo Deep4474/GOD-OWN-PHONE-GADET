@@ -943,33 +943,33 @@ function showBuyNowForm(product) {
   }, 200);
 
   // Delivery method logic: show/hide sections
-  setTimeout(() => {
+  // Use requestAnimationFrame to ensure DOM is ready on all devices (including mobile)
+  function setupDeliverySections() {
     const deliveryRadios = modal.querySelectorAll('input[name="delivery-method"]');
     const pickupSection = document.getElementById('pickup-section');
     const deliverySection = document.getElementById('delivery-section');
     const addressInput = document.getElementById('order-address');
-    deliveryRadios.forEach(radio => {
-      radio.onchange = function() {
-        if (this.value === 'Deliver') {
-          pickupSection.style.display = 'none';
-          deliverySection.style.display = '';
-          if (addressInput) {
-            addressInput.required = true;
-            showMap(addressInput.value || registeredAddress);
-          }
-        } else {
-          pickupSection.style.display = '';
-          deliverySection.style.display = 'none';
-          if (addressInput) addressInput.required = false;
+    function updateSections() {
+      const selected = modal.querySelector('input[name="delivery-method"]:checked');
+      if (selected && selected.value === 'Deliver') {
+        if (pickupSection) pickupSection.style.display = 'none';
+        if (deliverySection) deliverySection.style.display = '';
+        if (addressInput) {
+          addressInput.required = true;
+          showMap(addressInput.value || registeredAddress);
         }
-        updateTotalAmount();
-      };
+      } else {
+        if (pickupSection) pickupSection.style.display = '';
+        if (deliverySection) deliverySection.style.display = 'none';
+        if (addressInput) addressInput.required = false;
+      }
+      updateTotalAmount();
+    }
+    deliveryRadios.forEach(radio => {
+      radio.onchange = updateSections;
     });
     // Initial state
-    if (pickupSection && deliverySection) {
-      pickupSection.style.display = '';
-      deliverySection.style.display = 'none';
-    }
+    updateSections();
     // Update map live as address changes (when Deliver is selected)
     if (addressInput) {
       addressInput.addEventListener('input', function() {
@@ -977,9 +977,12 @@ function showBuyNowForm(product) {
         if (selectedDelivery === 'Deliver') {
           showMap(addressInput.value);
         }
+        updateTotalAmount();
       });
     }
-  }, 250);
+  }
+  // Use rAF for best compatibility
+  requestAnimationFrame(setupDeliverySections);
 
   document.getElementById('close-order-modal').onclick = () => {
     modal.classList.add('hidden');
