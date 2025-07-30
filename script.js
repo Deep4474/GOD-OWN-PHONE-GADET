@@ -699,6 +699,8 @@ function showBuyNowForm(product) {
     modal.style.justifyContent = 'center';
     modal.style.overflowY = 'auto';
   }
+  // Prevent background scroll
+  document.body.style.overflow = 'hidden';
   // Referral/invite logic for premium products
   let referralHtml = '';
   if (product.premium) {
@@ -749,35 +751,23 @@ function showBuyNowForm(product) {
       <div id="order-message"></div>
     </div>
   `;
-  // Copy invite link logic and simulate referral progress for demo
-  if (product.premium) {
-    setTimeout(() => {
-      const copyBtn = document.getElementById('copy-invite-link');
-      const inviteInput = document.getElementById('invite-link');
-      const progress = document.getElementById('referral-progress');
-      const infoMsg = document.getElementById('referral-info-msg');
-      if (copyBtn && inviteInput && progress) {
-        copyBtn.onclick = function() {
-          inviteInput.select();
-          document.execCommand('copy');
-          copyBtn.textContent = 'Copied!';
-          setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 1200);
-          // Simulate referral increment for demo (remove in production)
-          let count = parseInt(progress.textContent, 10) || 0;
-          if (count < 10) {
-            count++;
-            progress.textContent = count;
-            localStorage.setItem(`referral_count_${product.id}`, count);
-            if (count >= 10 && infoMsg) {
-              infoMsg.style.color = '#00b894';
-              infoMsg.textContent = 'You have invited 10 people! You can now buy at a discount.';
-              setTimeout(() => showBuyNowForm(product), 800);
-            }
-          }
-        };
+  // Restore scroll when modal closes
+  setTimeout(() => {
+    const closeBtn = document.getElementById('close-order-modal');
+    if (closeBtn) {
+      closeBtn.onclick = function() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      };
+    }
+    // Also close on clicking outside modal content
+    modal.onclick = function(e) {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
       }
-    }, 200);
-  }
+    };
+  }, 200);
   modal.classList.remove('hidden');
   modal.style.display = 'flex';
   // Prevent background scroll
