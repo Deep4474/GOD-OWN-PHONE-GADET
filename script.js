@@ -784,7 +784,7 @@ function showBuyNowForm(product) {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const registeredAddress = user.address || 'Lagos, Nigeria';
 
-  // Pre-fill address field if available
+  // Pre-fill address field with registered address
   const addressInput = document.getElementById('order-address');
   if (addressInput && registeredAddress) {
     addressInput.value = registeredAddress;
@@ -796,7 +796,8 @@ function showBuyNowForm(product) {
     const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
     mapContainer.innerHTML = `<iframe width="100%" height="200" frameborder="0" style="border:0" src="${mapUrl}" allowfullscreen></iframe>`;
   }
-  // Show map for registered address by default
+
+  // Always show map for registered address by default
   showMap(registeredAddress);
 
   // Delivery method logic
@@ -812,7 +813,10 @@ function showBuyNowForm(product) {
       } else {
         addressFields.style.display = 'none';
         document.getElementById('order-address').required = false;
+        // Always revert to registered address map
         showMap(registeredAddress);
+        // Also reset address input to registered address
+        if (addressInput) addressInput.value = registeredAddress;
       }
     };
   });
