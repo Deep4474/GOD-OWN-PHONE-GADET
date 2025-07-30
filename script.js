@@ -553,17 +553,83 @@ function showBuyNowForm(product) {
     };
   }, 200);
   // --- Total Amount Calculation ---
-  function estimateDeliveryFee(fromAddress, toAddress) {
-    // Placeholder: In real app, use geocoding API to get distance. Here, use a fixed fee or a simple estimate.
-    // For demo, if both addresses are in the same state, fee = 500; else 1500
-    if (!fromAddress || !toAddress) return 1500;
-    const from = String(fromAddress).toLowerCase();
-    const to = String(toAddress).toLowerCase();
-    // Try to extract state from address (very basic)
-    let fromState = from.split(',').pop().trim();
-    let toState = to.split(',').pop().trim();
-    if (fromState && toState && fromState === toState) return 500;
-    return 1500;
+  // --- Geolocation and Distance-based Delivery Fee ---
+  let userCoords = null;
+  let lastAddressCoords = null;
+  // Get user's current location (once per modal open)
+  function getUserLocation(callback) {
+    if (userCoords) return callback(userCoords);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          userCoords = {
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude
+          };
+          callback(userCoords);
+        },
+        err => {
+          // Default to Lagos if denied
+          userCoords = { lat: 6.5244, lon: 3.3792 };
+          callback(userCoords);
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+      );
+    } else {
+      // Default to Lagos
+      userCoords = { lat: 6.5244, lon: 3.3792 };
+      callback(userCoords);
+    }
+  }
+
+  // Geocode address to lat/lon using Nominatim
+  async function geocodeAddress(address) {
+    if (!address) return null;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+    try {
+      const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+      const data = await res.json();
+      if (data && data.length > 0) {
+        return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+      }
+    } catch {}
+    return null;
+  }
+
+  // Haversine formula for distance in km
+  function calcDistanceKm(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  async function estimateDeliveryFeeDynamic(toAddress) {
+    return new Promise(resolve => {
+      getUserLocation(async (fromCoords) => {
+        if (!toAddress) return resolve(1500);
+        // Geocode destination
+        let toCoords = lastAddressCoords;
+        if (!toCoords || toCoords.address !== toAddress) {
+          toCoords = await geocodeAddress(toAddress);
+          if (toCoords) toCoords.address = toAddress;
+          lastAddressCoords = toCoords;
+        }
+        if (!toCoords) return resolve(1500);
+        // Calculate distance
+        const dist = calcDistanceKm(fromCoords.lat, fromCoords.lon, toCoords.lat, toCoords.lon);
+        // Fee: ₦500 for <=10km, +₦100 per extra 5km
+        let fee = 500;
+        if (dist > 10) {
+          fee += Math.ceil((dist - 10) / 5) * 100;
+        }
+        resolve(Math.round(fee));
+      });
+    });
   }
 
   function updateTotalAmount() {
@@ -575,10 +641,11 @@ function showBuyNowForm(product) {
     if (deliveryMethod === 'Pick Up') {
       extra = 30;
       extraLabel = 'Pick Up Fee: ₦30';
+      const grandTotal = total + extra;
+      document.getElementById('total-amount-box').innerHTML = `Product: ₦${total.toLocaleString()}<br>${extraLabel}<br><span style=\"font-size:1.15em;color:#009688;\">Total: ₦${grandTotal.toLocaleString()}</span>`;
     } else {
-      // Delivery: estimate fee based on entered address
+      // Delivery: estimate fee based on distance
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const fromAddress = 'Lagos, Nigeria'; // Store location (customize as needed)
       const addressInput = document.getElementById('order-address');
       let toAddress = '';
       if (addressInput && addressInput.value.trim()) {
@@ -586,11 +653,14 @@ function showBuyNowForm(product) {
       } else if (user.address) {
         toAddress = user.address;
       }
-      extra = estimateDeliveryFee(fromAddress, toAddress);
-      extraLabel = `Delivery Fee: ₦${extra}`;
+      document.getElementById('total-amount-box').innerHTML = 'Calculating delivery fee...';
+      estimateDeliveryFeeDynamic(toAddress).then(fee => {
+        extra = fee;
+        extraLabel = `Delivery Fee: ₦${extra}`;
+        const grandTotal = total + extra;
+        document.getElementById('total-amount-box').innerHTML = `Product: ₦${total.toLocaleString()}<br>${extraLabel}<br><span style=\"font-size:1.15em;color:#009688;\">Total: ₦${grandTotal.toLocaleString()}</span>`;
+      });
     }
-    const grandTotal = total + extra;
-    document.getElementById('total-amount-box').innerHTML = `Product: ₦${total.toLocaleString()}<br>${extraLabel}<br><span style=\"font-size:1.15em;color:#009688;\">Total: ₦${grandTotal.toLocaleString()}</span>`;
   }
 
   // Initial total
