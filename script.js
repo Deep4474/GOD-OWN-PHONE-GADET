@@ -609,56 +609,29 @@ function showBuyNowForm(product) {
   }
 
   async function estimateDeliveryFeeDynamic(toAddress) {
-    // Delivery fee: Ibadan = 5,000; each additional state away from Ibadan adds 5,000
-    if (!toAddress) return 5000;
+    // Delivery fee: Oyo = 6,000, Lagos = 9,000, then +3,000 for each group farther from Oyo
+    if (!toAddress) return 6000;
     const addr = toAddress.toLowerCase();
-    // Ordered list: Ibadan, Lagos, Ogun, Osun, Ondo, Ekiti, Kwara, Ilorin, Jos, Abuja, Kano, etc.
-    const states = [
-      'ibadan',
-      'lagos',
-      'ogun',
-      'osun',
-      'ondo',
-      'ekiti',
-      'kwara',
-      'ilorin',
-      'jos',
-      'abuja',
-      'kano',
-      'kaduna',
-      'enugu',
-      'anambra',
-      'kogi',
-      'benue',
-      'niger',
-      'sokoto',
-      'borno',
-      'yobe',
-      'zamfara',
-      'gombe',
-      'bauchi',
-      'cross river',
-      'rivers',
-      'bayelsa',
-      'ebonyi',
-      'imo',
-      'abia',
-      'akwa ibom',
-      'taraba',
-      'adamawa',
-      'nasarawa',
-      'kastina',
-      'kebbi',
-      'jigawa'
+    const groups = [
+      // Group 1: Oyo only
+      ['oyo'],
+      // Group 2: Lagos, Ogun, Osun, Ondo, Ekiti, Kwara, Ibadan, Ilorin
+      ['lagos', 'ogun', 'osun', 'ondo', 'ekiti', 'kwara', 'ibadan', 'ilorin'],
+      // Group 3: Abuja, Jos, Kaduna, Kogi, Niger, Benue, Enugu, Anambra
+      ['abuja', 'jos', 'kaduna', 'kogi', 'niger', 'benue', 'enugu', 'anambra'],
+      // Group 4: All other states (add more as needed)
+      ['kano', 'sokoto', 'borno', 'yobe', 'zamfara', 'gombe', 'bauchi', 'cross river', 'rivers', 'bayelsa', 'ebonyi', 'imo', 'abia', 'akwa ibom', 'taraba', 'adamawa', 'nasarawa', 'kastina', 'kebbi', 'jigawa']
     ];
-    let fee = 5000;
-    for (let i = 0; i < states.length; i++) {
-      if (addr.includes(states[i])) {
-        fee = 5000 * (i + 1);
-        break;
+    let baseFee = 6000;
+    for (let i = 0; i < groups.length; i++) {
+      for (let state of groups[i]) {
+        if (addr.includes(state)) {
+          return baseFee + (i * 3000);
+        }
       }
     }
-    return fee;
+    // If not found in any group, use the highest group fee
+    return baseFee + ((groups.length) * 3000);
   }
 
   function updateTotalAmount() {
