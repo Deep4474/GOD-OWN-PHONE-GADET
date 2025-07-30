@@ -1,3 +1,18 @@
+// --- Share Link Endpoint ---
+// Returns a referral/share link for a product and user
+app.get('/api/share-link', (req, res) => {
+  const { productId, userEmail } = req.query;
+  if (!productId) {
+    return res.status(400).json({ success: false, error: 'Missing productId' });
+  }
+  // Use provided userEmail or fallback to 'guest'
+  const email = userEmail || 'guest';
+  // Use the request host as base URL, fallback to a default if not available
+  const base = req.protocol + '://' + (req.get('host') || 'godsownpane.netlify.app');
+  const link = `${base}/?ref=${encodeURIComponent(email)}&product=${encodeURIComponent(productId)}`;
+  res.json({ success: true, link });
+});
+// --- End Share Link Endpoint ---
 require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
