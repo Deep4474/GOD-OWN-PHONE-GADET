@@ -609,29 +609,29 @@ function showBuyNowForm(product) {
   }
 
   async function estimateDeliveryFeeDynamic(toAddress) {
-    // Delivery fee: Oyo = 6,000, Lagos = 9,000, then +3,000 for each group farther from Oyo
+    // Explicit delivery fee mapping by state/city
     if (!toAddress) return 6000;
     const addr = toAddress.toLowerCase();
-    const groups = [
-      // Group 1: Oyo only
-      ['oyo'],
-      // Group 2: Lagos, Ogun, Osun, Ondo, Ekiti, Kwara, Ibadan, Ilorin
-      ['lagos', 'ogun', 'osun', 'ondo', 'ekiti', 'kwara', 'ibadan', 'ilorin'],
-      // Group 3: Abuja, Jos, Kaduna, Kogi, Niger, Benue, Enugu, Anambra
-      ['abuja', 'jos', 'kaduna', 'kogi', 'niger', 'benue', 'enugu', 'anambra'],
-      // Group 4: All other states (add more as needed)
-      ['kano', 'sokoto', 'borno', 'yobe', 'zamfara', 'gombe', 'bauchi', 'cross river', 'rivers', 'bayelsa', 'ebonyi', 'imo', 'abia', 'akwa ibom', 'taraba', 'adamawa', 'nasarawa', 'kastina', 'kebbi', 'jigawa']
+    // Map of state/city to fee
+    const feeMap = [
+      { names: ['oyo', 'ibadan'], fee: 6000 },
+      { names: ['lagos'], fee: 9000 },
+      { names: ['ondo'], fee: 12000 },
+      { names: ['ilorin'], fee: 18000 },
+      { names: ['jos'], fee: 18000 },
+      { names: ['kano'], fee: 20000 },
+      { names: ['abuja'], fee: 30000 },
+      // Add more explicit mappings as needed
     ];
-    let baseFee = 6000;
-    for (let i = 0; i < groups.length; i++) {
-      for (let state of groups[i]) {
-        if (addr.includes(state)) {
-          return baseFee + (i * 3000);
+    for (let entry of feeMap) {
+      for (let name of entry.names) {
+        if (addr.includes(name)) {
+          return entry.fee;
         }
       }
     }
-    // If not found in any group, use the highest group fee
-    return baseFee + ((groups.length) * 3000);
+    // Default fee for all other states
+    return 25000;
   }
 
   function updateTotalAmount() {
