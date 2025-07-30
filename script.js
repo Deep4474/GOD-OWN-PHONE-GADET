@@ -805,19 +805,22 @@ function showBuyNowForm(product) {
           </select>
         </label><br>
         <div id="map-container" style="margin:10px 0;"></div>
+        <div id="total-amount-box" style="margin:10px 0 0 0;font-weight:bold;font-size:1.1em;color:#1976d2;text-align:right;"></div>
         <button type="submit" class="btn-main" id="order-submit-btn" style="width:100%;margin-top:10px;">Send Order</button>
         <div id="order-spinner" style="display:none;text-align:center;margin-top:1em;"><div class="loader"></div> Sending order...</div>
       </form>
       <div id="order-message"></div>
     </div>
   `;
-  // Restore scroll when modal closes
+  // Restore scroll and products section when modal closes (cancelled)
   setTimeout(() => {
     const closeBtn = document.getElementById('close-order-modal');
     if (closeBtn) {
       closeBtn.onclick = function() {
+        modal.classList.add('hidden');
         modal.style.display = 'none';
         document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
         const productsSection = document.getElementById('products-section');
         if (productsSection) productsSection.style.display = '';
       };
@@ -825,13 +828,60 @@ function showBuyNowForm(product) {
     // Also close on clicking outside modal content
     modal.onclick = function(e) {
       if (e.target === modal) {
+        modal.classList.add('hidden');
         modal.style.display = 'none';
         document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
         const productsSection = document.getElementById('products-section');
         if (productsSection) productsSection.style.display = '';
       }
     };
   }, 200);
+  // --- Total Amount Calculation ---
+  function estimateDeliveryFee(fromAddress, toAddress) {
+    // Placeholder: In real app, use geocoding API to get distance. Here, use a fixed fee or a simple estimate.
+    // For demo, if both addresses are in the same state, fee = 500; else 1500
+    if (!fromAddress || !toAddress) return 1500;
+    const from = String(fromAddress).toLowerCase();
+    const to = String(toAddress).toLowerCase();
+    // Try to extract state from address (very basic)
+    let fromState = from.split(',').pop().trim();
+    let toState = to.split(',').pop().trim();
+    if (fromState && toState && fromState === toState) return 500;
+    return 1500;
+  }
+
+  function updateTotalAmount() {
+    const qty = parseInt(document.getElementById('order-qty').value, 10) || 1;
+    const deliveryMethod = modal.querySelector('input[name="delivery-method"]:checked').value;
+    let total = product.price * qty;
+    let extra = 0;
+    let extraLabel = '';
+    if (deliveryMethod === 'Pick Up') {
+      extra = 30;
+      extraLabel = 'Pick Up Fee: ₦30';
+    } else {
+      // Delivery: estimate fee
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const fromAddress = 'Lagos, Nigeria'; // Store location (customize as needed)
+      const toAddress = document.getElementById('order-address').value || user.address || '';
+      extra = estimateDeliveryFee(fromAddress, toAddress);
+      extraLabel = `Delivery Fee: ₦${extra}`;
+    }
+    const grandTotal = total + extra;
+    document.getElementById('total-amount-box').innerHTML = `Product: ₦${total.toLocaleString()}<br>${extraLabel}<br><span style="font-size:1.15em;color:#009688;">Total: ₦${grandTotal.toLocaleString()}</span>`;
+  }
+
+  // Initial total
+  setTimeout(updateTotalAmount, 250);
+
+  // Update total on qty, delivery method, or address change
+  setTimeout(() => {
+    document.getElementById('order-qty').addEventListener('input', updateTotalAmount);
+    modal.querySelectorAll('input[name="delivery-method"]').forEach(r => r.addEventListener('change', updateTotalAmount));
+    const addressInput = document.getElementById('order-address');
+    if (addressInput) addressInput.addEventListener('input', updateTotalAmount);
+  }, 300);
   modal.classList.remove('hidden');
   modal.style.display = 'flex';
   // Prevent background scroll
@@ -932,8 +982,10 @@ function showBuyNowForm(product) {
       setTimeout(() => {
         modal.classList.add('hidden');
         modal.style.display = 'none';
-        // Restore background scroll
         document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+        const productsSection = document.getElementById('products-section');
+        if (productsSection) productsSection.style.display = '';
         // Automatically open My Orders and refresh the list
         if (typeof myOrdersBtn !== 'undefined' && myOrdersBtn) {
           myOrdersBtn.click();
