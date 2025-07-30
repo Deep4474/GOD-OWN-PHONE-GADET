@@ -744,9 +744,9 @@ function showBuyNowForm(product) {
     });
     // Also update on modal open (in case default is Deliver)
     setTimeout(updateSections, 0);
-    // Update total on address change
+    // Remove any previous address input listeners to avoid double calculation
     if (addressInput) {
-      addressInput.addEventListener('input', updateTotalAmount);
+      addressInput.oninput = null;
     }
   }
   robustSetupDeliverySections();
