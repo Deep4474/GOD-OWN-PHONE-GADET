@@ -7,51 +7,14 @@ categoryFilter.addEventListener('change', function() {
 
 // Ensure products are loaded and shown on page load if already logged in
 document.addEventListener('DOMContentLoaded', function() {
-  if (isLoggedIn()) {
-    showProducts();
-    loadProducts();
-  }
+  showProducts();
+  loadProducts();
 });
 // --- Auth Gate for Main Content ---
-function showMainContent() {
-  document.getElementById('main-content').style.display = 'block';
-  document.getElementById('auth-section').style.display = 'none';
-}
-function showAuthSection() {
-  document.getElementById('main-content').style.display = 'none';
-  document.getElementById('auth-section').style.display = 'block';
-}
-function isLoggedIn() {
-  return !!localStorage.getItem('token');
-}
-function checkAuthOnLoad() {
-  if (isLoggedIn()) {
-    showMainContent();
-  } else {
-    showAuthSection();
-  }
-}
-window.addEventListener('DOMContentLoaded', checkAuthOnLoad);
+// Removed all auth logic: always show products
 
 // Hide menu and menu toggle on login section
-function showLoginSection() {
-  document.getElementById('login-section').style.display = 'block';
-  document.getElementById('main-content').style.display = 'none';
-  if (sideMenu) sideMenu.style.display = 'none';
-  if (menuToggle) menuToggle.style.display = 'none';
-}
-
-// After successful login, save token and show main content:
-function handleLoginSuccess(token) {
-  localStorage.setItem('token', token);
-  showMainContent();
-  if (sideMenu) sideMenu.style.display = '';
-  if (menuToggle) menuToggle.style.display = '';
-}
-// Example: call handleLoginSuccess(token) after login API returns token
-// --- API CONFIG ---
-const API_BASE_URL = 'https://phone-2cv4.onrender.com';
-const API_ENDPOINTS = {
+// Removed showLoginView, showRegisterView, hideAuthSection: no longer needed, products always visible
   REGISTER: '/api/auth/register',
   LOGIN: '/api/auth/login',
   VERIFY: '/api/auth/verify',
@@ -264,14 +227,14 @@ logoutBtn.onclick = () => {
   showLogin();
   // Hide main content and show login section
   document.getElementById('main-content').style.display = 'none';
-  document.getElementById('auth-section').style.display = 'block';
+  // document.getElementById('auth-section').style.display = 'block'; // removed, no #auth-section
 };
 
 // --- Navigation logic (unchanged) ---
 const loginView = document.getElementById('login-view');
 const registerView = document.getElementById('register-view');
 const productsSection = document.getElementById('products-section');
-const authSection = document.getElementById('auth-section');
+// const authSection = document.getElementById('auth-section'); // removed, no #auth-section
 
 function showLogin() {
   loginView.classList.remove('hidden');
