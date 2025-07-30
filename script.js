@@ -541,29 +541,17 @@ function renderProducts(products) {
     return;
   }
   productList.innerHTML = products.map((product, idx) => {
-    if (product.premium) {
-      return `
-        <div class="product-card premium-product-card" data-idx="${idx}" style="border:2px solid #ffe7b2;box-shadow:0 2px 12px #ffe7b2;position:relative;cursor:pointer;">
-          <img src="${product.images[0]}" alt="${product.name}" class="product-img" data-idx="${idx}" style="cursor:pointer;" />
-          <h4 style="color:#b97a00;">${product.name} <span style="font-size:0.9em;background:#ffe7b2;color:#b97a00;padding:2px 8px;border-radius:6px;">Premium</span></h4>
-          <p class="description" id="desc-${idx}" style="display:none;">${product.description}</p>
-          <span class="category-badge" data-category="${product.category}">${product.category}</span>
-          <p class="price">₦${product.price.toLocaleString()}</p>
-          <button class="btn-main share-premium-btn" data-idx="${idx}" style="background:#b97a00;">Share & Get 20% Off</button>
-        </div>
-      `;
-    } else {
-      return `
-        <div class="product-card">
-          <img src="${product.images[0]}" alt="${product.name}" class="product-img" data-idx="${idx}" style="cursor:pointer;" />
-          <h4>${product.name}</h4>
-          <p class="description" id="desc-${idx}" style="display:none;">${product.description}</p>
-          <span class="category-badge" data-category="${product.category}">${product.category}</span>
-          <p class="price">₦${product.price.toLocaleString()}</p>
-          <button class="btn-main buy-now-btn" data-idx="${idx}">Buy Now</button>
-        </div>
-      `;
-    }
+    // All products, including premium, get only a Buy Now button
+    return `
+      <div class="product-card${product.premium ? ' premium-product-card' : ''}" data-idx="${idx}"${product.premium ? ' style="border:2px solid #ffe7b2;box-shadow:0 2px 12px #ffe7b2;position:relative;cursor:pointer;"' : ''}>
+        <img src="${product.images[0]}" alt="${product.name}" class="product-img" data-idx="${idx}" style="cursor:pointer;" />
+        <h4${product.premium ? ' style="color:#b97a00;"' : ''}>${product.name}${product.premium ? ' <span style="font-size:0.9em;background:#ffe7b2;color:#b97a00;padding:2px 8px;border-radius:6px;">Premium</span>' : ''}</h4>
+        <p class="description" id="desc-${idx}" style="display:none;">${product.description}</p>
+        <span class="category-badge" data-category="${product.category}">${product.category}</span>
+        <p class="price">₦${product.price.toLocaleString()}</p>
+        <button class="btn-main buy-now-btn" data-idx="${idx}">Buy Now</button>
+      </div>
+    `;
   }).join('');
 
   // Add event listeners for product images to toggle description
@@ -580,29 +568,12 @@ function renderProducts(products) {
       }
     };
   });
-  // Add event listeners for buy now buttons (non-premium)
+  // Add event listeners for buy now buttons (all products)
   document.querySelectorAll('.buy-now-btn').forEach(btn => {
     btn.onclick = function(e) {
       e.stopPropagation();
       const idx = this.getAttribute('data-idx');
       showBuyNowForm(products[idx]);
-    };
-  });
-  // Add event listeners for premium share buttons
-  document.querySelectorAll('.share-premium-btn').forEach(btn => {
-    btn.onclick = function(e) {
-      e.stopPropagation();
-      const idx = this.getAttribute('data-idx');
-      showPremiumShareModal(products[idx]);
-    };
-  });
-  // Make the whole premium card clickable for share modal
-  document.querySelectorAll('.premium-product-card').forEach(card => {
-    card.onclick = function(e) {
-      // Prevent double open if button or image is clicked
-      if (e.target.classList.contains('share-premium-btn') || e.target.classList.contains('product-img')) return;
-      const idx = this.getAttribute('data-idx');
-      showPremiumShareModal(products[idx]);
     };
   });
   // Add event listeners for category badges
