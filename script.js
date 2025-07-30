@@ -205,7 +205,7 @@ function setDarkMode(enabled) {
 darkModeBtn.onclick = () => {
   setDarkMode(!document.body.classList.contains('dark-mode'));
 };
-if (localStorage.getItem('darkMode') === '1') setDarkMode(true;
+if (localStorage.getItem('darkMode') === '1') setDarkMode(true);
 
 // --- Notification logic (demo) ---
 const demoNotifs = [
