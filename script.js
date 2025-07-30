@@ -652,79 +652,71 @@ function showPremiumShareModal(product) {
     modal.style.overflowY = 'auto';
   }
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const inviteBase = window.location.origin || 'https://godsownpane.netlify.app';
+  const inviteLink = `${inviteBase}/?ref=${encodeURIComponent(user.email || 'guest')}&product=${product.id}`;
   let invitedCount = parseInt(localStorage.getItem(`referral_count_${product.id}`) || '0', 10);
   if (isNaN(invitedCount)) invitedCount = 0;
-  // Fetch share link from backend
-  fetch(`${API_BASE_URL}/api/share-link?productId=${encodeURIComponent(product.id)}&userEmail=${encodeURIComponent(user.email || 'guest')}`)
-    .then(res => res.json())
-    .then(data => {
-      const inviteLink = data && data.link ? data.link : '';
-      modal.innerHTML = `
-        <div class="modal-content" style="background:#fff;max-width:420px;width:95vw;padding:24px 18px 18px 18px;border-radius:12px;box-shadow:0 4px 24px #0002;position:relative;">
-          <button id="close-order-modal" class="close-modal" style="position:absolute;top:10px;right:10px;font-size:1.5em;background:none;border:none;cursor:pointer;">&times;</button>
-          <h3 style="margin-top:0;">Share & Get Discount: ${product.name}</h3>
-          <div class="referral-box" style="background:#f8f8f8;padding:16px 12px 18px 12px;margin-bottom:10px;border-radius:8px;border:1px solid #eee;text-align:center;">
-            <b style="font-size:1.1em;">Invite 10 people to unlock 20% discount on this premium product!</b><br>
-            <span style="font-size:13px;">Share this link with your friends. When 10 register and buy, you get your discount automatically.</span><br>
-            <input type="text" id="invite-link" value="${inviteLink}" readonly style="width:90%;margin:8px 0 0 0;padding:4px;background:#fff;color:#222;${document.body.classList.contains('dark-mode') ? 'background:#222;color:#fff;border:1px solid #444;' : ''}">
-            <button id="copy-invite-link" style="margin-left:5px;">Copy Link</button>
-            <div style="margin-top:10px;font-size:1em;color:#555;">Progress: <b id="referral-progress">${invitedCount}</b>/10 invited</div>
-            <div id="referral-info-msg" style="margin-top:8px;color:#d63031;font-size:0.98em;"></div>
-            <div style="margin-top:14px;">
-              <span style="font-size:1em;">Share on: </span>
-              <a href="https://wa.me/?text=${encodeURIComponent('Check out this premium product: ' + product.name + ' ' + inviteLink)}" target="_blank" rel="noopener" style="margin:0 6px;font-size:1.3em;">🟢 WhatsApp</a>
-              <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteLink)}" target="_blank" rel="noopener" style="margin:0 6px;font-size:1.3em;">🔵 Facebook</a>
-              <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent('Check out this premium product: ' + product.name + ' ' + inviteLink)}" target="_blank" rel="noopener" style="margin:0 6px;font-size:1.3em;">🐦 Twitter</a>
-              <a href="mailto:?subject=Premium%20Product&body=${encodeURIComponent('Check out this premium product: ' + product.name + ' ' + inviteLink)}" style="margin:0 6px;font-size:1.3em;">✉️ Email</a>
-            </div>
-          </div>
+  modal.innerHTML = `
+    <div class="modal-content" style="background:#fff;max-width:420px;width:95vw;padding:24px 18px 18px 18px;border-radius:12px;box-shadow:0 4px 24px #0002;position:relative;">
+      <button id="close-order-modal" class="close-modal" style="position:absolute;top:10px;right:10px;font-size:1.5em;background:none;border:none;cursor:pointer;">&times;</button>
+      <h3 style="margin-top:0;">Share & Get Discount: ${product.name}</h3>
+      <div class="referral-box" style="background:#f8f8f8;padding:16px 12px 18px 12px;margin-bottom:10px;border-radius:8px;border:1px solid #eee;text-align:center;">
+        <b style="font-size:1.1em;">Invite 10 people to unlock 20% discount on this premium product!</b><br>
+        <span style="font-size:13px;">Share this link with your friends. When 10 register and buy, you get your discount automatically.</span><br>
+        <input type="text" id="invite-link" value="${inviteLink}" readonly style="width:90%;margin:8px 0 0 0;padding:4px;background:#fff;color:#222;${document.body.classList.contains('dark-mode') ? 'background:#222;color:#fff;border:1px solid #444;' : ''}">
+        <button id="copy-invite-link" style="margin-left:5px;">Copy Link</button>
+        <div style="margin-top:10px;font-size:1em;color:#555;">Progress: <b id="referral-progress">${invitedCount}</b>/10 invited</div>
+        <div id="referral-info-msg" style="margin-top:8px;color:#d63031;font-size:0.98em;"></div>
+        <div style="margin-top:14px;">
+          <span style="font-size:1em;">Share on: </span>
+          <a href="https://wa.me/?text=${encodeURIComponent('Check out this premium product: ' + product.name + ' ' + inviteLink)}" target="_blank" rel="noopener" style="margin:0 6px;font-size:1.3em;">🟢 WhatsApp</a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteLink)}" target="_blank" rel="noopener" style="margin:0 6px;font-size:1.3em;">🔵 Facebook</a>
+          <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent('Check out this premium product: ' + product.name + ' ' + inviteLink)}" target="_blank" rel="noopener" style="margin:0 6px;font-size:1.3em;">🐦 Twitter</a>
+          <a href="mailto:?subject=Premium%20Product&body=${encodeURIComponent('Check out this premium product: ' + product.name + ' ' + inviteLink)}" style="margin:0 6px;font-size:1.3em;">✉️ Email</a>
         </div>
-      `;
-      setTimeout(() => {
-        const copyBtn = document.getElementById('copy-invite-link');
-        const inviteInput = document.getElementById('invite-link');
-        const progress = document.getElementById('referral-progress');
-        const infoMsg = document.getElementById('referral-info-msg');
-        if (copyBtn && inviteInput && progress) {
-          copyBtn.onclick = function() {
-            inviteInput.select();
-            document.execCommand('copy');
-            copyBtn.textContent = 'Copied!';
-            setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 1200);
-            // Simulate referral increment for demo (remove in production)
-            let count = parseInt(progress.textContent, 10) || 0;
-            if (count < 10) {
-              count++;
-              progress.textContent = count;
-              localStorage.setItem(`referral_count_${product.id}`, count);
-              if (count >= 10 && infoMsg) {
-                infoMsg.style.color = '#00b894';
-                infoMsg.textContent = 'You have invited 10 people! You can now buy at a discount.';
-              }
-            }
-          };
+      </div>
+    </div>
+  `;
+  setTimeout(() => {
+    const copyBtn = document.getElementById('copy-invite-link');
+    const inviteInput = document.getElementById('invite-link');
+    const progress = document.getElementById('referral-progress');
+    const infoMsg = document.getElementById('referral-info-msg');
+    if (copyBtn && inviteInput && progress) {
+      copyBtn.onclick = function() {
+        inviteInput.select();
+        document.execCommand('copy');
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 1200);
+        // Simulate referral increment for demo (remove in production)
+        let count = parseInt(progress.textContent, 10) || 0;
+        if (count < 10) {
+          count++;
+          progress.textContent = count;
+          localStorage.setItem(`referral_count_${product.id}`, count);
+          if (count >= 10 && infoMsg) {
+            infoMsg.style.color = '#00b894';
+            infoMsg.textContent = 'You have invited 10 people! You can now buy at a discount.';
+          }
         }
-        const closeBtn = document.getElementById('close-order-modal');
-        if (closeBtn) {
-          closeBtn.onclick = () => {
-            modal.classList.add('hidden');
-            modal.style.display = 'none';
-            document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
-            // Restore menu toggle if needed
-            if (typeof menuToggle !== 'undefined' && menuToggle) menuToggle.style.display = 'inline-block';
-          };
-        }
-      }, 200);
-      modal.classList.remove('hidden');
-      modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-    })
-    .catch(() => {
-      // fallback: show error
-      modal.innerHTML = '<div style="padding:2em;text-align:center;">Failed to load share link. Please try again.</div>';
-    });
+      };
+    }
+    const closeBtn = document.getElementById('close-order-modal');
+    if (closeBtn) {
+      closeBtn.onclick = () => {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+        // Restore menu toggle if needed
+        if (typeof menuToggle !== 'undefined' && menuToggle) menuToggle.style.display = 'inline-block';
+      };
+    }
+  }, 200);
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
 }
 
 // --- Buy Now Modal Logic ---
