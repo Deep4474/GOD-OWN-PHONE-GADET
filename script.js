@@ -116,9 +116,10 @@ if (!openSettingsBtn && sideMenu) {
     sideMenu.appendChild(openSettingsBtn);
   }
 }
+settingsModal.classList.add('hidden');
+settingsModal.style.display = 'none';
 if (openSettingsBtn) {
   openSettingsBtn.onclick = () => {
-    // Fill user info
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     document.getElementById('settings-user-info').innerHTML = `<b>Name:</b> ${user.name || ''}<br><b>Email:</b> ${user.email || ''}`;
     settingsModal.classList.remove('hidden');
@@ -204,7 +205,7 @@ function setDarkMode(enabled) {
 darkModeBtn.onclick = () => {
   setDarkMode(!document.body.classList.contains('dark-mode'));
 };
-if (localStorage.getItem('darkMode') === '1') setDarkMode(true);
+if (localStorage.getItem('darkMode') === '1') setDarkMode(true;
 
 // --- Notification logic (demo) ---
 const demoNotifs = [
@@ -529,24 +530,40 @@ function showBuyNowForm(product) {
   }
   // Referral/invite logic for premium products
   let referralHtml = '';
+  let showOrderForm = true;
   if (product.premium) {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const inviteBase = window.location.origin || 'https://godsownpane.netlify.app';
     const inviteLink = `${inviteBase}/?ref=${encodeURIComponent(user.email || 'guest')}&product=${product.id}`;
-    referralHtml = `
-      <div class="referral-box" style="background:#f8f8f8;padding:10px 12px;margin-bottom:10px;border-radius:8px;border:1px solid #eee;">
-        <b>Invite 10 people and get 20% discount on this premium product!</b><br>
-        <span style="font-size:13px;">Share this link with your friends. When 10 register and buy, you get your discount automatically.</span><br>
-        <input type="text" id="invite-link" value="${inviteLink}" readonly style="width:90%;margin:8px 0 0 0;padding:4px;background:#fff;color:#222;${document.body.classList.contains('dark-mode') ? 'background:#222;color:#fff;border:1px solid #444;' : ''}">
-        <button id="copy-invite-link" style="margin-left:5px;">Copy Link</button>
-      </div>
-    `;
+    // Simulate referral count (replace with real backend check if available)
+    let invitedCount = parseInt(localStorage.getItem(`referral_count_${product.id}`) || '0', 10);
+    if (isNaN(invitedCount)) invitedCount = 0;
+    if (invitedCount < 10) {
+      showOrderForm = false;
+      referralHtml = `
+        <div class="referral-box" style="background:#f8f8f8;padding:16px 12px 18px 12px;margin-bottom:10px;border-radius:8px;border:1px solid #eee;text-align:center;">
+          <b style="font-size:1.1em;">Invite 10 people to unlock 20% discount on this premium product!</b><br>
+          <span style="font-size:13px;">Share this link with your friends. When 10 register and buy, you get your discount automatically.</span><br>
+          <input type="text" id="invite-link" value="${inviteLink}" readonly style="width:90%;margin:8px 0 0 0;padding:4px;background:#fff;color:#222;${document.body.classList.contains('dark-mode') ? 'background:#222;color:#fff;border:1px solid #444;' : ''}">
+          <button id="copy-invite-link" style="margin-left:5px;">Copy Link</button>
+          <div style="margin-top:10px;font-size:1em;color:#555;">Progress: <b id="referral-progress">${invitedCount}</b>/10 invited</div>
+          <div id="referral-info-msg" style="margin-top:8px;color:#d63031;font-size:0.98em;"></div>
+        </div>
+      `;
+    } else {
+      referralHtml = `
+        <div class="referral-box" style="background:#e8ffe8;padding:10px 12px;margin-bottom:10px;border-radius:8px;border:1px solid #b2f2b2;text-align:center;">
+          <b style="color:#00b894;">Congratulations! You have invited 10 people. You can now buy this product at 20% discount.</b>
+        </div>
+      `;
+    }
   }
   modal.innerHTML = `
     <div class="modal-content" style="background:#fff;max-width:420px;width:95vw;padding:24px 18px 18px 18px;border-radius:12px;box-shadow:0 4px 24px #0002;position:relative;">
       <button id="close-order-modal" class="close-modal" style="position:absolute;top:10px;right:10px;font-size:1.5em;background:none;border:none;cursor:pointer;">&times;</button>
       <h3 style="margin-top:0;">Buy Now: ${product.name}</h3>
       ${referralHtml}
+      ${(!product.premium || showOrderForm) ? `
       <form id="order-form">
         <label>Quantity:<input type="number" id="order-qty" min="1" value="1" required style="width:60px;"></label><br>
         <label>Delivery Method:<br>
@@ -570,19 +587,34 @@ function showBuyNowForm(product) {
         <div id="order-spinner" style="display:none;text-align:center;margin-top:1em;"><div class="loader"></div> Sending order...</div>
       </form>
       <div id="order-message"></div>
+      ` : ''}
     </div>
   `;
-  // Copy invite link logic
+  // Copy invite link logic and simulate referral progress for demo
   if (product.premium) {
     setTimeout(() => {
       const copyBtn = document.getElementById('copy-invite-link');
       const inviteInput = document.getElementById('invite-link');
-      if (copyBtn && inviteInput) {
+      const progress = document.getElementById('referral-progress');
+      const infoMsg = document.getElementById('referral-info-msg');
+      if (copyBtn && inviteInput && progress) {
         copyBtn.onclick = function() {
           inviteInput.select();
           document.execCommand('copy');
           copyBtn.textContent = 'Copied!';
           setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 1200);
+          // Simulate referral increment for demo (remove in production)
+          let count = parseInt(progress.textContent, 10) || 0;
+          if (count < 10) {
+            count++;
+            progress.textContent = count;
+            localStorage.setItem(`referral_count_${product.id}`, count);
+            if (count >= 10 && infoMsg) {
+              infoMsg.style.color = '#00b894';
+              infoMsg.textContent = 'You have invited 10 people! You can now buy at a discount.';
+              setTimeout(() => showBuyNowForm(product), 800);
+            }
+          }
         };
       }
     }, 200);
