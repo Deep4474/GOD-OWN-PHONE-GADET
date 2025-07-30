@@ -641,8 +641,8 @@ function showBuyNowForm(product) {
     let extra = 0;
     let extraLabel = '';
     if (deliveryMethod === 'Pick Up') {
-      extra = 30;
-      extraLabel = 'Pick Up Fee: ₦30';
+      extra = 500;
+      extraLabel = 'Pick Up Fee: ₦500';
       const grandTotal = total + extra;
       document.getElementById('total-amount-box').innerHTML = `Product: ₦${total.toLocaleString()}<br>${extraLabel}<br><span style=\"font-size:1.15em;color:#009688;\">Total: ₦${grandTotal.toLocaleString()}</span>`;
     } else {
