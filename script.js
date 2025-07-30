@@ -744,10 +744,8 @@ function showBuyNowForm(product) {
     });
     // Also update on modal open (in case default is Deliver)
     setTimeout(updateSections, 0);
-    // Remove any previous address input listeners to avoid double calculation
-    if (addressInput) {
-      addressInput.oninput = null;
-    }
+    // Do not set addressInput.oninput here; debounced event is set in showBuyNowForm
+    // This prevents overriding the debounced updateTotalAmount
   }
   robustSetupDeliverySections();
 
