@@ -198,14 +198,12 @@ app.delete('/api/auth/user', (req, res) => {
 // --- Products ---
 app.get('/api/products', (req, res) => {
   const products = safeRead(productsFile);
-  // Add calculated fields for each product
+  // Add calculated fields for each product (no premium logic)
   const productsWithCalc = products.map(p => {
-    const isPremium = !!p.premium;
     const basePrice = Number(p.price);
-    const discount = isPremium ? (p.discountPercent || 0) : (p.discountPercent || 0);
-    const pickup = isPremium ? (p.pickupPercent || 0) : (p.pickupPercent || 0);
-    const delivery = isPremium ? (p.deliveryPercent || 0) : (p.deliveryPercent || 0);
-    // For now, assume user has not referred enough people, so discount applies only if frontend tells us
+    const discount = p.discountPercent || 0;
+    const pickup = p.pickupPercent || 0;
+    const delivery = p.deliveryPercent || 0;
     const totalPickup = Math.round(basePrice + (basePrice * pickup / 100));
     const totalDelivery = Math.round(basePrice + (basePrice * delivery / 100));
     const totalWithDiscountPickup = Math.round((basePrice - (basePrice * discount / 100)) + ((basePrice - (basePrice * discount / 100)) * pickup / 100));
@@ -223,7 +221,7 @@ app.get('/api/products', (req, res) => {
       }
     };
   });
-  return res.json(productsWithCalc);
+  res.json(productsWithCalc);
 // --- Real Map API ---
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 app.post('/api/map', async (req, res) => {
@@ -301,11 +299,10 @@ app.post('/api/orders', async (req, res) => {
   const products = safeRead(productsFile);
   const product = products.find(p => String(p.id) === String(productId));
   if (!product) return res.status(404).json({ error: 'Product not found' });
-  const isPremium = !!product.premium;
   const basePrice = Number(product.price) * Number(quantity);
-  const discount = isPremium ? (product.discountPercent || 0) : (product.discountPercent || 0);
-  const pickup = isPremium ? (product.pickupPercent || 0) : (product.pickupPercent || 0);
-  const delivery = isPremium ? (product.deliveryPercent || 0) : (product.deliveryPercent || 0);
+  const discount = product.discountPercent || 0;
+  const pickup = product.pickupPercent || 0;
+  const delivery = product.deliveryPercent || 0;
   // For now, assume user has not referred enough people, so discount applies only if frontend tells us (can be improved)
   let totalPickup = Math.round(basePrice + (basePrice * pickup / 100));
   let totalDelivery = Math.round(basePrice + (basePrice * delivery / 100));
