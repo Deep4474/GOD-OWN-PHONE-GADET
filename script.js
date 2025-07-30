@@ -782,7 +782,7 @@ function showBuyNowForm(product) {
     `;
   }
   modal.innerHTML = `
-    <div class="modal-content" style="background:#fff;max-width:420px;width:95vw;padding:24px 18px 18px 18px;border-radius:12px;box-shadow:0 4px 24px #0002;position:relative;">
+    <div class="modal-content" style="background:#fff;max-width:430px;width:97vw;padding:24px 18px 18px 18px;border-radius:12px;box-shadow:0 4px 24px #0002;position:relative;">
       <button id="close-order-modal" class="close-modal" style="position:absolute;top:10px;right:10px;font-size:1.5em;background:none;border:none;cursor:pointer;">&times;</button>
       <h3 style="margin-top:0;">Buy Now: ${product.name}</h3>
       ${referralHtml}
@@ -792,8 +792,20 @@ function showBuyNowForm(product) {
           <input type="radio" name="delivery-method" value="Pick Up" checked> Pick Up
           <input type="radio" name="delivery-method" value="Deliver"> Deliver
         </label><br>
-        <div id="address-fields" style="display:none;">
-          <label>Address:<input type="text" id="order-address" style="width:90%;"></label><br>
+        <div id="pickup-section">
+          <div style="background:#f8f8f8;padding:10px 8px 10px 8px;margin-bottom:10px;border-radius:8px;border:1px solid #eee;">
+            <b>Pick Up Location:</b><br>
+            <span>Lagos, Nigeria (Store Address)</span><br>
+            <span style="font-size:0.95em;color:#888;">You will pick up your order at our store. ₦30 fee applies.</span>
+          </div>
+        </div>
+        <div id="delivery-section" style="display:none;">
+          <div style="background:#f8f8f8;padding:10px 8px 10px 8px;margin-bottom:10px;border-radius:8px;border:1px solid #eee;">
+            <b>Delivery Address:</b><br>
+            <input type="text" id="order-address" style="width:95%;margin-top:4px;" placeholder="Enter delivery address">
+            <div id="map-container" style="margin:10px 0 0 0;"></div>
+            <span style="font-size:0.95em;color:#888;">Delivery fee is calculated based on your address.</span>
+          </div>
         </div>
         <label>Phone:<input type="text" id="order-phone" required style="width:90%;"></label><br>
         <label>Email:<input type="email" id="order-email" required style="width:90%;"></label><br>
@@ -804,7 +816,6 @@ function showBuyNowForm(product) {
             <option value="Bank Transfer">Bank Transfer</option>
           </select>
         </label><br>
-        <div id="map-container" style="margin:10px 0;"></div>
         <div id="total-amount-box" style="margin:10px 0 0 0;font-weight:bold;font-size:1.1em;color:#1976d2;text-align:right;"></div>
         <button type="submit" class="btn-main" id="order-submit-btn" style="width:100%;margin-top:10px;">Send Order</button>
         <div id="order-spinner" style="display:none;text-align:center;margin-top:1em;"><div class="loader"></div> Sending order...</div>
@@ -904,9 +915,14 @@ function showBuyNowForm(product) {
     addressInput.value = registeredAddress;
   }
 
-  // Map logic
-  const mapContainer = document.getElementById('map-container');
+  // Map logic (only for delivery)
   function showMap(address) {
+    const mapContainer = document.getElementById('map-container');
+    if (!mapContainer) return;
+    if (!address) {
+      mapContainer.innerHTML = '';
+      return;
+    }
     const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
     const realMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
     mapContainer.innerHTML = `
@@ -917,39 +933,53 @@ function showBuyNowForm(product) {
     `;
   }
 
-  // Always show map for registered address by default
-  showMap(registeredAddress);
+  // Show map for registered address by default if available
+  setTimeout(() => {
+    const addressInput = document.getElementById('order-address');
+    if (addressInput && registeredAddress) {
+      addressInput.value = registeredAddress;
+      showMap(registeredAddress);
+    }
+  }, 200);
 
-  // Delivery method logic
-  const deliveryRadios = modal.querySelectorAll('input[name="delivery-method"]');
-  const addressFields = document.getElementById('address-fields');
-  deliveryRadios.forEach(radio => {
-    radio.onchange = function() {
-      if (this.value === 'Deliver') {
-        addressFields.style.display = '';
-        document.getElementById('order-address').required = true;
-        // Show map for address input (if filled) or registered address
-        showMap(addressInput.value || registeredAddress);
-      } else {
-        addressFields.style.display = 'none';
-        document.getElementById('order-address').required = false;
-        // Always revert to registered address map
-        showMap(registeredAddress);
-        // Also reset address input to registered address
-        if (addressInput) addressInput.value = registeredAddress;
-      }
-    };
-  });
-
-  // Update map live as address changes (when Deliver is selected)
-  if (addressInput) {
-    addressInput.addEventListener('input', function() {
-      const selectedDelivery = modal.querySelector('input[name="delivery-method"]:checked').value;
-      if (selectedDelivery === 'Deliver') {
-        showMap(addressInput.value);
-      }
+  // Delivery method logic: show/hide sections
+  setTimeout(() => {
+    const deliveryRadios = modal.querySelectorAll('input[name="delivery-method"]');
+    const pickupSection = document.getElementById('pickup-section');
+    const deliverySection = document.getElementById('delivery-section');
+    const addressInput = document.getElementById('order-address');
+    deliveryRadios.forEach(radio => {
+      radio.onchange = function() {
+        if (this.value === 'Deliver') {
+          pickupSection.style.display = 'none';
+          deliverySection.style.display = '';
+          if (addressInput) {
+            addressInput.required = true;
+            showMap(addressInput.value || registeredAddress);
+          }
+        } else {
+          pickupSection.style.display = '';
+          deliverySection.style.display = 'none';
+          if (addressInput) addressInput.required = false;
+        }
+        updateTotalAmount();
+      };
     });
-  }
+    // Initial state
+    if (pickupSection && deliverySection) {
+      pickupSection.style.display = '';
+      deliverySection.style.display = 'none';
+    }
+    // Update map live as address changes (when Deliver is selected)
+    if (addressInput) {
+      addressInput.addEventListener('input', function() {
+        const selectedDelivery = modal.querySelector('input[name="delivery-method"]:checked').value;
+        if (selectedDelivery === 'Deliver') {
+          showMap(addressInput.value);
+        }
+      });
+    }
+  }, 250);
 
   document.getElementById('close-order-modal').onclick = () => {
     modal.classList.add('hidden');
