@@ -555,11 +555,9 @@ function showPremiumReferralModal(product) {
 function filterAndRenderProducts() {
   const searchInput = document.getElementById('search-input');
   const categoryFilter = document.getElementById('category-filter');
-  // Remove premium products from main grid
-  let filtered = allProducts.filter(p => !p.premium);
-  // Always filter by category if selected
+  let filtered = allProducts;
   const selectedCategory = categoryFilter && categoryFilter.value;
-  if (selectedCategory) {
+  if (selectedCategory && selectedCategory !== 'All') {
     filtered = filtered.filter(p => (p.category && p.category.toLowerCase() === selectedCategory.toLowerCase()));
   }
   // Then filter by search if any
@@ -574,8 +572,8 @@ function filterAndRenderProducts() {
   // Update UI to show selected category (just the name)
   const catLabel = document.getElementById('selected-category-label');
   if (catLabel) {
-    catLabel.textContent = selectedCategory ? selectedCategory : '';
-    catLabel.style.display = selectedCategory ? 'block' : 'none';
+    catLabel.textContent = selectedCategory && selectedCategory !== 'All' ? selectedCategory : '';
+    catLabel.style.display = selectedCategory && selectedCategory !== 'All' ? 'block' : 'none';
   }
 }
 
@@ -586,16 +584,31 @@ function renderProducts(products) {
     productList.innerHTML = '<p style="text-align:center;">No products available</p>';
     return;
   }
-  productList.innerHTML = products.map((product, idx) => `
-    <div class="product-card">
-      <img src="${product.images[0]}" alt="${product.name}" class="product-img" data-idx="${idx}" style="cursor:pointer;" />
-      <h4>${product.name}</h4>
-      <p class="description" id="desc-${idx}" style="display:none;">${product.description}</p>
-      <span class="category-badge" data-category="${product.category}">${product.category}</span>
-      <p class="price">₦${product.price.toLocaleString()}</p>
-      <button class="btn-main buy-now-btn" data-idx="${idx}">Buy Now</button>
-    </div>
-  `).join('');
+  productList.innerHTML = products.map((product, idx) => {
+    if (product.premium) {
+      return `
+        <div class="product-card premium-product-card" style="border:2px solid #ffe7b2;box-shadow:0 2px 12px #ffe7b2;position:relative;">
+          <img src="${product.images[0]}" alt="${product.name}" class="product-img" data-idx="${idx}" style="cursor:pointer;" />
+          <h4 style="color:#b97a00;">${product.name} <span style="font-size:0.9em;background:#ffe7b2;color:#b97a00;padding:2px 8px;border-radius:6px;">Premium</span></h4>
+          <p class="description" id="desc-${idx}" style="display:none;">${product.description}</p>
+          <span class="category-badge" data-category="${product.category}">${product.category}</span>
+          <p class="price">₦${product.price.toLocaleString()}</p>
+          <button class="btn-main share-premium-btn" data-idx="${idx}" style="background:#b97a00;">Share & Get 20% Off</button>
+        </div>
+      `;
+    } else {
+      return `
+        <div class="product-card">
+          <img src="${product.images[0]}" alt="${product.name}" class="product-img" data-idx="${idx}" style="cursor:pointer;" />
+          <h4>${product.name}</h4>
+          <p class="description" id="desc-${idx}" style="display:none;">${product.description}</p>
+          <span class="category-badge" data-category="${product.category}">${product.category}</span>
+          <p class="price">₦${product.price.toLocaleString()}</p>
+          <button class="btn-main buy-now-btn" data-idx="${idx}">Buy Now</button>
+        </div>
+      `;
+    }
+  }).join('');
 
   // Add event listeners for product images to toggle description
   document.querySelectorAll('.product-img').forEach(img => {
@@ -610,11 +623,18 @@ function renderProducts(products) {
       }
     };
   });
-  // Add event listeners for buy now buttons
+  // Add event listeners for buy now buttons (non-premium)
   document.querySelectorAll('.buy-now-btn').forEach(btn => {
     btn.onclick = function() {
       const idx = this.getAttribute('data-idx');
       showBuyNowForm(products[idx]);
+    };
+  });
+  // Add event listeners for premium share buttons
+  document.querySelectorAll('.share-premium-btn').forEach(btn => {
+    btn.onclick = function() {
+      const idx = this.getAttribute('data-idx');
+      showPremiumShareModal(products[idx]);
     };
   });
   // Add event listeners for category badges
@@ -628,6 +648,99 @@ function renderProducts(products) {
       }
     };
   });
+}
+
+// Show modal for premium product sharing (with social and copy)
+function showPremiumShareModal(product) {
+  let modal = document.getElementById('order-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'order-modal';
+    modal.className = 'modal';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100vw';
+    modal.style.height = '100vh';
+    modal.style.zIndex = '9999';
+    modal.style.background = 'rgba(0,0,0,0.35)';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.overflowY = 'auto';
+    document.body.appendChild(modal);
+  } else {
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100vw';
+    modal.style.height = '100vh';
+    modal.style.zIndex = '9999';
+    modal.style.background = 'rgba(0,0,0,0.35)';
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.overflowY = 'auto';
+  }
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const inviteBase = window.location.origin || 'https://godsownpane.netlify.app';
+  const inviteLink = `${inviteBase}/?ref=${encodeURIComponent(user.email || 'guest')}&product=${product.id}`;
+  let invitedCount = parseInt(localStorage.getItem(`referral_count_${product.id}`) || '0', 10);
+  if (isNaN(invitedCount)) invitedCount = 0;
+  modal.innerHTML = `
+    <div class="modal-content" style="background:#fff;max-width:420px;width:95vw;padding:24px 18px 18px 18px;border-radius:12px;box-shadow:0 4px 24px #0002;position:relative;">
+      <button id="close-order-modal" class="close-modal" style="position:absolute;top:10px;right:10px;font-size:1.5em;background:none;border:none;cursor:pointer;">&times;</button>
+      <h3 style="margin-top:0;">Share & Get Discount: ${product.name}</h3>
+      <div class="referral-box" style="background:#f8f8f8;padding:16px 12px 18px 12px;margin-bottom:10px;border-radius:8px;border:1px solid #eee;text-align:center;">
+        <b style="font-size:1.1em;">Invite 10 people to unlock 20% discount on this premium product!</b><br>
+        <span style="font-size:13px;">Share this link with your friends. When 10 register and buy, you get your discount automatically.</span><br>
+        <input type="text" id="invite-link" value="${inviteLink}" readonly style="width:90%;margin:8px 0 0 0;padding:4px;background:#fff;color:#222;${document.body.classList.contains('dark-mode') ? 'background:#222;color:#fff;border:1px solid #444;' : ''}">
+        <button id="copy-invite-link" style="margin-left:5px;">Copy Link</button>
+        <div style="margin-top:10px;font-size:1em;color:#555;">Progress: <b id="referral-progress">${invitedCount}</b>/10 invited</div>
+        <div id="referral-info-msg" style="margin-top:8px;color:#d63031;font-size:0.98em;"></div>
+        <div style="margin-top:14px;">
+          <span style="font-size:1em;">Share on: </span>
+          <a href="https://wa.me/?text=${encodeURIComponent('Check out this premium product: ' + product.name + ' ' + inviteLink)}" target="_blank" rel="noopener" style="margin:0 6px;font-size:1.3em;">🟢 WhatsApp</a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteLink)}" target="_blank" rel="noopener" style="margin:0 6px;font-size:1.3em;">🔵 Facebook</a>
+          <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent('Check out this premium product: ' + product.name + ' ' + inviteLink)}" target="_blank" rel="noopener" style="margin:0 6px;font-size:1.3em;">🐦 Twitter</a>
+          <a href="mailto:?subject=Premium%20Product&body=${encodeURIComponent('Check out this premium product: ' + product.name + ' ' + inviteLink)}" style="margin:0 6px;font-size:1.3em;">✉️ Email</a>
+        </div>
+      </div>
+    </div>
+  `;
+  setTimeout(() => {
+    const copyBtn = document.getElementById('copy-invite-link');
+    const inviteInput = document.getElementById('invite-link');
+    const progress = document.getElementById('referral-progress');
+    const infoMsg = document.getElementById('referral-info-msg');
+    if (copyBtn && inviteInput && progress) {
+      copyBtn.onclick = function() {
+        inviteInput.select();
+        document.execCommand('copy');
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 1200);
+        // Simulate referral increment for demo (remove in production)
+        let count = parseInt(progress.textContent, 10) || 0;
+        if (count < 10) {
+          count++;
+          progress.textContent = count;
+          localStorage.setItem(`referral_count_${product.id}`, count);
+          if (count >= 10 && infoMsg) {
+            infoMsg.style.color = '#00b894';
+            infoMsg.textContent = 'You have invited 10 people! You can now buy at a discount.';
+          }
+        }
+      };
+    }
+    document.getElementById('close-order-modal').onclick = () => {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    };
+  }, 200);
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
 }
 
 // --- Buy Now Modal Logic ---
