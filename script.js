@@ -861,15 +861,21 @@ function showBuyNowForm(product) {
       extra = 30;
       extraLabel = 'Pick Up Fee: ₦30';
     } else {
-      // Delivery: estimate fee
+      // Delivery: estimate fee based on entered address
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const fromAddress = 'Lagos, Nigeria'; // Store location (customize as needed)
-      const toAddress = document.getElementById('order-address').value || user.address || '';
+      const addressInput = document.getElementById('order-address');
+      let toAddress = '';
+      if (addressInput && addressInput.value.trim()) {
+        toAddress = addressInput.value.trim();
+      } else if (user.address) {
+        toAddress = user.address;
+      }
       extra = estimateDeliveryFee(fromAddress, toAddress);
       extraLabel = `Delivery Fee: ₦${extra}`;
     }
     const grandTotal = total + extra;
-    document.getElementById('total-amount-box').innerHTML = `Product: ₦${total.toLocaleString()}<br>${extraLabel}<br><span style="font-size:1.15em;color:#009688;">Total: ₦${grandTotal.toLocaleString()}</span>`;
+    document.getElementById('total-amount-box').innerHTML = `Product: ₦${total.toLocaleString()}<br>${extraLabel}<br><span style=\"font-size:1.15em;color:#009688;\">Total: ₦${grandTotal.toLocaleString()}</span>`;
   }
 
   // Initial total
