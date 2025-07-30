@@ -634,9 +634,10 @@ function showBuyNowForm(product) {
     const pickupSection = document.getElementById('pickup-section');
     const deliverySection = document.getElementById('delivery-section');
     const addressInput = document.getElementById('order-address');
+    // Retry if elements are not yet in DOM
     if (!deliveryRadios.length || !pickupSection || !deliverySection) {
-      if (retries < 10) {
-        setTimeout(() => robustSetupDeliverySections(retries + 1), 60);
+      if (retries < 15) {
+        setTimeout(() => robustSetupDeliverySections(retries + 1), 80);
       }
       return;
     }
@@ -645,9 +646,7 @@ function showBuyNowForm(product) {
       if (selected && selected.value === 'Deliver') {
         pickupSection.style.display = 'none';
         deliverySection.style.display = '';
-        if (addressInput) {
-          addressInput.required = true;
-        }
+        if (addressInput) addressInput.required = true;
       } else {
         pickupSection.style.display = '';
         deliverySection.style.display = 'none';
@@ -655,17 +654,19 @@ function showBuyNowForm(product) {
       }
       updateTotalAmount();
     }
-    
+    // Remove any previous listeners to avoid duplicates
     deliveryRadios.forEach(radio => {
-      radio.onchange = updateSections;
+      radio.onchange = null;
     });
-    // Initial state
-    updateSections();
-    // Update map live as address changes (when Deliver is selected)
+    // Add listeners
+    deliveryRadios.forEach(radio => {
+      radio.addEventListener('change', updateSections);
+    });
+    // Also update on modal open (in case default is Deliver)
+    setTimeout(updateSections, 0);
+    // Update total on address change
     if (addressInput) {
-      addressInput.addEventListener('input', function() {
-        updateTotalAmount();
-      });
+      addressInput.addEventListener('input', updateTotalAmount);
     }
   }
   robustSetupDeliverySections();
