@@ -609,27 +609,14 @@ function showBuyNowForm(product) {
   }
 
   async function estimateDeliveryFeeDynamic(toAddress) {
-    return new Promise(resolve => {
-      getUserLocation(async (fromCoords) => {
-        if (!toAddress) return resolve(1500);
-        // Geocode destination
-        let toCoords = lastAddressCoords;
-        if (!toCoords || toCoords.address !== toAddress) {
-          toCoords = await geocodeAddress(toAddress);
-          if (toCoords) toCoords.address = toAddress;
-          lastAddressCoords = toCoords;
-        }
-        if (!toCoords) return resolve(1500);
-        // Calculate distance
-        const dist = calcDistanceKm(fromCoords.lat, fromCoords.lon, toCoords.lat, toCoords.lon);
-        // Fee: ₦500 for <=10km, +₦100 per extra 5km
-        let fee = 500;
-        if (dist > 10) {
-          fee += Math.ceil((dist - 10) / 5) * 100;
-        }
-        resolve(Math.round(fee));
-      });
-    });
+    // New logic: 4000 NGN for Lagos to Ibadan, 4000 NGN for any other destination (flat fee)
+    if (!toAddress) return 4000;
+    const addr = toAddress.toLowerCase();
+    if (addr.includes('ibadan')) {
+      return 4000;
+    }
+    // For any other destination, also 4000
+    return 4000;
   }
 
   function updateTotalAmount() {
