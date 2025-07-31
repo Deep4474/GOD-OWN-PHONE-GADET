@@ -196,32 +196,42 @@ app.delete('/api/auth/user', (req, res) => {
 });
 
 // --- Products ---
-app.get('/api/products', (req, res) => {
-  const products = safeRead(productsFile);
-  // Add calculated fields for each product (no premium logic)
-  const productsWithCalc = products.map(p => {
-    const basePrice = Number(p.price);
-    const discount = p.discountPercent || 0;
-    const pickup = p.pickupPercent || 0;
-    const delivery = p.deliveryPercent || 0;
-    const totalPickup = Math.round(basePrice + (basePrice * pickup / 100));
-    const totalDelivery = Math.round(basePrice + (basePrice * delivery / 100));
-    const totalWithDiscountPickup = Math.round((basePrice - (basePrice * discount / 100)) + ((basePrice - (basePrice * discount / 100)) * pickup / 100));
-    const totalWithDiscountDelivery = Math.round((basePrice - (basePrice * discount / 100)) + ((basePrice - (basePrice * discount / 100)) * delivery / 100));
-    return {
-      ...p,
-      calc: {
-        totalPickup,
-        totalDelivery,
-        totalWithDiscountPickup,
-        totalWithDiscountDelivery,
-        discount,
-        pickup,
-        delivery
-      }
-    };
-  });
-  res.json(productsWithCalc);
+app.get('/api/products', async (req, res) => {
+  try {
+    let products;
+    if (MONGO_URI) {
+      products = await Product.find({}).lean();
+    } else {
+      products = safeRead(productsFile);
+    }
+    // Add calculated fields for each product (no premium logic)
+    const productsWithCalc = products.map(p => {
+      const basePrice = Number(p.price);
+      const discount = p.discountPercent || 0;
+      const pickup = p.pickupPercent || 0;
+      const delivery = p.deliveryPercent || 0;
+      const totalPickup = Math.round(basePrice + (basePrice * pickup / 100));
+      const totalDelivery = Math.round(basePrice + (basePrice * delivery / 100));
+      const totalWithDiscountPickup = Math.round((basePrice - (basePrice * discount / 100)) + ((basePrice - (basePrice * discount / 100)) * pickup / 100));
+      const totalWithDiscountDelivery = Math.round((basePrice - (basePrice * discount / 100)) + ((basePrice - (basePrice * discount / 100)) * delivery / 100));
+      return {
+        ...p,
+        calc: {
+          totalPickup,
+          totalDelivery,
+          totalWithDiscountPickup,
+          totalWithDiscountDelivery,
+          discount,
+          pickup,
+          delivery
+        }
+      };
+    });
+    res.json(productsWithCalc);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch products', details: err.message });
+  }
+});
 // --- Real Map API ---
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 app.post('/api/map', async (req, res) => {
@@ -239,25 +249,44 @@ app.post('/api/map', async (req, res) => {
     return res.status(500).json({ error: 'Failed to fetch map coordinates', details: err.message });
   }
 });
-});
-app.post('/api/products', (req, res) => {
+app.post('/api/products', async (req, res) => {
   const { name, price, category, description, stock, imageUrl } = req.body;
   if (!name || !price || !category || !description || !stock || !imageUrl) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
-  const products = safeRead(productsFile);
-  const newProduct = {
-    id: Date.now(),
-    name,
-    price: Number(price),
-    category,
-    description,
-    stock: Number(stock),
-    images: [imageUrl]
-  };
-  products.push(newProduct);
-  safeWrite(productsFile, products);
-  return res.json({ success: true, product: newProduct });
+  try {
+    let newProduct;
+    if (MONGO_URI) {
+      newProduct = new Product({
+        name,
+        price: Number(price),
+        category,
+        description,
+        stock: Number(stock),
+        images: [imageUrl]
+      });
+      await newProduct.save();
+      // Add id field for frontend compatibility
+      newProduct = newProduct.toObject();
+      newProduct.id = newProduct._id;
+    } else {
+      const products = safeRead(productsFile);
+      newProduct = {
+        id: Date.now(),
+        name,
+        price: Number(price),
+        category,
+        description,
+        stock: Number(stock),
+        images: [imageUrl]
+      };
+      products.push(newProduct);
+      safeWrite(productsFile, products);
+    }
+    return res.json({ success: true, product: newProduct });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to add product', details: err.message });
+  }
 });
 app.patch('/api/products/:id', (req, res) => {
   const { id } = req.params;
