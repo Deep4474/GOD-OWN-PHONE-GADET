@@ -1,13 +1,18 @@
 
 [
-  {"id":1001,"name":"Samsung Galaxy A15 4G","price":145000,"category":"Phones","description":"Samsung Galaxy A15 4G, 6.5'' FHD+ Display, 6GB RAM, 128GB ROM, 5000mAh, Android 14, Blue.","stock":10,"images":["https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-a15-4g-1.jpg"],"referralRequired":10,"discountPercent":0,"pickupPercent":20,"deliveryPercent":60},
-  {"id":1002,"name":"Apple iPhone 15 Pro Max","price":1450000,"category":"Phones","description":"Apple iPhone 15 Pro Max, 256GB, Natural Titanium, 5G, Dual SIM.","stock":8,"images":["https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-max-1.jpg"],"referralRequired":10,"discountPercent":0,"pickupPercent":20,"deliveryPercent":60},
-  {"id":1003,"name":"Xiaomi Redmi Note 13 Pro","price":210000,"category":"Phones","description":"Xiaomi Redmi Note 13 Pro, 256GB, 8GB RAM, 108MP Camera, 5000mAh.","stock":18,"images":["https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-redmi-note13-pro-1.jpg"],"referralRequired":10,"discountPercent":0,"pickupPercent":20,"deliveryPercent":60},
-  {"id":1004,"name":"Oraimo FreePods 4","price":25000,"category":"Accessories","description":"Oraimo FreePods 4 True Wireless Earbuds, ENC, 36H Playtime.","stock":30,"images":["https://cdn-img.oraimo.com/fit-in/600x600/NG/album/oeb-e105d/oeb-e105d-7.jpg"],"referralRequired":10,"discountPercent":0,"pickupPercent":20,"deliveryPercent":60},
-  {"id":1005,"name":"Samsung Galaxy Watch 6","price":180000,"category":"Wearables","description":"Samsung Galaxy Watch 6, 44mm, Bluetooth, Graphite.","stock":8,"images":["https://fdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-watch6-1.jpg"],"referralRequired":10,"discountPercent":0,"pickupPercent":20,"deliveryPercent":60},
-  {"id":1006,"name":"JBL Flip 6 Bluetooth Speaker","price":85000,"category":"Accessories","description":"JBL Flip 6 Portable Waterproof Bluetooth Speaker, 12H Playtime.","stock":9,"images":["https://www.jbl.com/on/demandware.static/-/Sites-masterCatalog_Harman/default/dw7e3e2e7e/1.JBL_Flip6_Hero_Black_1605x1605px.png"],"referralRequired":10,"discountPercent":0,"pickupPercent":20,"deliveryPercent":60},
-  {"id":1007,"name":"Sony PlayStation 5 Console","price":650000,"category":"Gaming","description":"Sony PlayStation 5, Ultra HD Blu-ray, 825GB SSD, DualSense Wireless Controller.","stock":5,"images":["https://m.media-amazon.com/images/I/619BkvKW35L._AC_SL1500_.jpg"],"referralRequired":10,"discountPercent":0,"pickupPercent":20,"deliveryPercent":60},
-  {"id":1008,"name":"LG 55'' 4K UHD Smart TV","price":420000,"category":"Electronics","description":"LG 55-Inch 4K Ultra HD Smart LED TV, webOS, ThinQ AI, Magic Remote.","stock":3,"images":["https://www.lg.com/africa/images/tvs/md07552999/gallery/medium01.jpg"],"referralRequired":10,"discountPercent":0,"pickupPercent":20,"deliveryPercent":60},
-  {"id":1009,"name":"Anker PowerCore 20000mAh Power Bank","price":32000,"category":"Accessories","description":"Anker PowerCore Essential 20000mAh Portable Charger, High-Speed Charging, Black.","stock":20,"images":["https://static.anker.com/2020/9/pc/1617267080_anker-powercore-essential-20000.jpg"],"referralRequired":10,"discountPercent":0,"pickupPercent":20,"deliveryPercent":60},
-  {"id":1010,"name":"Canon EOS M50 Mark II Camera","price":420000,"category":"Cameras","description":"Canon EOS M50 Mark II Mirrorless Camera, 15-45mm Lens, 24.1MP, 4K Video.","stock":6,"images":["https://www.canon-europe.com/media/eos-m50-mark-ii-ef-m-15-45mm-f3-5-6-3-is-stm-kit-black_tcm13-1988572.png"],"referralRequired":10,"discountPercent":0,"pickupPercent":20,"deliveryPercent":60}
+  {
+    "id": 2001,
+    "name": "HP Pavilion 15 Laptop",
+    "price": 480000,
+    "category": "Laptops",
+    "description": "HP Pavilion 15, Intel Core i5, 8GB RAM, 512GB SSD, 15.6'' FHD.",
+    "stock": 7,
+    "images": [
+      "https://ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c06924167.png"
+    ],
+    "referralRequired": 10,
+    "discountPercent": 0,
+    "pickupPercent": 20,
+    "deliveryPercent": 60
+  }
 ]
