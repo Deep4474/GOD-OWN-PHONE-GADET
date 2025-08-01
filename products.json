@@ -36,8 +36,7 @@
     "category": "Smartphones",
     "description": "Samsung Galaxy S24 Ultra, 12GB RAM, 512GB, Phantom Black.",
     "stock": 9,
-    "images": [
-      "https://images.samsung.com/is/image/samsung/p6pim/levant/2401/gallery/levant-galaxy-s24-ultra-sm-s928bzkgmea-thumb-539678237?"
+    "images": ["phone13.jpg"
     ],
     "referralRequired": 12,
     "discountPercent": 3,
