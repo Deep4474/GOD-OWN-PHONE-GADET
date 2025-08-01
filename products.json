@@ -36,7 +36,8 @@
     "category": "Smartphones",
     "description": "Samsung Galaxy S24 Ultra, 12GB RAM, 512GB, Phantom Black.",
     "stock": 9,
-    "images": ["phone13.jpg"
+    "images": [
+      "https://images.samsung.com/is/image/samsung/p6pim/levant/galaxy-s24-ultra-sm-s928bzkgmea-538377601?wid=720&hei=720&fmt=png-alpha"
     ],
     "referralRequired": 12,
     "discountPercent": 3,
@@ -81,7 +82,7 @@
     "description": "Apple Watch Series 9 GPS, 45mm Midnight Aluminium Case.",
     "stock": 8,
     "images": [
-      "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/MQKX3_VW_34FR+watch-45-alum-midnight-cell-9s_VW_34FR_WF_CO_GEO_EMEA?wid=2000&hei=2000&fmt=jpeg&qlt=95&.v=1693186746752"
+      "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/watch-s9-alum-midnight-cell-45mm_VW_34FR_WF_CO_GEO_EMEA?wid=2000&hei=2000&fmt=jpeg&qlt=95&.v=1693186746752"
     ],
     "referralRequired": 8,
     "discountPercent": 2,
@@ -96,7 +97,7 @@
     "description": "Samsung Galaxy Tab S9+, 12.4'' AMOLED, 12GB RAM, 256GB, Graphite.",
     "stock": 6,
     "images": [
-      "https://images.samsung.com/is/image/samsung/p6pim/levant/galaxy-tab-s9-plus-wifi-sm-x810nzaamea-thumb-537964964?"
+      "https://images.samsung.com/is/image/samsung/p6pim/levant/galaxy-tab-s9-plus-wifi-sm-x810nzaamea-537964964?wid=720&hei=720&fmt=png-alpha"
     ],
     "referralRequired": 10,
     "discountPercent": 4,
