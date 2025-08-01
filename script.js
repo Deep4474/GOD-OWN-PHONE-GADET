@@ -44,6 +44,13 @@ function renderProducts(products) {
 
 // Show Buy Now modal (basic implementation)
 function openBuyNowModal(product) {
+    // Set up close/cancel button for the order modal
+    const closeBtn = document.getElementById('close-order-modal');
+    if (closeBtn && modal) {
+        closeBtn.onclick = function() {
+            modal.classList.add('hidden');
+        };
+    }
     // Try to auto-fill address from logged-in user
     let user = null;
     try {
