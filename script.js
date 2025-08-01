@@ -2,8 +2,8 @@
 // GOD'S OWN PHONE GADGET - Main Site Script
 // This script fetches products from the backend and displays them on the main site.
 
-// Set this to your backend URL or leave as "" for same domain
-const API_BASE_URL = ""; // e.g. "https://phone-2cv4.onrender.com"
+// Set this to your backend URL for production deployment
+const API_BASE_URL = "https://phone-2cv4.onrender.com";
 
 // Helper to fetch JSON from backend
 async function apiGet(endpoint) {
