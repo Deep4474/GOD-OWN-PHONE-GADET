@@ -47,15 +47,45 @@ function openBuyNowModal(product) {
     const modal = document.getElementById('order-modal');
     const nameSpan = document.getElementById('order-product-name');
     const qtyInput = document.getElementById('order-qty');
+    const totalAmount = document.getElementById('order-total-amount');
+    const locationInput = document.getElementById('order-location');
+    const pickupSection = document.getElementById('pickup-section');
+    const deliverySection = document.getElementById('delivery-section');
+    const deliveryRadios = document.querySelectorAll('input[name="delivery-method"]');
+
+    // Helper: calculate delivery fee by location
+    function getDeliveryFee(location) {
+        if (!location) return 2000; // default
+        const loc = location.trim().toLowerCase();
+        if (loc.includes('lagos')) return 2000;
+        if (loc.includes('abuja')) return 3500;
+        if (loc.includes('port harcourt') || loc.includes('ph')) return 4000;
+        if (loc.includes('ibadan')) return 3000;
+        return 5000; // fallback for other locations
+    }
+
+    // Helper: update total
+    function updateTotal() {
+        const qty = parseInt(qtyInput.value) || 1;
+        const method = document.querySelector('input[name="delivery-method"]:checked').value;
+        let deliveryFee = 0;
+        if (method === 'Deliver') {
+            deliveryFee = getDeliveryFee(locationInput ? locationInput.value : '');
+        }
+        const total = (product.price * qty) + deliveryFee;
+        if (totalAmount) {
+            totalAmount.textContent = `₦${total.toLocaleString()}${deliveryFee ? ` (includes ₦${deliveryFee.toLocaleString()} delivery)` : ''}`;
+        }
+    }
+
     if (modal && nameSpan) {
         nameSpan.textContent = product.name;
         modal.classList.remove('hidden');
         qtyInput.value = 1;
+        updateTotal();
     }
+
     // Set up delivery/pickup toggle
-    const pickupSection = document.getElementById('pickup-section');
-    const deliverySection = document.getElementById('delivery-section');
-    const deliveryRadios = document.querySelectorAll('input[name="delivery-method"]');
     deliveryRadios.forEach(radio => {
         radio.addEventListener('change', function() {
             if (this.value === 'Deliver') {
@@ -65,8 +95,10 @@ function openBuyNowModal(product) {
                 deliverySection.style.display = 'none';
                 pickupSection.style.display = '';
             }
+            updateTotal();
         });
     });
+
     // Default state
     if (document.querySelector('input[name="delivery-method"]:checked').value === 'Deliver') {
         deliverySection.style.display = '';
@@ -75,6 +107,10 @@ function openBuyNowModal(product) {
         deliverySection.style.display = 'none';
         pickupSection.style.display = '';
     }
+
+    // Listen for changes to quantity and location
+    if (qtyInput) qtyInput.addEventListener('input', updateTotal);
+    if (locationInput) locationInput.addEventListener('input', updateTotal);
     // Optionally set product id/price for order form here
 }
 

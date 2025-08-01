@@ -56,6 +56,7 @@
       <h3>Buy Now: <span id="order-product-name"></span></h3>
       <form id="order-form">
         <label>Quantity:<input type="number" id="order-qty" min="1" value="1" required></label><br>
+        <div style="margin:8px 0;"><b>Total:</b> <span id="order-total-amount">₦0</span></div>
         <label>Delivery Method:<br>
           <input type="radio" name="delivery-method" value="Pick Up" checked> Pick Up
           <input type="radio" name="delivery-method" value="Deliver"> Deliver
@@ -70,9 +71,10 @@
         <div id="delivery-section" style="display:none;">
           <div class="info-box">
             <b>Delivery Address:</b><br>
-            <input type="text" id="order-address" placeholder="Enter delivery address">
+            <input type="text" id="order-location" placeholder="Enter your city or area for delivery fee" autocomplete="address-level2">
+            <input type="text" id="order-address" placeholder="Enter full delivery address">
             <div id="map-container"></div>
-            <span class="info-note">Delivery fee is calculated based on your address.</span>
+            <span class="info-note">Delivery fee is calculated based on your city or area above.</span>
           </div>
         </div>
         <label>Phone:<input type="text" id="order-phone" required></label><br>
