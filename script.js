@@ -10,7 +10,6 @@ async function apiGet(endpoint) {
     const res = await fetch(API_BASE_URL + endpoint);
     if (!res.ok) throw new Error('Failed to fetch ' + endpoint);
     return res.json();
-}
 
 // Render products to the page
 function renderProducts(products) {
@@ -46,11 +45,37 @@ function renderProducts(products) {
 function openBuyNowModal(product) {
     const modal = document.getElementById('order-modal');
     const nameSpan = document.getElementById('order-product-name');
+    const qtyInput = document.getElementById('order-qty');
     if (modal && nameSpan) {
         nameSpan.textContent = product.name;
         modal.classList.remove('hidden');
+        qtyInput.value = 1;
+    }
+    // Set up delivery/pickup toggle
+    const pickupSection = document.getElementById('pickup-section');
+    const deliverySection = document.getElementById('delivery-section');
+    const deliveryRadios = document.querySelectorAll('input[name="delivery-method"]');
+    deliveryRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'Deliver') {
+                deliverySection.style.display = '';
+                pickupSection.style.display = 'none';
+            } else {
+                deliverySection.style.display = 'none';
+                pickupSection.style.display = '';
+            }
+        });
+    });
+    // Default state
+    if (document.querySelector('input[name="delivery-method"]:checked').value === 'Deliver') {
+        deliverySection.style.display = '';
+        pickupSection.style.display = 'none';
+    } else {
+        deliverySection.style.display = 'none';
+        pickupSection.style.display = '';
     }
     // Optionally set product id/price for order form here
+}
 }
 
 // Load products from backend and render
