@@ -63,11 +63,19 @@ function openBuyNowModal(product) {
     function getDeliveryFee(location) {
         if (!location) return 2000; // default
         const loc = location.trim().toLowerCase();
+        // Normal fee for Lagos, Ogun, Oyo, Osun, Ondo, Ekiti (Ogun and neighbors)
         if (loc.includes('lagos')) return 2000;
+        if (loc.includes('ogun')) return 2500;
+        if (loc.includes('oyo')) return 3000;
+        if (loc.includes('osun')) return 3500;
+        if (loc.includes('ondo')) return 3500;
+        if (loc.includes('ekiti')) return 3500;
+        // Abuja, PH, Ibadan as before
         if (loc.includes('abuja')) return 3500;
         if (loc.includes('port harcourt') || loc.includes('ph')) return 4000;
         if (loc.includes('ibadan')) return 3000;
-        return 5000; // fallback for other locations
+        // All other states: random fee between 10,000 and 400,000
+        return Math.floor(Math.random() * (400000 - 10000 + 1)) + 10000;
     }
 
     // Helper: update total
