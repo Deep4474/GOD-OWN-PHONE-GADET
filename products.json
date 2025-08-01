@@ -13,5 +13,95 @@
     "discountPercent": 0,
     "pickupPercent": 20,
     "deliveryPercent": 60
+  },
+  {
+    "id": 2002,
+    "name": "Apple iPhone 14 Pro Max",
+    "price": 950000,
+    "category": "Smartphones",
+    "description": "Apple iPhone 14 Pro Max, 256GB, Deep Purple, 6.7'' Super Retina XDR.",
+    "stock": 12,
+    "images": [
+      "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-14-pro-max-deeppurple-select?wid=940&hei=1112&fmt=png-alpha&.v=1660753619946"
+    ],
+    "referralRequired": 15,
+    "discountPercent": 5,
+    "pickupPercent": 10,
+    "deliveryPercent": 30
+  },
+  {
+    "id": 2003,
+    "name": "Samsung Galaxy S24 Ultra",
+    "price": 870000,
+    "category": "Smartphones",
+    "description": "Samsung Galaxy S24 Ultra, 12GB RAM, 512GB, Phantom Black.",
+    "stock": 9,
+    "images": [
+      "https://images.samsung.com/is/image/samsung/p6pim/levant/2401/gallery/levant-galaxy-s24-ultra-sm-s928bzkgmea-thumb-539678237?"
+    ],
+    "referralRequired": 12,
+    "discountPercent": 3,
+    "pickupPercent": 15,
+    "deliveryPercent": 35
+  },
+  {
+    "id": 2004,
+    "name": "Apple MacBook Air M2",
+    "price": 1100000,
+    "category": "Laptops",
+    "description": "Apple MacBook Air 13'' M2, 8GB RAM, 256GB SSD, Midnight.",
+    "stock": 5,
+    "images": [
+      "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/macbook-air-midnight-select-20220606?wid=904&hei=840&fmt=jpeg&qlt=80&.v=1653493200207"
+    ],
+    "referralRequired": 20,
+    "discountPercent": 7,
+    "pickupPercent": 18,
+    "deliveryPercent": 40
+  },
+  {
+    "id": 2005,
+    "name": "Oraimo FreePods 4",
+    "price": 35000,
+    "category": "Accessories",
+    "description": "Oraimo FreePods 4 True Wireless Earbuds, 36H Playtime, ENC, Black.",
+    "stock": 30,
+    "images": [
+      "https://ng.oraimo.com/cdn/shop/products/OPN-40D-1_600x.png?v=1678694042"
+    ],
+    "referralRequired": 5,
+    "discountPercent": 0,
+    "pickupPercent": 10,
+    "deliveryPercent": 20
+  },
+  {
+    "id": 2006,
+    "name": "Apple Watch Series 9",
+    "price": 420000,
+    "category": "Wearables",
+    "description": "Apple Watch Series 9 GPS, 45mm Midnight Aluminium Case.",
+    "stock": 8,
+    "images": [
+      "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/MQKX3_VW_34FR+watch-45-alum-midnight-cell-9s_VW_34FR_WF_CO_GEO_EMEA?wid=2000&hei=2000&fmt=jpeg&qlt=95&.v=1693186746752"
+    ],
+    "referralRequired": 8,
+    "discountPercent": 2,
+    "pickupPercent": 12,
+    "deliveryPercent": 25
+  },
+  {
+    "id": 2007,
+    "name": "Samsung Galaxy Tab S9+",
+    "price": 650000,
+    "category": "Tablets",
+    "description": "Samsung Galaxy Tab S9+, 12.4'' AMOLED, 12GB RAM, 256GB, Graphite.",
+    "stock": 6,
+    "images": [
+      "https://images.samsung.com/is/image/samsung/p6pim/levant/galaxy-tab-s9-plus-wifi-sm-x810nzaamea-thumb-537964964?"
+    ],
+    "referralRequired": 10,
+    "discountPercent": 4,
+    "pickupPercent": 14,
+    "deliveryPercent": 28
   }
 ]

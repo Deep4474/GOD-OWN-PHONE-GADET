@@ -27,8 +27,30 @@ function renderProducts(products) {
             <p>${prod.description || ''}</p>
             <div><b>₦${prod.price ? prod.price.toLocaleString() : 'N/A'}</b></div>
             <div>In Stock: ${prod.stock || 0}</div>
+            <button class="buy-now-btn" data-product-id="${prod.id}">Buy Now</button>
         </div>
     `).join('');
+
+    // Add event listeners for Buy Now buttons
+    const buyBtns = productList.querySelectorAll('.buy-now-btn');
+    buyBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const prodId = this.getAttribute('data-product-id');
+            const product = products.find(p => p.id == prodId);
+            if (product) openBuyNowModal(product);
+        });
+    });
+}
+
+// Show Buy Now modal (basic implementation)
+function openBuyNowModal(product) {
+    const modal = document.getElementById('order-modal');
+    const nameSpan = document.getElementById('order-product-name');
+    if (modal && nameSpan) {
+        nameSpan.textContent = product.name;
+        modal.classList.remove('hidden');
+    }
+    // Optionally set product id/price for order form here
 }
 
 // Load products from backend and render
