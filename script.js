@@ -44,20 +44,15 @@ function renderProducts(products) {
 
 // Show Buy Now modal (basic implementation)
 function openBuyNowModal(product) {
+    const modal = document.getElementById('order-modal');
     // Set up close/cancel button for the order modal
     const closeBtn = document.getElementById('close-order-modal');
-    if (closeBtn && modal) {
-        closeBtn.onclick = function() {
-            modal.classList.add('hidden');
-        };
-    }
     // Try to auto-fill address from logged-in user
     let user = null;
     try {
         user = JSON.parse(localStorage.getItem('user'));
     } catch {}
 
-    const modal = document.getElementById('order-modal');
     const nameSpan = document.getElementById('order-product-name');
     const qtyInput = document.getElementById('order-qty');
     const totalAmount = document.getElementById('order-total-amount');
@@ -65,6 +60,12 @@ function openBuyNowModal(product) {
     const pickupSection = document.getElementById('pickup-section');
     const deliverySection = document.getElementById('delivery-section');
     const deliveryRadios = document.querySelectorAll('input[name="delivery-method"]');
+
+    if (closeBtn && modal) {
+        closeBtn.onclick = function() {
+            modal.classList.add('hidden');
+        };
+    }
 
     // Helper: calculate delivery fee by location
     function getDeliveryFee(location) {
