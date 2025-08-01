@@ -44,6 +44,12 @@ function renderProducts(products) {
 
 // Show Buy Now modal (basic implementation)
 function openBuyNowModal(product) {
+    // Try to auto-fill address from logged-in user
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('user'));
+    } catch {}
+
     const modal = document.getElementById('order-modal');
     const nameSpan = document.getElementById('order-product-name');
     const qtyInput = document.getElementById('order-qty');
@@ -82,6 +88,20 @@ function openBuyNowModal(product) {
         nameSpan.textContent = product.name;
         modal.classList.remove('hidden');
         qtyInput.value = 1;
+        // Auto-fill address fields if user is logged in
+        if (user) {
+            if (locationInput && user.address) {
+                // Try to extract city/area from address
+                let city = '';
+                if (user.state) city = user.state;
+                if (user.lga) city = user.lga + (city ? ', ' + city : '');
+                locationInput.value = city || '';
+            }
+            const fullAddressInput = document.getElementById('order-address');
+            if (fullAddressInput && user.address) {
+                fullAddressInput.value = user.address;
+            }
+        }
         updateTotal();
     }
 
