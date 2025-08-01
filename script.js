@@ -10,6 +10,7 @@ async function apiGet(endpoint) {
     const res = await fetch(API_BASE_URL + endpoint);
     if (!res.ok) throw new Error('Failed to fetch ' + endpoint);
     return res.json();
+}
 
 // Render products to the page
 function renderProducts(products) {
@@ -75,7 +76,6 @@ function openBuyNowModal(product) {
         pickupSection.style.display = '';
     }
     // Optionally set product id/price for order form here
-}
 }
 
 // Load products from backend and render
