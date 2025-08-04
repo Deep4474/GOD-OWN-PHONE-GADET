@@ -1,4 +1,3 @@
-// ...existing code...
 require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
@@ -11,6 +10,11 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
 const twilio = require('twilio');
+// Supabase client
+const { createClient } = require('@supabase/supabase-js');
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const app = express();
 const PORT = process.env.PORT || 4003;
@@ -219,12 +223,6 @@ app.delete('/api/auth/user', (req, res) => {
 });
 
 // --- Products ---
-
-// Supabase setup
-const { createClient } = require('@supabase/supabase-js');
-const SUPABASE_URL = 'https://jlwxkykznyjmstpjcgks.supabase.co';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ';
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // GET products from Google Sheet
 app.get('/api/products', async (req, res) => {
@@ -499,161 +497,10 @@ app.get('/api/orders', async (req, res) => {
     .from('orders')
     .select('*')
     .order('date', { ascending: false });
-  if (error) return res.status(500).json({ error: 'Failed to fetch orders', details: error.message });
-  if (email) {
-    return res.json((orders || []).filter(o => o.email === email));
+  if (error) {
+    return res.status(500).json({ error: 'Failed to fetch orders', details: error.message });
   }
-  res.json(orders || []);
+  // If email is provided, filter orders by email
+  const filteredOrders = email ? (orders || []).filter(o => o.email === email) : orders;
+  res.json(filteredOrders);
 });
-
-// --- Users (admin) ---
-app.get('/api/users', (req, res) => {
-  supabase
-    .from('users')
-    .select('name, email, verified')
-    .then(({ data: users, error }) => {
-      if (error) return res.status(500).json({ error: 'Failed to fetch users', details: error.message });
-      res.json(users || []);
-    });
-});
-
-// --- Updates ---
-app.post('/api/updates', (req, res) => {
-  const { message } = req.body;
-  if (!message) return res.status(400).json({ error: 'Message required' });
-  const update = { id: Date.now(), message, date: new Date().toISOString() };
-  supabase
-    .from('updates')
-    .insert([update])
-    .then(({ error }) => {
-      if (error) return res.status(500).json({ error: 'Failed to add update', details: error.message });
-      res.json({ success: true, update });
-    });
-});
-app.get('/api/updates', (req, res) => {
-  supabase
-    .from('updates')
-    .select('*')
-    .order('date', { ascending: false })
-    .then(({ data: updates, error }) => {
-      if (error) return res.status(500).json({ error: 'Failed to fetch updates', details: error.message });
-      res.json(updates || []);
-    });
-});
-
-// --- Notifications ---
-app.get('/api/notifications', (req, res) => {
-  const { email } = req.query;
-  if (!email) return res.status(400).json({ error: 'Email required' });
-  supabase
-    .from('notifications')
-    .select('*')
-    .order('date', { ascending: false })
-    .then(({ data: notifs, error }) => {
-      if (error) return res.status(500).json({ error: 'Failed to fetch notifications', details: error.message });
-      res.json((notifs || []).filter(n => n.email === email));
-    });
-});
-app.delete('/api/notifications', (req, res) => {
-  supabase
-    .from('notifications')
-    .delete()
-    .neq('id', 0) // delete all except id 0 (if exists)
-    .then(({ error }) => {
-      if (error) return res.status(500).json({ error: 'Failed to delete notifications', details: error.message });
-      res.json({ success: true, message: 'All notifications deleted.' });
-    });
-});
-
-// --- SMS Endpoints ---
-// --- SMS Sending Endpoint (Twilio) ---
-// Example usage (POST JSON to /api/sms/send):
-// {
-//   "recipients": "all" | "custom" | undefined,
-//   "customNumbers": "+2348012345678, +2348765432109",
-//   "message": "Hello from GOD'S OWN PHONE GADGET!"
-// }
-app.post('/api/sms/send', async (req, res) => {
-  let { recipients, customNumbers, message, to } = req.body;
-  message = message || "Test message from GOD'S OWN PHONE GADGET";
-  let numbers = [];
-
-  if (recipients === 'all') {
-    // Send to all users (collect all phone numbers from users.json)
-    try {
-      const users = safeRead(usersFile);
-      numbers = users.map(u => u.phone).filter(Boolean);
-      if (!numbers.length) return res.status(400).json({ success: false, error: 'No user phone numbers found.' });
-    } catch (err) {
-      return res.status(500).json({ success: false, error: 'Failed to read users.' });
-    }
-  } else if (recipients === 'custom' && customNumbers) {
-    // Send to custom numbers (comma-separated)
-    numbers = customNumbers.split(',').map(n => n.trim()).filter(Boolean);
-    if (!numbers.length) return res.status(400).json({ success: false, error: 'No valid custom numbers provided.' });
-  } else if (to) {
-    numbers = [to];
-  } else {
-    return res.status(400).json({ success: false, error: 'No recipients specified.' });
-  }
-
-  try {
-    const results = [];
-    for (const number of numbers) {
-      try {
-        const sms = await twilioClient.messages.create({
-          body: message,
-          from: fromNumber, // Must be a Twilio-verified number
-          to: number
-        });
-        const smsRecord = {
-          to: number,
-          sid: sms.sid,
-          status: 'sent',
-          message,
-          date: new Date().toISOString()
-        };
-        results.push(smsRecord);
-        // Save to Supabase 'sms_history' table
-        await supabase.from('sms_history').insert([smsRecord]);
-      } catch (error) {
-      }
-    }
-    res.json({ success: true, results });
-  } catch (error) {
-  }
-  res.status(500).json({ success: false, error: error.message });
-});
-// --- End SMS Sending Endpoint ---
-
-// --- SMS History Endpoint ---
-app.get('/api/sms/history', (req, res) => {
-  supabase
-    .from('sms_history')
-    .select('*')
-    .order('date', { ascending: false })
-    .then(({ data, error }) => {
-      if (error) {
-        return res.status(500).json({ error: 'Failed to fetch SMS history', details: error.message });
-      }
-      res.json(data || []);
-    });
-});
-// --- End SMS History Endpoint ---
-
-// --- Serve static files from the root directory
-app.use(express.static(__dirname));
-
-// Serve index.html for all non-API routes
-app.get('*', (req, res) => {
-  const indexPath = path.join(__dirname, 'index.html');
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    res.status(404).send("Frontend not found. Please add an index.html file to the project root.");
-  }
-});
-
-// --- Start server ---
-app.listen(PORT, () => {
-}); 
