@@ -202,6 +202,7 @@ const fetch = require('node-fetch');
 // GET products from Google Sheet
 app.get('/api/products', async (req, res) => {
   try {
+
     const response = await fetch(SHEETBEST_URL);
     let products = await response.json();
     // Add calculated fields for each product
@@ -596,6 +597,7 @@ app.post('/api/sms/send', async (req, res) => {
 
   try {
     const results = [];
+    let smsHistory = safeRead(smsHistoryFile);
     for (const number of numbers) {
       try {
         const sms = await twilioClient.messages.create({
@@ -603,11 +605,20 @@ app.post('/api/sms/send', async (req, res) => {
           from: fromNumber, // Must be a Twilio-verified number
           to: number
         });
-        results.push({ to: number, sid: sms.sid, status: 'sent' });
+        const smsRecord = {
+          to: number,
+          sid: sms.sid,
+          status: 'sent',
+          message,
+          date: new Date().toISOString()
+        };
+        results.push(smsRecord);
+        smsHistory.unshift(smsRecord);
       } catch (error) {
       }
     }
-    // Optionally, save to smsHistoryFile here
+    // Save SMS history
+    safeWrite(smsHistoryFile, smsHistory);
     res.json({ success: true, results });
   } catch (error) {
   }
