@@ -121,13 +121,18 @@ app.post('/api/auth/register', async (req, res) => {
   if (!strongPassword.test(password)) {
     return res.status(400).json({ error: 'Password must be at least 8 characters and include a number, an uppercase letter, and a symbol.' });
   }
-  let users = safeRead(usersFile);
-  if (users.find(u => u.email === email)) return res.status(400).json({ error: 'Email already registered' });
+  // Check if user exists in Supabase
+  const { data: existingUsers, error: userError } = await supabase
+    .from('users')
+    .select('email')
+    .eq('email', email);
+  if (userError) return res.status(500).json({ error: 'Failed to check user', details: userError.message });
+  if (existingUsers && existingUsers.length > 0) return res.status(400).json({ error: 'Email already registered' });
   const hashed = await bcrypt.hash(password, 10);
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   const user = { name, email, password: hashed, verified: false, code, state, lga, address };
-  users.push(user);
-  safeWrite(usersFile, users);
+  const { error: insertError } = await supabase.from('users').insert([user]);
+  if (insertError) return res.status(500).json({ error: 'Failed to register user', details: insertError.message });
   try {
     await transporter.sendMail({
       from: `GOD'S OWN PHONE GADGET <${process.env.EMAIL_USER}>`,
@@ -144,8 +149,12 @@ app.post('/api/auth/register', async (req, res) => {
 
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
-  let users = safeRead(usersFile);
-  const user = users.find(u => u.email === email);
+  const { data: users, error: userError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('email', email);
+  if (userError) return res.status(500).json({ error: 'Failed to fetch user', details: userError.message });
+  const user = users && users[0];
   if (!user) return res.status(401).json({ error: 'Invalid email or password' });
   if (!user.verified) return res.status(403).json({ error: 'Please verify your email.' });
   const match = await bcrypt.compare(password, user.password);
@@ -156,15 +165,23 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.post('/api/auth/verify', (req, res) => {
   const { email, code } = req.body;
-  let users = safeRead(usersFile);
-  const user = users.find(u => u.email === email);
-  if (!user) return res.status(400).json({ error: 'User not found' });
-  if (user.verified) return res.json({ success: true, message: 'Already verified' });
-  if (user.code !== code) return res.status(400).json({ error: 'Invalid code' });
-  user.verified = true;
-  user.code = undefined;
-  safeWrite(usersFile, users);
-  res.json({ success: true, message: 'Email verified' });
+  supabase
+    .from('users')
+    .select('*')
+    .eq('email', email)
+    .then(async ({ data: users, error }) => {
+      if (error) return res.status(500).json({ error: 'Failed to fetch user', details: error.message });
+      const user = users && users[0];
+      if (!user) return res.status(400).json({ error: 'User not found' });
+      if (user.verified) return res.json({ success: true, message: 'Already verified' });
+      if (user.code !== code) return res.status(400).json({ error: 'Invalid code' });
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ verified: true, code: null })
+        .eq('email', email);
+      if (updateError) return res.status(500).json({ error: 'Failed to update user', details: updateError.message });
+      res.json({ success: true, message: 'Email verified' });
+    });
 });
 
 app.get('/api/auth/me', (req, res) => {
@@ -173,10 +190,16 @@ app.get('/api/auth/me', (req, res) => {
   const token = auth.split(' ')[1];
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    let users = safeRead(usersFile);
-    const user = users.find(u => u.email === decoded.email);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json({ name: user.name, email: user.email, verified: user.verified });
+    supabase
+      .from('users')
+      .select('name, email, verified')
+      .eq('email', decoded.email)
+      .then(({ data: users, error }) => {
+        if (error) return res.status(404).json({ error: 'User not found' });
+        const user = users && users[0];
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        res.json(user);
+      });
   } catch (err) {
     return res.status(401).json({ error: 'Invalid token' });
   }
@@ -185,28 +208,36 @@ app.get('/api/auth/me', (req, res) => {
 app.delete('/api/auth/user', (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
-  let users = safeRead(usersFile);
-  const initialLength = users.length;
-  users = users.filter(u => u.email !== email);
-  if (users.length === initialLength) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-  safeWrite(usersFile, users);
-  res.json({ success: true, message: `User ${email} deleted.` });
+  supabase
+    .from('users')
+    .delete()
+    .eq('email', email)
+    .then(({ error }) => {
+      if (error) return res.status(404).json({ error: 'User not found' });
+      res.json({ success: true, message: `User ${email} deleted.` });
+    });
 });
 
 // --- Products ---
-const SHEETBEST_URL = 'https://api.sheetbest.com/sheets/da756097-1974-49b4-bee3-34954fa429da';
-const fetch = require('node-fetch');
+
+// Supabase setup
+const { createClient } = require('@supabase/supabase-js');
+const SUPABASE_URL = 'https://jlwxkykznyjmstpjcgks.supabase.co';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // GET products from Google Sheet
 app.get('/api/products', async (req, res) => {
   try {
-
-    const response = await fetch(SHEETBEST_URL);
-    let products = await response.json();
+    // Fetch products from Supabase 'products' table
+    const { data: products, error } = await supabase
+      .from('products')
+      .select('*');
+    if (error) {
+      return res.status(500).json({ error: 'Failed to fetch products', details: error.message });
+    }
     // Add calculated fields for each product
-    products = products.map(p => {
+    const productsWithCalc = (products || []).map(p => {
       const basePrice = Number(p.price);
       const discount = p.discountPercent || 0;
       const pickup = p.pickupPercent || 0;
@@ -228,7 +259,7 @@ app.get('/api/products', async (req, res) => {
         }
       };
     });
-    res.json(products);
+    res.json(productsWithCalc);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch products', details: err.message });
   }
@@ -252,17 +283,9 @@ app.post('/api/map', async (req, res) => {
 app.post('/api/products', async (req, res) => {
   const product = req.body;
   // You may want to validate required fields here
-  try {
-    const response = await fetch(SHEETBEST_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(product)
-    });
-    const result = await response.json();
-    res.json({ success: true, product: result });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to add product', details: err.message });
-  }
+  const { data, error } = await supabase.from('products').insert([product]);
+  if (error) return res.status(500).json({ error: 'Failed to add product', details: error.message });
+  res.json({ success: true, product: data && data[0] });
 });
 app.patch('/api/products/:id', (req, res) => {
   // SheetBest does not support PATCH directly. You must update the sheet manually or via Google Sheets API.
@@ -283,8 +306,13 @@ app.post('/api/orders', async (req, res) => {
     return res.status(400).json({ error: 'Address required for delivery' });
   }
   // Calculate total and discount for the order
-  const products = safeRead(productsFile);
-  const product = products.find(p => String(p.id) === String(productId));
+  // Fetch product from Supabase
+  const { data: products, error: prodError } = await supabase
+    .from('products')
+    .select('*')
+    .eq('id', productId);
+  if (prodError) return res.status(500).json({ error: 'Failed to fetch product', details: prodError.message });
+  const product = products && products[0];
   if (!product) return res.status(404).json({ error: 'Product not found' });
   const basePrice = Number(product.price) * Number(quantity);
   const discount = product.discountPercent || 0;
@@ -296,61 +324,8 @@ app.post('/api/orders', async (req, res) => {
   let totalWithDiscountPickup = Math.round((basePrice - (basePrice * discount / 100)) + ((basePrice - (basePrice * discount / 100)) * pickup / 100));
   let totalWithDiscountDelivery = Math.round((basePrice - (basePrice * discount / 100)) + ((basePrice - (basePrice * discount / 100)) * delivery / 100));
   // Save order as before
-  if (mongoose.connection.readyState === 1) {
-    const newOrder = new Order({
-      productId, quantity, address: deliveryMethod === 'Deliver' ? address : '', phone, email, deliveryMethod, paymentMethod,
-      totalPickup, totalDelivery, totalWithDiscountPickup, totalWithDiscountDelivery
-    });
-    await newOrder.save();
-    // Add notification and send email as before
-    const notifs = safeRead(notificationsFile);
-    notifs.unshift({ id: Date.now(), email, message: 'Your order has been placed successfully!', date: new Date().toISOString() });
-    safeWrite(notificationsFile, notifs);
-    try {
-      await transporter.sendMail({
-        from: `GOD'S OWN PHONE GADGET <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: 'Order Confirmation',
-        text: `Thank you for your order!\n\nOrder Details:\nProduct: ${product.name}\nQuantity: ${quantity}\nDelivery Method: ${deliveryMethod}\nPayment Method: ${paymentMethod}\nAddress: ${address || 'N/A'}\nPhone: ${phone}\nStatus: pending\nDate: ${new Date().toLocaleString()}\nTotal: ${deliveryMethod === 'Deliver' ? totalDelivery : totalPickup}\n\nWe will update you as your order is processed.`,
-        html: `<h3>Thank you for your order!</h3><p><b>Order Details:</b></p><ul><li><b>Product:</b> ${product.name}</li><li><b>Quantity:</b> ${quantity}</li><li><b>Delivery Method:</b> ${deliveryMethod}</li><li><b>Payment Method:</b> ${paymentMethod}</li><li><b>Address:</b> ${address || 'N/A'}</li><li><b>Phone:</b> ${phone}</li><li><b>Status:</b> pending</li><li><b>Date:</b> ${new Date().toLocaleString()}</li><li><b>Total:</b> ${deliveryMethod === 'Deliver' ? totalDelivery : totalPickup}</li></ul><p>We will update you as your order is processed.</p>`
-      });
-      let smsErrors = [];
-      // Send SMS confirmation to user
-      if (phone) {
-        try {
-          await twilioClient.messages.create({
-            body: `GOD'S OWN PHONE GADGET: Your order for ${quantity} x ${product.name} is received. Status: pending. Total: ${deliveryMethod === 'Deliver' ? totalDelivery : totalPickup}. Thank you!`,
-            from: fromNumber,
-            to: phone
-          });
-        } catch (smsErr) {
-          smsErrors.push({ to: phone, error: smsErr.message });
-        }
-      }
-      // Send SMS notification to admins
-      for (const adminPhone of ADMIN_PHONES) {
-        try {
-          await twilioClient.messages.create({
-            body: `ADMIN ALERT: New order from ${email} (${phone}). Product: ${product.name}, Qty: ${quantity}, Delivery: ${deliveryMethod}, Payment: ${paymentMethod}. Total: ${deliveryMethod === 'Deliver' ? totalDelivery : totalPickup}.`,
-            from: fromNumber,
-            to: adminPhone
-          });
-        } catch (adminSmsErr) {
-          smsErrors.push({ to: adminPhone, error: adminSmsErr.message });
-        }
-      }
-      if (smsErrors.length > 0) {
-        return res.json({ success: true, message: 'Order placed, but some SMS failed', order: newOrder, smsErrors });
-      }
-    } catch (err) {
-      return res.status(500).json({ error: 'Order placed, but failed to send email or SMS', details: err.message });
-    }
-    res.json({ success: true, message: 'Order placed successfully', order: newOrder, totalPickup, totalDelivery, totalWithDiscountPickup, totalWithDiscountDelivery });
-    return;
-  }
-  const orders = safeRead(ordersFile);
+  // Save order to Supabase
   const newOrder = {
-    id: Date.now(),
     productId,
     quantity,
     address: deliveryMethod === 'Deliver' ? address : '',
@@ -365,13 +340,12 @@ app.post('/api/orders', async (req, res) => {
     totalWithDiscountPickup,
     totalWithDiscountDelivery
   };
-  orders.push(newOrder);
-  safeWrite(ordersFile, orders);
-  // Add notification
-  const notifs = safeRead(notificationsFile);
-  notifs.unshift({ id: Date.now(), email, message: 'Your order has been placed successfully!', date: new Date().toISOString() });
-  safeWrite(notificationsFile, notifs);
-  // Send order confirmation email
+  const { data: orderData, error: orderError } = await supabase.from('orders').insert([newOrder]);
+  if (orderError) return res.status(500).json({ error: 'Failed to save order', details: orderError.message });
+  // Add notification to Supabase
+  const notif = { id: Date.now(), email, message: 'Your order has been placed successfully!', date: new Date().toISOString() };
+  await supabase.from('notifications').insert([notif]);
+  // Send order confirmation email and SMS as before
   try {
     await transporter.sendMail({
       from: `GOD'S OWN PHONE GADGET <${process.env.EMAIL_USER}>`,
@@ -406,12 +380,12 @@ app.post('/api/orders', async (req, res) => {
       }
     }
     if (smsErrors.length > 0) {
-      return res.json({ success: true, message: 'Order placed, but some SMS failed', order: newOrder, smsErrors });
+      return res.json({ success: true, message: 'Order placed, but some SMS failed', order: orderData && orderData[0], smsErrors });
     }
   } catch (err) {
     return res.status(500).json({ error: 'Order placed, but failed to send email or SMS', details: err.message });
   }
-  res.json({ success: true, message: 'Order placed successfully', order: newOrder, totalPickup, totalDelivery, totalWithDiscountPickup, totalWithDiscountDelivery });
+  res.json({ success: true, message: 'Order placed successfully', order: orderData && orderData[0], totalPickup, totalDelivery, totalWithDiscountPickup, totalWithDiscountDelivery });
 });
 app.patch('/api/orders/:id', async (req, res) => {
   const { id } = req.params;
@@ -520,47 +494,75 @@ app.patch('/api/orders/:id', async (req, res) => {
 });
 app.get('/api/orders', async (req, res) => {
   const { email } = req.query;
-  if (mongoose.connection.readyState === 1) {
-    let orders = await Order.find(email ? { email } : {});
-    return res.json(orders);
-  }
-  const orders = safeRead(ordersFile);
+  // Fetch orders from Supabase
+  const { data: orders, error } = await supabase
+    .from('orders')
+    .select('*')
+    .order('date', { ascending: false });
+  if (error) return res.status(500).json({ error: 'Failed to fetch orders', details: error.message });
   if (email) {
-    return res.json(orders.filter(o => o.email === email));
+    return res.json((orders || []).filter(o => o.email === email));
   }
-  res.json(orders);
+  res.json(orders || []);
 });
 
 // --- Users (admin) ---
 app.get('/api/users', (req, res) => {
-  const users = safeRead(usersFile).map(u => ({ name: u.name, email: u.email, verified: u.verified }));
-  res.json(users);
+  supabase
+    .from('users')
+    .select('name, email, verified')
+    .then(({ data: users, error }) => {
+      if (error) return res.status(500).json({ error: 'Failed to fetch users', details: error.message });
+      res.json(users || []);
+    });
 });
 
 // --- Updates ---
 app.post('/api/updates', (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: 'Message required' });
-  const updates = safeRead(updatesFile);
   const update = { id: Date.now(), message, date: new Date().toISOString() };
-  updates.unshift(update);
-  safeWrite(updatesFile, updates);
-  res.json({ success: true, update });
+  supabase
+    .from('updates')
+    .insert([update])
+    .then(({ error }) => {
+      if (error) return res.status(500).json({ error: 'Failed to add update', details: error.message });
+      res.json({ success: true, update });
+    });
 });
 app.get('/api/updates', (req, res) => {
-  res.json(safeRead(updatesFile));
+  supabase
+    .from('updates')
+    .select('*')
+    .order('date', { ascending: false })
+    .then(({ data: updates, error }) => {
+      if (error) return res.status(500).json({ error: 'Failed to fetch updates', details: error.message });
+      res.json(updates || []);
+    });
 });
 
 // --- Notifications ---
 app.get('/api/notifications', (req, res) => {
   const { email } = req.query;
   if (!email) return res.status(400).json({ error: 'Email required' });
-  const notifs = safeRead(notificationsFile).filter(n => n.email === email);
-  res.json(notifs);
+  supabase
+    .from('notifications')
+    .select('*')
+    .order('date', { ascending: false })
+    .then(({ data: notifs, error }) => {
+      if (error) return res.status(500).json({ error: 'Failed to fetch notifications', details: error.message });
+      res.json((notifs || []).filter(n => n.email === email));
+    });
 });
 app.delete('/api/notifications', (req, res) => {
-  safeWrite(notificationsFile, []);
-  res.json({ success: true, message: 'All notifications deleted.' });
+  supabase
+    .from('notifications')
+    .delete()
+    .neq('id', 0) // delete all except id 0 (if exists)
+    .then(({ error }) => {
+      if (error) return res.status(500).json({ error: 'Failed to delete notifications', details: error.message });
+      res.json({ success: true, message: 'All notifications deleted.' });
+    });
 });
 
 // --- SMS Endpoints ---
@@ -597,7 +599,6 @@ app.post('/api/sms/send', async (req, res) => {
 
   try {
     const results = [];
-    let smsHistory = safeRead(smsHistoryFile);
     for (const number of numbers) {
       try {
         const sms = await twilioClient.messages.create({
@@ -613,12 +614,11 @@ app.post('/api/sms/send', async (req, res) => {
           date: new Date().toISOString()
         };
         results.push(smsRecord);
-        smsHistory.unshift(smsRecord);
+        // Save to Supabase 'sms_history' table
+        await supabase.from('sms_history').insert([smsRecord]);
       } catch (error) {
       }
     }
-    // Save SMS history
-    safeWrite(smsHistoryFile, smsHistory);
     res.json({ success: true, results });
   } catch (error) {
   }
@@ -628,8 +628,16 @@ app.post('/api/sms/send', async (req, res) => {
 
 // --- SMS History Endpoint ---
 app.get('/api/sms/history', (req, res) => {
-  const history = safeRead(smsHistoryFile);
-  res.json(history);
+  supabase
+    .from('sms_history')
+    .select('*')
+    .order('date', { ascending: false })
+    .then(({ data, error }) => {
+      if (error) {
+        return res.status(500).json({ error: 'Failed to fetch SMS history', details: error.message });
+      }
+      res.json(data || []);
+    });
 });
 // --- End SMS History Endpoint ---
 
