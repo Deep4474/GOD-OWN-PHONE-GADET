@@ -233,7 +233,6 @@ app.get('/api/products', async (req, res) => {
   }
 });
 // --- Real Map API ---
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 app.post('/api/map', async (req, res) => {
   const { address } = req.body;
   if (!address) return res.status(400).json({ error: 'Address required' });
