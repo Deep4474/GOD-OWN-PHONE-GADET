@@ -196,16 +196,16 @@ app.delete('/api/auth/user', (req, res) => {
 });
 
 // --- Products ---
+const SHEETBEST_URL = 'https://api.sheetbest.com/sheets/da756097-1974-49b4-bee3-34954fa429da';
+const fetch = require('node-fetch');
+
+// GET products from Google Sheet
 app.get('/api/products', async (req, res) => {
   try {
-    let products;
-    if (MONGO_URI) {
-      products = await Product.find({}).lean();
-    } else {
-      products = safeRead(productsFile);
-    }
-    // Add calculated fields for each product (no premium logic)
-    const productsWithCalc = products.map(p => {
+    const response = await fetch(SHEETBEST_URL);
+    let products = await response.json();
+    // Add calculated fields for each product
+    products = products.map(p => {
       const basePrice = Number(p.price);
       const discount = p.discountPercent || 0;
       const pickup = p.pickupPercent || 0;
@@ -227,7 +227,7 @@ app.get('/api/products', async (req, res) => {
         }
       };
     });
-    res.json(productsWithCalc);
+    res.json(products);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch products', details: err.message });
   }
@@ -250,69 +250,27 @@ app.post('/api/map', async (req, res) => {
   }
 });
 app.post('/api/products', async (req, res) => {
-  const { name, price, category, description, stock, imageUrl } = req.body;
-  if (!name || !price || !category || !description || !stock || !imageUrl) {
-    return res.status(400).json({ error: 'All fields are required.' });
-  }
+  const product = req.body;
+  // You may want to validate required fields here
   try {
-    let newProduct;
-    if (MONGO_URI) {
-      newProduct = new Product({
-        name,
-        price: Number(price),
-        category,
-        description,
-        stock: Number(stock),
-        images: [imageUrl]
-      });
-      await newProduct.save();
-      // Add id field for frontend compatibility
-      newProduct = newProduct.toObject();
-      newProduct.id = newProduct._id;
-    } else {
-      const products = safeRead(productsFile);
-      newProduct = {
-        id: Date.now(),
-        name,
-        price: Number(price),
-        category,
-        description,
-        stock: Number(stock),
-        images: [imageUrl]
-      };
-      products.push(newProduct);
-      safeWrite(productsFile, products);
-    }
-    return res.json({ success: true, product: newProduct });
+    const response = await fetch(SHEETBEST_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(product)
+    });
+    const result = await response.json();
+    res.json({ success: true, product: result });
   } catch (err) {
-    return res.status(500).json({ error: 'Failed to add product', details: err.message });
+    res.status(500).json({ error: 'Failed to add product', details: err.message });
   }
 });
 app.patch('/api/products/:id', (req, res) => {
-  const { id } = req.params;
-  const { name, price, category, description, stock, imageUrl } = req.body;
-  let products = safeRead(productsFile);
-  const product = products.find(p => String(p.id) === String(id));
-  if (!product) return res.status(404).json({ error: 'Product not found' });
-  if (name) product.name = name;
-  if (price) product.price = Number(price);
-  if (category) product.category = category;
-  if (description) product.description = description;
-  if (stock) product.stock = Number(stock);
-  if (imageUrl) product.images = [imageUrl];
-  safeWrite(productsFile, products);
-  return res.json({ success: true, product });
+  // SheetBest does not support PATCH directly. You must update the sheet manually or via Google Sheets API.
+  return res.status(501).json({ error: 'Product update not supported via SheetBest API.' });
 });
 app.delete('/api/products/:id', (req, res) => {
-  const { id } = req.params;
-  let products = safeRead(productsFile);
-  const initialLength = products.length;
-  products = products.filter(p => String(p.id) !== String(id));
-  if (products.length === initialLength) {
-    return res.status(404).json({ error: 'Product not found' });
-  }
-  safeWrite(productsFile, products);
-  return res.json({ success: true });
+  // SheetBest does not support DELETE directly. You must delete from the sheet manually or via Google Sheets API.
+  return res.status(501).json({ error: 'Product delete not supported via SheetBest API.' });
 });
 
 // --- Orders ---

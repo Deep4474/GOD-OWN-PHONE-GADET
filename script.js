@@ -154,8 +154,8 @@ function openBuyNowModal(product) {
 async function loadProducts() {
     const productList = document.getElementById('product-list');
     try {
-        const products = await apiGet("/api/products");
-        renderProducts(products);
+    const products = await apiGet("/api/products");
+    renderProducts(products);
     } catch (err) {
         if (productList) productList.innerHTML = "<p style='color:red;text-align:center;'>Failed to load products.</p>";
     }
