@@ -294,8 +294,31 @@ app.post('/api/products', async (req, res) => {
   res.json({ success: true, product: data && data[0] });
 });
 app.patch('/api/products/:id', (req, res) => {
-  // SheetBest does not support PATCH directly. You must update the sheet manually or via Google Sheets API.
-  return res.status(501).json({ error: 'Product update not supported via SheetBest API.' });
+  // Allow admin to update product details (including stock) in Supabase
+  const { id } = req.params;
+  const updateFields = req.body;
+  (async () => {
+    // Remove undefined fields
+    Object.keys(updateFields).forEach(key => {
+      if (updateFields[key] === undefined) delete updateFields[key];
+    });
+    // Only allow updating known fields
+    const allowed = ['name', 'price', 'category', 'description', 'stock', 'images'];
+    const safeFields = {};
+    for (const key of allowed) {
+      if (updateFields[key] !== undefined) safeFields[key] = updateFields[key];
+    }
+    if (Object.keys(safeFields).length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
+    const { data, error } = await supabase
+      .from('products')
+      .update(safeFields)
+      .eq('id', id)
+      .select();
+    if (error) return res.status(500).json({ error: 'Failed to update product', details: error.message });
+    res.json({ success: true, product: data && data[0] });
+  })();
 });
 app.delete('/api/products/:id', (req, res) => {
   // SheetBest does not support DELETE directly. You must delete from the sheet manually or via Google Sheets API.
