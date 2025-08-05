@@ -320,6 +320,14 @@ app.post('/api/orders', async (req, res) => {
   if (prodError) return res.status(500).json({ error: 'Failed to fetch product', details: prodError.message });
   const product = products && products[0];
   if (!product) return res.status(404).json({ error: 'Product not found' });
+  // Decrease stock
+  const newStock = (product.stock || 0) - Number(quantity);
+  if (newStock < 0) return res.status(400).json({ error: 'Not enough stock available' });
+  const { error: stockError } = await supabase
+    .from('products')
+    .update({ stock: newStock })
+    .eq('id', productId);
+  if (stockError) return res.status(500).json({ error: 'Failed to update stock', details: stockError.message });
   const basePrice = Number(product.price) * Number(quantity);
   const discount = product.discountPercent || 0;
   const pickup = product.pickupPercent || 0;
