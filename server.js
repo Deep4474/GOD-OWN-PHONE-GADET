@@ -17,6 +17,7 @@ const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy for Render/Heroku/Cloud
 const PORT = process.env.PORT || 4003;
 const JWT_SECRET = process.env.JWT_SECRET || 'demo_jwt_secret';
 
