@@ -238,6 +238,7 @@ app.get('/api/products', async (req, res) => {
       .from('products')
       .select('*');
     if (error) {
+      console.error('Supabase error in /api/products:', error);
       return res.status(500).json({ error: 'Failed to fetch products', details: error.message });
     }
     // Add calculated fields for each product
@@ -265,6 +266,7 @@ app.get('/api/products', async (req, res) => {
     });
     res.json(productsWithCalc);
   } catch (err) {
+    console.error('Server error in /api/products:', err);
     res.status(500).json({ error: 'Failed to fetch products', details: err.message });
   }
 });
