@@ -1,3 +1,91 @@
+// --- User Profile Modal Logic ---
+document.addEventListener('DOMContentLoaded', function() {
+  // Open profile modal
+  const menuProfile = document.getElementById('menu-profile');
+  const profileModal = document.getElementById('profile-modal');
+  const closeProfileModal = document.getElementById('close-profile-modal');
+  const profileForm = document.getElementById('profile-form');
+  const profileAvatar = document.getElementById('profile-avatar');
+  const profileAvatarUpload = document.getElementById('profile-avatar-upload');
+  const changeAvatarBtn = document.getElementById('change-avatar-btn');
+  const profileName = document.getElementById('profile-name');
+  const profileEmail = document.getElementById('profile-email');
+  const profilePhone = document.getElementById('profile-phone');
+  const profileAddress = document.getElementById('profile-address');
+  const profilePassword = document.getElementById('profile-password');
+  const profileMessage = document.getElementById('profile-message');
+
+  // Helper: Load user from localStorage
+  function loadUserProfile() {
+    let user = null;
+    try { user = JSON.parse(localStorage.getItem('user')); } catch {}
+    if (!user) return;
+    profileName.value = user.name || '';
+    profileEmail.value = user.email || '';
+    profilePhone.value = user.phone || '';
+    profileAddress.value = user.address || '';
+    if (user.avatar) {
+      profileAvatar.src = user.avatar;
+    } else {
+      profileAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}`;
+    }
+  }
+
+  // Open modal
+  if (menuProfile && profileModal) {
+    menuProfile.addEventListener('click', function() {
+      loadUserProfile();
+      profileModal.classList.remove('hidden');
+    });
+  }
+  // Close modal
+  if (closeProfileModal && profileModal) {
+    closeProfileModal.addEventListener('click', function() {
+      profileModal.classList.add('hidden');
+    });
+    profileModal.addEventListener('click', function(e) {
+      if (e.target === profileModal) profileModal.classList.add('hidden');
+    });
+  }
+  // Change avatar
+  if (changeAvatarBtn && profileAvatarUpload) {
+    changeAvatarBtn.addEventListener('click', function() {
+      profileAvatarUpload.click();
+    });
+    profileAvatarUpload.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          profileAvatar.src = e.target.result;
+        };
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+  }
+  // Save profile changes
+  if (profileForm) {
+    profileForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      let user = null;
+      try { user = JSON.parse(localStorage.getItem('user')); } catch {}
+      if (!user) user = {};
+      user.name = profileName.value.trim();
+      user.phone = profilePhone.value.trim();
+      user.address = profileAddress.value.trim();
+      if (profileAvatar && profileAvatar.src) user.avatar = profileAvatar.src;
+      // Only update password if provided
+      if (profilePassword.value.trim()) {
+        user.password = profilePassword.value.trim();
+      }
+      // Email is not editable
+      localStorage.setItem('user', JSON.stringify(user));
+      profileMessage.textContent = 'Profile updated!';
+      profileMessage.style.color = 'green';
+      setTimeout(() => { profileMessage.textContent = ''; }, 2000);
+      profilePassword.value = '';
+    });
+  }
+});
 
 // GOD'S OWN PHONE GADGET - Main Site Script
 // This script fetches products from the backend and displays them on the main site.

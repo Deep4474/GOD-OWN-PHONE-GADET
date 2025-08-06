@@ -146,12 +146,29 @@
       <div id="orders-list">Loading...</div>
     </div>
   </div>
-  <!-- Profile Modal -->
+  <!-- User Profile Modal (Modern) -->
   <div id="profile-modal" class="modal hidden">
-    <div class="modal-content">
+    <div class="modal-content profile-modal-content">
       <button id="close-profile-modal" class="close-modal">&times;</button>
-      <h3>Profile</h3>
-      <div id="profile-info">Loading...</div>
+      <h3>My Account</h3>
+      <form id="profile-form" autocomplete="on">
+        <div class="profile-avatar-section">
+          <img id="profile-avatar" src="https://ui-avatars.com/api/?name=User" alt="User Avatar" class="profile-avatar" />
+          <input type="file" id="profile-avatar-upload" accept="image/*" style="display:none;" />
+          <button type="button" id="change-avatar-btn" class="btn-secondary">Change Photo</button>
+        </div>
+        <div class="profile-fields">
+          <label>Name:<input type="text" id="profile-name" required /></label><br>
+          <label>Email:<input type="email" id="profile-email" required disabled /></label><br>
+          <label>Phone:<input type="text" id="profile-phone" /></label><br>
+          <label>Address:<input type="text" id="profile-address" /></label><br>
+          <label>Password:<input type="password" id="profile-password" placeholder="Leave blank to keep current" /></label><br>
+        </div>
+        <div class="profile-actions">
+          <button type="submit" class="btn-main">Save Changes</button>
+        </div>
+        <div id="profile-message" class="form-message"></div>
+      </form>
     </div>
   </div>
   <!-- Help Modal -->
