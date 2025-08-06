@@ -1,3 +1,10 @@
+// --- Users ---
+app.get('/api/users', async (req, res) => {
+  // Fetch all users from Supabase 'users' table
+  const { data: users, error } = await supabase.from('users').select('*');
+  if (error) return res.status(500).json({ error: 'Failed to fetch users', details: error.message });
+  res.json(users || []);
+});
 require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
@@ -241,7 +248,7 @@ app.get('/api/products', async (req, res) => {
       console.error('Supabase error in /api/products:', error);
       return res.status(500).json({ error: 'Failed to fetch products', details: error.message });
     }
-    // Add calculated fields for each product
+    // Add calculated fields for each product and ensure stock is a number
     const productsWithCalc = (products || []).map(p => {
       const basePrice = Number(p.price);
       const discount = p.discountPercent || 0;
@@ -251,8 +258,12 @@ app.get('/api/products', async (req, res) => {
       const totalDelivery = Math.round(basePrice + (basePrice * delivery / 100));
       const totalWithDiscountPickup = Math.round((basePrice - (basePrice * discount / 100)) + ((basePrice - (basePrice * discount / 100)) * pickup / 100));
       const totalWithDiscountDelivery = Math.round((basePrice - (basePrice * discount / 100)) + ((basePrice - (basePrice * discount / 100)) * delivery / 100));
+      // Convert stock to number if possible
+      let stock = p.stock;
+      if (typeof stock === 'string' && !isNaN(Number(stock))) stock = Number(stock);
       return {
         ...p,
+        stock,
         calc: {
           totalPickup,
           totalDelivery,
