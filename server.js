@@ -1,10 +1,4 @@
 // --- Users ---
-app.get('/api/users', async (req, res) => {
-  // Fetch all users from Supabase 'users' table
-  const { data: users, error } = await supabase.from('users').select('*');
-  if (error) return res.status(500).json({ error: 'Failed to fetch users', details: error.message });
-  res.json(users || []);
-});
 require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
@@ -27,6 +21,14 @@ const app = express();
 app.set('trust proxy', 1); // Trust first proxy for Render/Heroku/Cloud
 const PORT = process.env.PORT || 4003;
 const JWT_SECRET = process.env.JWT_SECRET || 'demo_jwt_secret';
+
+// --- Users ---
+app.get('/api/users', async (req, res) => {
+  // Fetch all users from Supabase 'users' table
+  const { data: users, error } = await supabase.from('users').select('*');
+  if (error) return res.status(500).json({ error: 'Failed to fetch users', details: error.message });
+  res.json(users || []);
+});
 
 // Data file paths
 const usersFile = path.join(__dirname, 'users.json');
