@@ -1,257 +1,449 @@
-// --- User Profile Modal Logic ---
-document.addEventListener('DOMContentLoaded', function() {
-  // Open profile modal
-  const menuProfile = document.getElementById('menu-profile');
-  const profileModal = document.getElementById('profile-modal');
-  const closeProfileModal = document.getElementById('close-profile-modal');
-  const profileForm = document.getElementById('profile-form');
-  const profileAvatar = document.getElementById('profile-avatar');
-  const profileAvatarUpload = document.getElementById('profile-avatar-upload');
-  const changeAvatarBtn = document.getElementById('change-avatar-btn');
-  const profileName = document.getElementById('profile-name');
-  const profileEmail = document.getElementById('profile-email');
-  const profilePhone = document.getElementById('profile-phone');
-  const profileAddress = document.getElementById('profile-address');
-  const profilePassword = document.getElementById('profile-password');
-  const profileMessage = document.getElementById('profile-message');
+	// Register modal logic
+	const registerLink = document.getElementById('register-link');
+	const registerModal = document.getElementById('register-modal');
+	const closeRegisterModal = document.getElementById('close-register-modal');
+	const registerForm = document.getElementById('register-form');
+	const registerError = document.getElementById('register-error');
+	const registerSuccess = document.getElementById('register-success');
 
-  // Helper: Load user from localStorage
-  function loadUserProfile() {
-    let user = null;
-    try { user = JSON.parse(localStorage.getItem('user')); } catch {}
-    if (!user) return;
-    profileName.value = user.name || '';
-    profileEmail.value = user.email || '';
-    profilePhone.value = user.phone || '';
-    profileAddress.value = user.address || '';
-    if (user.avatar) {
-      profileAvatar.src = user.avatar;
-    } else {
-      profileAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}`;
-    }
-  }
+	if (registerLink && registerModal) {
+		registerLink.addEventListener('click', function(e) {
+			e.preventDefault();
+			registerModal.style.display = 'flex';
+		});
+	}
+	if (closeRegisterModal && registerModal) {
+		closeRegisterModal.addEventListener('click', function() {
+			registerModal.style.display = 'none';
+			if (registerError) registerError.style.display = 'none';
+			if (registerSuccess) registerSuccess.style.display = 'none';
+		});
+	}
+	if (registerForm) {
+		registerForm.onsubmit = async function(e) {
+			e.preventDefault();
+			const fd = new FormData(registerForm);
+			const name = fd.get('name');
+			const email = fd.get('email');
+			const password = fd.get('password');
+			registerError.style.display = 'none';
+			registerSuccess.style.display = 'none';
+			let backendUrl = 'https://phone-2cv4.onrender.com/api/register';
+			try {
+				const res = await fetch(backendUrl, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ name, email, password })
+				});
+				const data = await res.json();
+				if (!res.ok) {
+					registerError.textContent = data.error || 'Registration failed.';
+					registerError.style.display = 'block';
+					return;
+				}
+				registerSuccess.textContent = data.message || 'Registration successful!';
+				registerSuccess.style.display = 'block';
+				registerForm.reset();
+			} catch (err) {
+				registerError.textContent = 'Network error.';
+				registerError.style.display = 'block';
+			}
+			updateUserGreeting();
+		}
+	// End of registerForm event handler block
+	// --- Fix ReferenceError declarations ---
+	const SUPABASE_URL = 'https://jlwxkykznyjmstpjcgks.supabase.co';
+	const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ';
 
-  // Open modal
-  if (menuProfile && profileModal) {
-    menuProfile.addEventListener('click', function() {
-      loadUserProfile();
-      profileModal.classList.remove('hidden');
-    });
-  }
-  // Close modal
-  if (closeProfileModal && profileModal) {
-    closeProfileModal.addEventListener('click', function() {
-      profileModal.classList.add('hidden');
-    });
-    profileModal.addEventListener('click', function(e) {
-      if (e.target === profileModal) profileModal.classList.add('hidden');
-    });
-  }
-  // Change avatar
-  if (changeAvatarBtn && profileAvatarUpload) {
-    changeAvatarBtn.addEventListener('click', function() {
-      profileAvatarUpload.click();
-    });
-    profileAvatarUpload.addEventListener('change', function() {
-      if (this.files && this.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          profileAvatar.src = e.target.result;
-        };
-        reader.readAsDataURL(this.files[0]);
-      }
-    });
-  }
-  // Save profile changes
-  if (profileForm) {
-    profileForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      let user = null;
-      try { user = JSON.parse(localStorage.getItem('user')); } catch {}
-      if (!user) user = {};
-      user.name = profileName.value.trim();
-      user.phone = profilePhone.value.trim();
-      user.address = profileAddress.value.trim();
-      if (profileAvatar && profileAvatar.src) user.avatar = profileAvatar.src;
-      // Only update password if provided
-      if (profilePassword.value.trim()) {
-        user.password = profilePassword.value.trim();
-      }
-      // Email is not editable
-      localStorage.setItem('user', JSON.stringify(user));
-      profileMessage.textContent = 'Profile updated!';
-      profileMessage.style.color = 'green';
-      setTimeout(() => { profileMessage.textContent = ''; }, 2000);
-      profilePassword.value = '';
-    });
-  }
-});
 
-// GOD'S OWN PHONE GADGET - Main Site Script
-// This script fetches products from the backend and displays them on the main site.
+	// --- Modal and Buy Now DOM Elements ---
+	// Anyone (registered or not) can buy a product. No login required for buyForm.
+	const buyForm = document.getElementById('buy-form');
+	const buyModal = document.getElementById('buy-modal');
+	const closeModalBtn = document.getElementById('close-buy-modal');
+	const pickFields = document.getElementById('pick-fields');
+	const deliveryFields = document.getElementById('delivery-fields');
+	// Login modal logic (only registered users can login)
+	const loginLink = document.getElementById('login-link');
+	const loginModal = document.getElementById('login-modal');
+	const closeLoginModal = document.getElementById('close-login-modal');
+	const loginForm = document.getElementById('login-form');
+	const loginError = document.getElementById('login-error');
 
-// Set this to your backend URL for production deployment
-const API_BASE_URL = "https://phone-2cv4.onrender.com";
+	if (loginLink && loginModal) {
+		loginLink.addEventListener('click', function(e) {
+			e.preventDefault();
+			loginModal.style.display = 'flex';
+		});
+	}
+	if (closeLoginModal && loginModal) {
+		closeLoginModal.addEventListener('click', function() {
+			loginModal.style.display = 'none';
+			if (loginError) loginError.style.display = 'none';
+		});
+	}
+	// Register modal logic
+	const registerLink = document.getElementById('register-link');
+	const registerModal = document.getElementById('register-modal');
+	const closeRegisterModal = document.getElementById('close-register-modal');
+	const registerForm = document.getElementById('register-form');
+	const registerError = document.getElementById('register-error');
+	const registerSuccess = document.getElementById('register-success');
 
-// Helper to fetch JSON from backend
-async function apiGet(endpoint) {
-    const res = await fetch(API_BASE_URL + endpoint);
-    if (!res.ok) throw new Error('Failed to fetch ' + endpoint);
-    return res.json();
+	// Verification modal logic
+	const verifyModal = document.getElementById('verify-modal');
+	const closeVerifyModal = document.getElementById('close-verify-modal');
+	const verifyForm = document.getElementById('verify-form');
+	const verifyError = document.getElementById('verify-error');
+	const verifySuccess = document.getElementById('verify-success');
+	const verifyEmailInput = document.getElementById('verify-email');
+
+	if (registerLink && registerModal) {
+		registerLink.addEventListener('click', function(e) {
+			e.preventDefault();
+			registerModal.style.display = 'flex';
+		});
+	}
+	if (closeRegisterModal && registerModal) {
+		closeRegisterModal.addEventListener('click', function() {
+			registerModal.style.display = 'none';
+			if (registerError) registerError.style.display = 'none';
+			if (registerSuccess) registerSuccess.style.display = 'none';
+		});
+	}
+	if (closeVerifyModal && verifyModal) {
+		closeVerifyModal.addEventListener('click', function() {
+			verifyModal.style.display = 'none';
+			if (verifyError) verifyError.style.display = 'none';
+			if (verifySuccess) verifySuccess.style.display = 'none';
+		});
+	}
+
+	if (registerForm) {
+		registerForm.onsubmit = async function(e) {
+			e.preventDefault();
+			const fd = new FormData(registerForm);
+			const name = fd.get('name');
+			const email = fd.get('email');
+			const password = fd.get('password');
+			registerError.style.display = 'none';
+			registerSuccess.style.display = 'none';
+			let backendUrl = 'https://phone-2cv4.onrender.com/api/register';
+			try {
+				const res = await fetch(backendUrl, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ name, email, password })
+				});
+				const data = await res.json();
+				if (!res.ok) {
+					registerError.textContent = data.error || 'Registration failed.';
+					registerError.style.display = 'block';
+					return;
+				}
+				registerSuccess.textContent = data.message || 'Registration successful!';
+				registerSuccess.style.display = 'block';
+				registerForm.reset();
+				// Show verification modal
+				if (verifyModal && verifyEmailInput) {
+					verifyEmailInput.value = email;
+					verifyModal.style.display = 'flex';
+				}
+			} catch (err) {
+				registerError.textContent = 'Network error.';
+				registerError.style.display = 'block';
+			}
+			updateUserGreeting();
+		}
+	}
+
+	if (verifyForm) {
+		verifyForm.onsubmit = async function(e) {
+			e.preventDefault();
+			const fd = new FormData(verifyForm);
+			const code = fd.get('code');
+			const email = fd.get('email');
+			verifyError.style.display = 'none';
+			verifySuccess.style.display = 'none';
+			let backendUrl = 'https://phone-2cv4.onrender.com/api/verify';
+			try {
+				const res = await fetch(backendUrl, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ email, code })
+				});
+				const data = await res.json();
+				if (!res.ok) {
+					verifyError.textContent = data.error || 'Verification failed.';
+					verifyError.style.display = 'block';
+					return;
+				}
+				verifySuccess.textContent = data.message || 'Email verified! You can now log in.';
+				verifySuccess.style.display = 'block';
+				setTimeout(() => {
+					verifyModal.style.display = 'none';
+					if (loginModal) loginModal.style.display = 'flex';
+				}, 1200);
+			} catch (err) {
+				verifyError.textContent = 'Network error.';
+				verifyError.style.display = 'block';
+			}
+		}
+	}
+	updateUserGreeting();
+
+	// Make Login link open the auth modal
+
+	const authModal = document.getElementById('auth-modal');
+	if (loginLink && authModal) {
+		loginLink.addEventListener('click', function(e) {
+			e.preventDefault();
+			authModal.style.display = 'flex';
+		});
+	}
+
+	// Simple session management
+	function setUserSession(user) {
+		localStorage.setItem('user', JSON.stringify(user));
+	}
+	function getUserSession() {
+		try {
+			return JSON.parse(localStorage.getItem('user'));
+		} catch { return null; }
+	}
+	function clearUserSession() {
+		localStorage.removeItem('user');
+	}
+
+	// Load Supabase client and fetch products
+	const supabaseScript = document.createElement('script');
+	supabaseScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js';
+	document.head.appendChild(supabaseScript);
+	supabaseScript.onload = async () => {
+		const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+		// Fetch products from backend API (Render)
+		const container = document.getElementById('products-container');
+		try {
+			const res = await fetch('https://phone-2cv4.onrender.com/api/products');
+			if (!res.ok) throw new Error('Failed to load products.');
+			const products = await res.json();
+			const defaultImage = "https://placehold.co/300x200?text=No+Image";
+			function getSupabaseImageUrl(path) {
+				if (!SUPABASE_URL || !path) return defaultImage;
+				path = path.replace(/^\//, '');
+				return `${SUPABASE_URL}/storage/v1/object/public/${path}`;
+			}
+			container.innerHTML = `<div class="product-grid">` + products.map(product => {
+				let imgSrc = defaultImage;
+				if (product.images) {
+					if (product.images.match(/^https?:\/\//)) {
+						imgSrc = product.images;
+					} else if (product.images.match(/^[\w-]+\//)) {
+						imgSrc = getSupabaseImageUrl(product.images);
+					}
+				}
+				return `
+					<div class="product-card">
+						<img src="${imgSrc}" alt="${product.name}">
+						<h3>${product.name}</h3>
+						<p>${product.description}</p>
+						<b>₦${product.price?.toLocaleString?.() || product.price}</b>
+						<button class="buy-btn" data-id="${product.id}">Buy Now</button>
+					</div>
+				`;
+			}).join('') + `</div>`;
+		} catch (error) {
+			container.innerHTML = '<p>Failed to load products.</p>';
+		}
+		// Handle order submission
+		const buyForm = document.getElementById('buy-form');
+		buyForm.addEventListener('submit', async function(e) {
+			e.preventDefault();
+			const formData = new FormData(buyForm);
+			const method = formData.get('method');
+			const productName = document.getElementById('buy-modal-product').textContent;
+			const order = {
+				quantity: 1,
+				phone: method === 'delivery' ? formData.get('dphone') : formData.get('phone'),
+				product_name: productName,
+				delivery_method: method,
+				address: method === 'delivery' ? formData.get('address') : '',
+				payment_method: formData.get('payment_method'),
+				email: formData.get('email') || '',
+			};
+			const { error } = await supabase.from('orders').insert([order]);
+			if (error) {
+				alert('Order failed: ' + error.message);
+			} else {
+				alert('Order placed successfully!');
+				buyForm.reset();
+				document.getElementById('buy-modal').style.display = 'none';
+			}
+		});
+		updateUserGreeting();
+	};
+
+	// Modal logic
+	// ...existing code...
+
+
+	document.body.addEventListener('click', e => {
+		if (e.target.classList.contains('buy-btn')) {
+			// Require login before buying
+			const user = getUserSession();
+			if (!user) {
+				alert('You must be logged in to buy a product. Please login or register first.');
+				// Show login modal
+				if (loginModal) loginModal.style.display = 'flex';
+				return;
+			}
+			// Show modal
+			buyModal.style.display = 'block';
+			// Optionally fill product info
+			document.getElementById('buy-modal-product').textContent = e.target.parentElement.querySelector('h3').textContent;
+		}
+		if (e.target === closeModalBtn) {
+			buyModal.style.display = 'none';
+		}
+	});
+
+	// Switch form fields based on method
+	buyForm.method.forEach(radio => {
+		radio.addEventListener('change', () => {
+			if (radio.value === 'delivery' && radio.checked) {
+				deliveryFields.style.display = '';
+				pickFields.style.display = 'none';
+			} else {
+				deliveryFields.style.display = 'none';
+				pickFields.style.display = '';
+			}
+		});
+	});
+
+	// Example: Live sales notifications
+	// ...existing code...
+	function showLiveSale(msg) {
+		const div = document.createElement('div');
+		div.textContent = msg;
+		div.className = 'live-sale-msg';
+		// Add to the bottom so they stack upward
+		if (liveBar) {
+			liveBar.appendChild(div);
+		}
+		// Remove after 4 seconds
+		setTimeout(() => {
+			if (div.parentNode) div.remove();
+		}, 4000);
+		// Limit to 7 notifications at once
+		if (liveBar && liveBar.children.length > 7) {
+			while (liveBar.children.length > 7) {
+				liveBar.removeChild(liveBar.firstChild);
+			}
+		}
+	}
+	// Simulate live sales
+	// (removed duplicate names/products declaration)
+	function randomLiveSale() {
+		const name = names[Math.floor(Math.random() * names.length)];
+		const product = products[Math.floor(Math.random() * products.length)];
+		showLiveSale(`${name} just bought ${product}!`);
+	}
+	// Show 4 at once on load
+	for (let i = 0; i < 4; i++) randomLiveSale();
+	// Then show a new one every 1.2 seconds
+	setInterval(randomLiveSale, 1200);
+
+	// Load Supabase client and fetch products
+
+
+	// Simple session management
+	function setUserSession(user) {
+	  localStorage.setItem('user', JSON.stringify(user));
+	}
+	function getUserSession() {
+	  try {
+	    return JSON.parse(localStorage.getItem('user'));
+	  } catch { return null; }
+	}
+	function clearUserSession() {
+	  localStorage.removeItem('user');
+	}
+
+	supabaseScript.onload = async () => {
+		const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+		const { data: products, error } = await supabase.from('products').select('*');
+		const container = document.getElementById('products-container');
+		if (error) {
+			container.innerHTML = '<p>Failed to load products.</p>';
+			return;
+		}
+		const defaultImage = "https://jlwxkykznyjmstpjcgks.supabase.co/storage/v1/object/public/product-images/iphone13.jpg";
+		container.innerHTML = `<div class="product-grid">` + products.map(product => {
+			let imgSrc = product.images && product.images.startsWith('http') ? product.images : defaultImage;
+			return `
+				<div class="product-card">
+					<img src="${imgSrc}" alt="${product.name}">
+					<h3>${product.name}</h3>
+					<p>${product.description}</p>
+					<b>₦${product.price?.toLocaleString?.() || product.price}</b>
+					<button class="buy-btn" data-id="${product.id}">Buy Now</button>
+				</div>
+			`;
+		}).join('') + `</div>`;
+		
+		// Handle order submission
+		buyForm.addEventListener('submit', async function(e) {
+			e.preventDefault();
+			const formData = new FormData(buyForm);
+			const method = formData.get('method');
+			const productName = document.getElementById('buy-modal-product').textContent;
+			const order = {
+				quantity: 1,
+				phone: method === 'delivery' ? formData.get('dphone') : formData.get('phone'),
+				product_name: productName,
+				delivery_method: method,
+				address: method === 'delivery' ? formData.get('address') : '',
+				payment_method: formData.get('payment_method'),
+				email: formData.get('email') || '',
+			};
+			// TODO: Replace with backend order logic if needed
+			alert('Order placed successfully!');
+			buyForm.reset();
+			document.getElementById('buy-modal').style.display = 'none';
+		});
+		updateUserGreeting();
+	};
+
+	// Modal logic
+	// ...existing code...
+	// (No stray closing braces here)
+
+	// Example: Live sales notifications
+	const liveBar = document.getElementById('live-sales-bar');
+	function showLiveSale(msg) {
+		const div = document.createElement('div');
+		div.textContent = msg;
+		div.className = 'live-sale-msg';
+		// Prepend so new notifications appear at the bottom (from the back)
+		if (liveBar.firstChild) {
+			liveBar.insertBefore(div, liveBar.firstChild);
+		} else {
+			liveBar.appendChild(div);
+		}
+		setTimeout(() => div.remove(), 5000);
+	}
+	// (removed duplicate names/products declaration)
+	function randomLiveSale() {
+		const name = names[Math.floor(Math.random() * names.length)];
+		const product = products[Math.floor(Math.random() * products.length)];
+		showLiveSale(`${name} just bought ${product}!`);
+	}
+	// Show one immediately on page load
+	randomLiveSale();
+	// Then every 15 seconds
+	setInterval(randomLiveSale, 15000);
+
+
+
 }
-
-// Render products to the page
-function renderProducts(products) {
-    const productList = document.getElementById('product-list');
-    if (!productList) return;
-    if (!Array.isArray(products) || products.length === 0) {
-        productList.innerHTML = "<p style='text-align:center;'>No products to display.</p>";
-        return;
-    }
-    productList.innerHTML = products.map(prod => `
-        <div class="product-card">
-            <img src="${prod.images && prod.images[0] ? prod.images[0] : ''}" alt="${prod.name}" style="max-width:100%;height:180px;object-fit:contain;border:1px solid #eee;">
-            <h3>${prod.name || prod.category || 'N/A'}</h3>
-            <p>${prod.description || ''}</p>
-            <div><b>₦${prod.price ? prod.price.toLocaleString() : 'N/A'}</b></div>
-            <div>In Stock: ${prod.stock || 0}</div>
-            <button class="buy-now-btn" data-product-id="${prod.id}">Buy Now</button>
-        </div>
-    `).join('');
-
-    // Add event listeners for Buy Now buttons
-    const buyBtns = productList.querySelectorAll('.buy-now-btn');
-    buyBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const prodId = this.getAttribute('data-product-id');
-            const product = products.find(p => p.id == prodId);
-            if (product) openBuyNowModal(product);
-        });
-    });
-}
-
-// Show Buy Now modal (basic implementation)
-function openBuyNowModal(product) {
-    const modal = document.getElementById('order-modal');
-    // Set up close/cancel button for the order modal
-    const closeBtn = document.getElementById('close-order-modal');
-    // Try to auto-fill address from logged-in user
-    let user = null;
-    try {
-        user = JSON.parse(localStorage.getItem('user'));
-    } catch {}
-
-    const nameSpan = document.getElementById('order-product-name');
-    const qtyInput = document.getElementById('order-qty');
-    const totalAmount = document.getElementById('order-total-amount');
-    const locationInput = document.getElementById('order-location');
-    const pickupSection = document.getElementById('pickup-section');
-    const deliverySection = document.getElementById('delivery-section');
-    const deliveryRadios = document.querySelectorAll('input[name="delivery-method"]');
-
-    if (closeBtn && modal) {
-        closeBtn.onclick = function() {
-            modal.classList.add('hidden');
-        };
-    }
-
-    // Helper: calculate delivery fee by location
-    function getDeliveryFee(location) {
-        if (!location) return 2000; // default
-        const loc = location.trim().toLowerCase();
-        // Normal fee for Lagos, Ogun, Oyo, Osun, Ondo, Ekiti (Ogun and neighbors)
-        if (loc.includes('lagos')) return 2000;
-        if (loc.includes('ogun')) return 2500;
-        if (loc.includes('oyo')) return 3000;
-        if (loc.includes('osun')) return 3500;
-        if (loc.includes('ondo')) return 3500;
-        if (loc.includes('ekiti')) return 3500;
-        // Abuja, PH, Ibadan as before
-        if (loc.includes('abuja')) return 3500;
-        if (loc.includes('port harcourt') || loc.includes('ph')) return 4000;
-        if (loc.includes('ibadan')) return 3000;
-        // All other states: random fee between 10,000 and 400,000
-        return Math.floor(Math.random() * (400000 - 10000 + 1)) + 10000;
-    }
-
-    // Helper: update total
-    function updateTotal() {
-        const qty = parseInt(qtyInput.value) || 1;
-        const method = document.querySelector('input[name="delivery-method"]:checked').value;
-        let deliveryFee = 0;
-        if (method === 'Deliver') {
-            deliveryFee = getDeliveryFee(locationInput ? locationInput.value : '');
-        }
-        const total = (product.price * qty) + deliveryFee;
-        if (totalAmount) {
-            totalAmount.textContent = `₦${total.toLocaleString()}${deliveryFee ? ` (includes ₦${deliveryFee.toLocaleString()} delivery)` : ''}`;
-        }
-    }
-
-    if (modal && nameSpan) {
-        nameSpan.textContent = product.name;
-        modal.classList.remove('hidden');
-        qtyInput.value = 1;
-        // Auto-fill address fields if user is logged in
-        if (user) {
-            if (locationInput && user.address) {
-                // Try to extract city/area from address
-                let city = '';
-                if (user.state) city = user.state;
-                if (user.lga) city = user.lga + (city ? ', ' + city : '');
-                locationInput.value = city || '';
-            }
-            const fullAddressInput = document.getElementById('order-address');
-            if (fullAddressInput && user.address) {
-                fullAddressInput.value = user.address;
-            }
-        }
-        updateTotal();
-    }
-
-    // Set up delivery/pickup toggle
-    deliveryRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.value === 'Deliver') {
-                deliverySection.style.display = '';
-                pickupSection.style.display = 'none';
-            } else {
-                deliverySection.style.display = 'none';
-                pickupSection.style.display = '';
-            }
-            updateTotal();
-        });
-    });
-
-    // Default state
-    if (document.querySelector('input[name="delivery-method"]:checked').value === 'Deliver') {
-        deliverySection.style.display = '';
-        pickupSection.style.display = 'none';
-    } else {
-        deliverySection.style.display = 'none';
-        pickupSection.style.display = '';
-    }
-
-    // Listen for changes to quantity and location
-    if (qtyInput) qtyInput.addEventListener('input', updateTotal);
-    if (locationInput) locationInput.addEventListener('input', updateTotal);
-    // Optionally set product id/price for order form here
-}
-
-// Load products from backend and render
-async function loadProducts() {
-    const productList = document.getElementById('product-list');
-    try {
-    const products = await apiGet("/api/products");
-    renderProducts(products);
-    } catch (err) {
-        if (productList) productList.innerHTML = "<p style='color:red;text-align:center;'>Failed to load products.</p>";
-    }
-}
-
-// Run on page load
-window.addEventListener('DOMContentLoaded', loadProducts);
-      
-
-
-
+// End of DOMContentLoaded

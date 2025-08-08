@@ -1,191 +1,124 @@
 
+		<!-- Register Modal -->
+		<div id="register-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;">
+			<div style="background:#fff;padding:2em 2em 1em 2em;max-width:350px;margin:auto;position:relative;border-radius:8px;">
+				<button id="close-register-modal" style="position:absolute;top:8px;right:8px;font-size:1.2em;">&times;</button>
+				<h3>Register</h3>
+				<form id="register-form">
+					<input type="text" name="name" placeholder="Name" required style="width:100%;margin-bottom:10px;">
+					<input type="email" name="email" placeholder="Email" required style="width:100%;margin-bottom:10px;">
+					<input type="password" name="password" placeholder="Password" required style="width:100%;margin-bottom:10px;">
+					<button type="submit" style="width:100%;">Register</button>
+				</form>
+				<div id="register-error" style="color:red;margin-top:8px;display:none;"></div>
+				<div id="register-success" style="color:green;margin-top:8px;display:none;"></div>
+			</div>
+		</div>
+
+		<!-- Verification Modal -->
+		<div id="verify-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:1001;align-items:center;justify-content:center;">
+			<div style="background:#fff;padding:2em 2em 1em 2em;max-width:350px;margin:auto;position:relative;border-radius:8px;">
+				<button id="close-verify-modal" style="position:absolute;top:8px;right:8px;font-size:1.2em;">&times;</button>
+				<h3>Email Verification</h3>
+				<form id="verify-form">
+					<input type="text" name="code" placeholder="Enter verification code" required style="width:100%;margin-bottom:10px;">
+					<input type="hidden" name="email" id="verify-email">
+					<button type="submit" style="width:100%;">Verify</button>
+				</form>
+				<div id="verify-error" style="color:red;margin-top:8px;display:none;"></div>
+				<div id="verify-success" style="color:green;margin-top:8px;display:none;"></div>
+			</div>
+		</div>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LAMAR PHONES & GADGETS</title>
-  <link rel="stylesheet" href="style.css" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self' https://phone-2cv4.onrender.com; style-src 'self' 'unsafe-inline'; img-src * data:;">
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Phone & Gadget Store</title>
+	<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="main-header">
-    <div class="header-flex">
-      <div class="brand">
-        <img src="WhatsApp Image 2025-07-25 at 10.22.35_16414460.jpg" alt="LAMAR PHONES & GADGETS Logo" style="height:60px; margin-right:10px; vertical-align:middle;" />
-        <span class="brand-title">LAMAR PHONES & GADGETS</span>
-      </div>
-      <button id="menu-toggle" class="menu-toggle" aria-label="Open menu">☰</button>
-    </div>
-  </header>
-  <nav id="side-menu" class="side-menu-modal">
-    <button id="close-menu" class="close-menu" aria-label="Close menu">&times;</button>
-    <ul class="menu-list">
-      <li><button id="menu-notifications" class="menu-item">🔔 Notifications <span id="notif-badge" class="notif-badge hidden"></span></button></li>
-      <li><button id="menu-darkmode" class="menu-item">🌙 Dark Mode</button></li>
-      <li><button id="menu-profile" class="menu-item">👤 Profile</button></li>
-      <li><button id="menu-settings" class="menu-item">⚙️ Settings</button></li>
-      <li><button id="menu-help" class="menu-item">❓ Help</button></li>
-      <li><button id="menu-myorders" class="menu-item">📦 My Orders</button></li>
-      <li><button id="menu-logout" class="menu-item">🚪 Logout</button></li>
-    </ul>
-  </nav>
-  <main class="main-content container">
-    <section id="products-section" class="glass-card">
-      <h2>Our Products</h2>
-      <div class="search-filter">
-        <input type="text" id="search-input" placeholder="Search products..." />
-        <select id="category-filter">
-          <option value="">All Categories</option>
-          <option value="Smartphones">Smartphones</option>
-          <option value="Laptops">Laptops</option>
-          <option value="Tablets">Tablets</option>
-          <option value="Accessories">Accessories</option>
-          <option value="Wearables">Wearables</option>
-        </select>
-      </div>
-      <div id="selected-category-label" style="display:none;font-weight:bold;margin-bottom:1em;"></div>
-      <div id="product-list" class="product-grid"></div>
-    </section>
-  </main>
-  <!-- Buy Now Modal -->
-  <div id="order-modal" class="modal hidden">
-    <div class="modal-content">
-      <button id="close-order-modal" class="close-modal">&times;</button>
-      <h3>Buy Now: <span id="order-product-name"></span></h3>
-      <form id="order-form">
-        <label>Quantity:<input type="number" id="order-qty" min="1" value="1" required></label><br>
-        <div style="margin:8px 0;"><b>Total:</b> <span id="order-total-amount">₦0</span></div>
-        <label>Delivery Method:<br>
-          <input type="radio" name="delivery-method" value="Pick Up" checked> Pick Up
-          <input type="radio" name="delivery-method" value="Deliver"> Deliver
-        </label><br>
-        <div id="pickup-section">
-          <div class="info-box">
-            <b>Pick Up Location:</b><br>
-            <span>Lagos, Nigeria (Store Address)</span><br>
-            <span class="info-note">You will pick up your order at our store. ₦30 fee applies.</span>
-          </div>
-        </div>
-        <div id="delivery-section" style="display:none;">
-          <div class="info-box">
-            <b>Delivery Address:</b><br>
-            <input type="text" id="order-location" placeholder="Enter your city or area for delivery fee" autocomplete="address-level2">
-            <input type="text" id="order-address" placeholder="Enter full delivery address">
-            <div id="map-container"></div>
-            <span class="info-note">Delivery fee is calculated based on your city or area above.</span>
-          </div>
-        </div>
-        <label>Phone:<input type="text" id="order-phone" required></label><br>
-        <label>Email:<input type="email" id="order-email" required></label><br>
-        <label>Payment Method:
-          <select id="payment-method" required>
-            <option value="Pay on Delivery">Pay on Delivery</option>
-            <option value="Card">Card</option>
-            <option value="Bank Transfer">Bank Transfer</option>
-          </select>
-        </label><br>
-        <div id="total-amount-box"></div>
-        <button type="submit" class="btn-main" id="order-submit-btn">Send Order</button>
-        <div id="order-spinner" style="display:none;"><div class="loader"></div> Sending order...</div>
-      </form>
-      <div id="order-message"></div>
-    </div>
-  </div>
-  <!-- Auth Modal -->
-  <div id="auth-modal" class="modal hidden">
-    <div class="modal-content">
-      <button id="close-auth-modal" class="close-modal">&times;</button>
-      <div id="login-view" class="auth-view">
-        <h2>Login</h2>
-        <form id="login-form" autocomplete="on">
-          <label>Email:<input type="email" id="login-email" required /></label><br>
-          <label>Password:<input type="password" id="login-password" required /></label><br>
-          <button type="submit" class="btn-main">Login</button>
-        </form>
-        <div id="login-message" class="form-message"></div>
-        <p class="switch-link">Don't have an account? <a href="#" id="show-register-link">Register</a></p>
-      </div>
-      <div id="register-view" class="auth-view hidden">
-        <h2>Register</h2>
-        <form id="register-form">
-          <label>Name:<input type="text" id="reg-name" required /></label><br>
-          <label>Email:<input type="email" id="reg-email" required /></label><br>
-          <label>State:<select id="reg-state" required></select></label><br>
-          <label>LGA:<select id="reg-lga" required></select></label><br>
-          <label>Full Address:<input type="text" id="reg-address" required></label><br>
-          <label>Password:<input type="password" id="reg-password" required /></label><br>
-          <label>Confirm Password:<input type="password" id="reg-confirm-password" required /></label><br>
-          <button type="submit" class="btn-main">Register</button>
-        </form>
-        <div id="register-message" class="form-message"></div>
-        <div id="verify-code-section" class="hidden">
-          <h3>Verify Your Email</h3>
-          <p>Enter the code sent to your email:</p>
-          <input type="text" id="verification-code" placeholder="Verification Code" required />
-          <button id="verify-btn" class="btn-main">Verify</button>
-        </div>
-        <p class="switch-link">Already registered? <a href="#" id="show-login-link">Login</a></p>
-      </div>
-    </div>
-  </div>
-  <!-- Notification Modal -->
-  <div id="notification-modal" class="modal hidden">
-    <div class="modal-content">
-      <button id="close-notif" class="close-modal">&times;</button>
-      <h3>Notifications</h3>
-      <ul id="notif-list" class="notif-list"></ul>
-    </div>
-  </div>
-  <!-- Orders Modal -->
-  <div id="orders-modal" class="modal hidden">
-    <div class="modal-content">
-      <button id="close-orders-modal" class="close-modal">&times;</button>
-      <h3>My Orders</h3>
-      <div id="orders-list">Loading...</div>
-    </div>
-  </div>
-  <!-- User Profile Modal (Modern) -->
-  <div id="profile-modal" class="modal hidden">
-    <div class="modal-content profile-modal-content">
-      <button id="close-profile-modal" class="close-modal">&times;</button>
-      <h3>My Account</h3>
-      <form id="profile-form" autocomplete="on">
-        <div class="profile-avatar-section">
-          <img id="profile-avatar" src="https://ui-avatars.com/api/?name=User" alt="User Avatar" class="profile-avatar" />
-          <input type="file" id="profile-avatar-upload" accept="image/*" style="display:none;" />
-          <button type="button" id="change-avatar-btn" class="btn-secondary">Change Photo</button>
-        </div>
-        <div class="profile-fields">
-          <label>Name:<input type="text" id="profile-name" required /></label><br>
-          <label>Email:<input type="email" id="profile-email" required disabled /></label><br>
-          <label>Phone:<input type="text" id="profile-phone" /></label><br>
-          <label>Address:<input type="text" id="profile-address" /></label><br>
-          <label>Password:<input type="password" id="profile-password" placeholder="Leave blank to keep current" /></label><br>
-        </div>
-        <div class="profile-actions">
-          <button type="submit" class="btn-main">Save Changes</button>
-        </div>
-        <div id="profile-message" class="form-message"></div>
-      </form>
-    </div>
-  </div>
-  <!-- Help Modal -->
-  <div id="help-modal" class="modal hidden">
-    <div class="modal-content">
-      <button id="close-help-modal" class="close-modal">&times;</button>
-      <h3>Customer Care</h3>
-      <div id="help-info">
-        <p>For assistance, contact us at:</p>
-        <ul>
-          <li>Phone: 0800-123-4567</li>
-          <li>Email: support@godsownphone.com</li>
-        </ul>
-        <p>We are here to help you 24/7!</p>
-      </div>
-    </div>
-  </div>
-  <script src="script.js"></script>
-</body>
+	<header>
+		<div class="header-content">
+			<h1>Phone & Gadget Store</h1>
+			<nav>
+				   <a href="#">Home</a>
+				   <a href="#products">Products</a>
+				   <span id="user-greeting" style="display:none;margin-right:10px;font-weight:600;color:#e8491d;"></span>
+				   <a href="#" id="login-link">Login</a>
+				   <a href="#" id="register-link">Register</a>
+			</nav>
+		<!-- Login Modal -->
+		<div id="login-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;">
+			<div style="background:#fff;padding:2em 2em 1em 2em;max-width:350px;margin:auto;position:relative;border-radius:8px;">
+				<button id="close-login-modal" style="position:absolute;top:8px;right:8px;font-size:1.2em;">&times;</button>
+				<h3>Login</h3>
+				<form id="login-form">
+					<input type="email" name="email" placeholder="Email" required style="width:100%;margin-bottom:10px;">
+					<input type="password" name="password" placeholder="Password" required style="width:100%;margin-bottom:10px;">
+					<button type="submit" style="width:100%;">Login</button>
+				</form>
+				<div id="login-error" style="color:red;margin-top:8px;display:none;"></div>
+			</div>
+		</div>
+		</div>
+	</header>
+	<section class="hero-advert">
+	<div class="live-sales-bar" id="live-sales-bar">
+		<!-- Live sales notifications will appear here -->
+	</div>
+		<div class="hero-content">
+			<h2>Biggest Gadget Sale of the Year!</h2>
+			<p>Get the latest phones, tablets, and accessories at unbeatable prices.<br>
+			Free shipping on orders over ₦50,000. Shop now and enjoy exclusive deals!</p>
+			<a href="#products" class="cta-btn">Shop Now</a>
+		</div>
+	</section>
+	<main>
+		<div class="container" id="products-container">
+			<!-- Products will be loaded here -->
+		</div>
+	</main>
+	<footer>
+		&copy; 2025 Phone & Gadget Store. All rights reserved.
+	</footer>
+	</main>
+
+	<!-- Buy Now Modal -->
+	<div id="buy-modal" style="display:none;">
+		<div id="buy-modal-backdrop">
+			<div>
+				<button id="close-buy-modal">&times;</button>
+				<h3 id="buy-modal-title">Buy Product</h3>
+				<div id="buy-modal-product"></div>
+				<form id="buy-form">
+					<div style="margin-bottom:12px;">
+						<label><input type="radio" name="method" value="pick" checked> Pick Up</label>
+						<label style="margin-left:18px;"><input type="radio" name="method" value="delivery"> Delivery</label>
+					</div>
+					<input type="email" name="email" placeholder="Email (optional)">
+					<div id="pick-fields">
+						<input type="text" name="name" placeholder="Your Name">
+						<input type="tel" name="phone" placeholder="Phone Number">
+					</div>
+					<div id="delivery-fields" style="display:none;">
+						<input type="text" name="address" placeholder="Delivery Address">
+						<input type="text" name="location" placeholder="City/State">
+						<input type="tel" name="dphone" placeholder="Phone Number">
+					</div>
+					<select name="payment_method" style="width:100%;margin-bottom:10px;">
+						<option value="">Select Payment Method</option>
+						<option value="Cash">Cash</option>
+						<option value="Transfer">Bank Transfer</option>
+						<option value="POS">POS</option>
+					</select>
+					<button type="submit">Submit Order</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+		<script src="script.js"></script>
+	</body>
 </html>
