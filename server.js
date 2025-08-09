@@ -1,3 +1,17 @@
+// Global error handler middleware
+app.use((err, req, res, next) => {
+	console.error('Global error:', err);
+	res.status(500).json({ error: 'Internal server error', details: err.message });
+});
+
+// Catch unhandled promise rejections and uncaught exceptions
+process.on('unhandledRejection', (reason, promise) => {
+	console.error('Unhandled Rejection:', reason);
+});
+process.on('uncaughtException', (err) => {
+	console.error('Uncaught Exception:', err);
+	process.exit(1);
+});
 // Homepage route
 app.get('/', (req, res) => {
 	res.send('Welcome to GOD\'S OWN PHONE GADGET API!');
