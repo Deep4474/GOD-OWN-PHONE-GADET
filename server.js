@@ -1,13 +1,12 @@
-// Serve favicon.ico
-const path = require('path');
-app.use('/favicon.ico', (req, res) => {
-	res.sendFile(path.join(__dirname, 'favicon.ico'));
-});
 
 // Express app setup
 const express = require('express');
 const app = express();
 app.use(express.json());
+
+// Serve favicon.ico and other static files from root
+const path = require('path');
+app.use(express.static(__dirname));
 
 // Placeholder registration endpoint
 app.post('/api/register', (req, res) => {
