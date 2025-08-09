@@ -8,24 +8,58 @@ app.use(express.json());
 const path = require('path');
 app.use(express.static(__dirname));
 
-// Placeholder registration endpoint
-app.post('/api/register', (req, res) => {
+
+// Email verification code store (in-memory)
+const verificationCodes = {};
+
+// Email sending setup (Nodemailer, Gmail)
+const nodemailer = require('nodemailer');
+const EMAIL_USER = process.env.EMAIL_USER || 'ayomideoluniyi49@gmail.com';
+const EMAIL_PASS = process.env.EMAIL_PASS || 'qpfa qypc nfbb rgaf';
+const transporter = nodemailer.createTransport({
+	service: 'gmail',
+	auth: {
+		user: EMAIL_USER,
+		pass: EMAIL_PASS
+	}
+});
+
+// Registration endpoint with email code
+app.post('/api/register', async (req, res) => {
 	const { name, email, password } = req.body;
 	if (!name || !email || !password) {
 		return res.status(400).json({ error: 'Name, email, and password are required.' });
 	}
-	// Simulate registration success
-	res.json({ message: 'Registration successful! Please verify your email.' });
+	// Generate 6-digit code
+	const code = Math.floor(100000 + Math.random() * 900000).toString();
+	verificationCodes[email] = code;
+	// Send email
+	try {
+		await transporter.sendMail({
+			from: EMAIL_USER,
+			to: email,
+			subject: 'Your Verification Code',
+			text: `Hello ${name},\nYour verification code is: ${code}`
+		});
+		res.json({ message: 'Registration successful! Verification code sent to your email.' });
+	} catch (err) {
+		console.error('Email error:', err);
+		res.status(500).json({ error: 'Failed to send verification email.' });
+	}
 });
 
-// Placeholder verification endpoint
+// Verification endpoint
 app.post('/api/verify', (req, res) => {
 	const { email, code } = req.body;
 	if (!email || !code) {
 		return res.status(400).json({ error: 'Email and code are required.' });
 	}
-	// Simulate verification success
-	res.json({ message: 'Email verified! You can now log in.' });
+	if (verificationCodes[email] && verificationCodes[email] === code) {
+		delete verificationCodes[email];
+		res.json({ message: 'Email verified! You can now log in.' });
+	} else {
+		res.status(400).json({ error: 'Invalid code or email.' });
+	}
 });
 
 // Placeholder login endpoint
