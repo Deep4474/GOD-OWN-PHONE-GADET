@@ -1,3 +1,6 @@
+// Set your Render public API base URL
+const API_BASE_URL = 'https://phone-2cv4.onrender.com';
+
 // Order form logic (send order to backend, which saves to Supabase)
 function setupOrderForm() {
 	var orderForm = document.getElementById('order-form');
@@ -12,7 +15,7 @@ function setupOrderForm() {
 			return;
 		}
 		try {
-			var res = await fetch('/api/order', {
+			var res = await fetch(API_BASE_URL + '/api/order', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(order)
@@ -54,7 +57,7 @@ window.addEventListener('DOMContentLoaded', function() {
 			var products = result.data || [];
 			if (!Array.isArray(products) || products.length === 0) {
 				// fallback to backend
-				fetch('/api/products')
+				fetch(API_BASE_URL + '/api/products')
 					.then(function(res) { return res.json(); })
 					.then(renderProducts)
 					.catch(function() {
@@ -65,7 +68,7 @@ window.addEventListener('DOMContentLoaded', function() {
 			renderProducts(products);
 		}).catch(function() {
 			// fallback to backend
-			fetch('/api/products')
+			fetch(API_BASE_URL + '/api/products')
 				.then(function(res) { return res.json(); })
 				.then(renderProducts)
 				.catch(function() {
@@ -98,7 +101,7 @@ window.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('DOMContentLoaded', function() {
 	var container = document.getElementById('products-container');
 	if (!container) return;
-	fetch('/api/products')
+	fetch(API_BASE_URL + '/api/products')
 		.then(function(res) { return res.json(); })
 		.then(function(products) {
 			if (!Array.isArray(products) || products.length === 0) {
@@ -178,7 +181,7 @@ if (registerForm) {
 		var password = fd.get('password');
 		registerError.style.display = 'none';
 		registerSuccess.style.display = 'none';
-		var backendUrl = '/api/register';
+	var backendUrl = API_BASE_URL + '/api/register';
 		try {
 			var res = await fetch(backendUrl, {
 				method: 'POST',
@@ -214,7 +217,7 @@ if (verifyForm) {
 		var email = fd.get('email');
 		verifyError.style.display = 'none';
 		verifySuccess.style.display = 'none';
-		var backendUrl = '/api/verify';
+	var backendUrl = API_BASE_URL + '/api/verify';
 		try {
 			var res = await fetch(backendUrl, {
 				method: 'POST',
@@ -248,7 +251,7 @@ if (loginForm) {
 		var password = fd.get('password');
 		loginError.style.display = 'none';
 		try {
-			var backendUrl = '/api/login';
+			var backendUrl = API_BASE_URL + '/api/login';
 			var res = await fetch(backendUrl, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },

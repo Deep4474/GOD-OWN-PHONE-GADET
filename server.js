@@ -1,26 +1,33 @@
-// Global error handler middleware
-app.use((err, req, res, next) => {
-	console.error('Global error:', err);
-	res.status(500).json({ error: 'Internal server error', details: err.message });
+// Placeholder registration endpoint
+app.post('/api/register', (req, res) => {
+	const { name, email, password } = req.body;
+	if (!name || !email || !password) {
+		return res.status(400).json({ error: 'Name, email, and password are required.' });
+	}
+	// Simulate registration success
+	res.json({ message: 'Registration successful! Please verify your email.' });
 });
 
-// Catch unhandled promise rejections and uncaught exceptions
-process.on('unhandledRejection', (reason, promise) => {
-	console.error('Unhandled Rejection:', reason);
-});
-process.on('uncaughtException', (err) => {
-	console.error('Uncaught Exception:', err);
-	process.exit(1);
-});
-// Homepage route
-app.get('/', (req, res) => {
-	res.send('Welcome to GOD\'S OWN PHONE GADGET API!');
+// Placeholder verification endpoint
+app.post('/api/verify', (req, res) => {
+	const { email, code } = req.body;
+	if (!email || !code) {
+		return res.status(400).json({ error: 'Email and code are required.' });
+	}
+	// Simulate verification success
+	res.json({ message: 'Email verified! You can now log in.' });
 });
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-	res.json({ status: 'ok' });
+// Placeholder login endpoint
+app.post('/api/login', (req, res) => {
+	const { email, password } = req.body;
+	if (!email || !password) {
+		return res.status(400).json({ error: 'Email and password are required.' });
+	}
+	// Simulate login success
+	res.json({ message: 'Login successful!' });
 });
+
 // Express app setup
 const express = require('express');
 const app = express();
@@ -31,6 +38,16 @@ const { createClient } = require('@supabase/supabase-js');
 const SUPABASE_URL = 'https://jlwxkykznyjmstpjcgks.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Homepage route
+app.get('/', (req, res) => {
+	res.send("Welcome to GOD'S OWN PHONE GADGET API!");
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+	res.json({ status: 'ok' });
+});
 
 // Products endpoint (fetch from Supabase)
 app.get('/api/products', async (req, res) => {
@@ -49,6 +66,21 @@ app.post('/api/order', async (req, res) => {
 	if (error) return res.status(500).json({ error: 'Failed to save order to Supabase.' });
 	// You can add email sending logic here if needed
 	res.json({ success: true, data });
+});
+
+// Global error handler middleware (should be after all routes)
+app.use((err, req, res, next) => {
+	console.error('Global error:', err);
+	res.status(500).json({ error: 'Internal server error', details: err.message });
+});
+
+// Catch unhandled promise rejections and uncaught exceptions
+process.on('unhandledRejection', (reason, promise) => {
+	console.error('Unhandled Rejection:', reason);
+});
+process.on('uncaughtException', (err) => {
+	console.error('Uncaught Exception:', err);
+	process.exit(1);
 });
 
 // Start the server
