@@ -1,3 +1,134 @@
+/* --- User Info & Profile Section --- */
+#user-info {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(53,66,74,0.10);
+  padding: 24px 18px;
+  max-width: 400px;
+  margin: 30px auto 30px auto;
+  text-align: center;
+}
+#user-info img {
+  margin: 10px 0 10px 0;
+  border-radius: 50%;
+  border: 2px solid #e8491d;
+}
+#user-info button {
+  background: #e8491d;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 8px 22px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 8px 4px;
+  transition: background 0.2s;
+}
+#user-info button:hover {
+  background: #35424a;
+}
+#profile-form-container form {
+  margin-top: 10px;
+  text-align: left;
+}
+#profile-form-container label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+#profile-form-container input[type="text"] {
+  width: 100%;
+  padding: 7px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 1em;
+}
+#profile-form-container button[type="submit"] {
+  background: #e8491d;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 8px 22px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+#profile-form-container button[type="submit"]:hover {
+  background: #35424a;
+}
+/* --- Auth Modals --- */
+#login-modal, #register-modal, #verify-modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+#login-modal[style*="display: block"], #register-modal[style*="display: block"], #verify-modal[style*="display: block"] {
+  display: flex !important;
+}
+#login-modal > div, #register-modal > div, #verify-modal > div {
+  background: #fff;
+  padding: 2em 2em 1em 2em;
+  max-width: 350px;
+  margin: auto;
+  position: relative;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(53,66,74,0.13);
+}
+#login-modal h3, #register-modal h3, #verify-modal h3 {
+  color: #e8491d;
+  margin-bottom: 12px;
+  text-align: center;
+}
+#login-modal input, #register-modal input, #verify-modal input {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1em;
+}
+#login-modal button, #register-modal button, #verify-modal button {
+  background: #e8491d;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 8px 22px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+#login-modal button:hover, #register-modal button:hover, #verify-modal button:hover {
+  background: #35424a;
+}
+#close-login-modal, #close-register-modal, #close-verify-modal {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 1.2em;
+  background: none;
+  border: none;
+  color: #e8491d;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+#close-login-modal:hover, #close-register-modal:hover, #close-verify-modal:hover {
+  color: #35424a;
+}
 /* --- Live Sales Notification Bar --- */
 #live-sales-bar {
   position: fixed;

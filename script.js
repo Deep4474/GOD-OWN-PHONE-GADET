@@ -1,5 +1,119 @@
+// Add logout button and user info display
+function showUserInfo(user) {
+	let userInfoDiv = document.getElementById('user-info');
+	if (!userInfoDiv) {
+		userInfoDiv = document.createElement('div');
+		userInfoDiv.id = 'user-info';
+		userInfoDiv.style.margin = '16px 0';
+		document.body.prepend(userInfoDiv);
+	}
+	// Fetch full user profile from backend
+	fetch(API_BASE_URL + '/api/user/' + user.id)
+		.then(res => res.json())
+		.then(profile => {
+			userInfoDiv.innerHTML = `
+				<span>Welcome, ${profile.name || user.email}</span><br>
+				<b>Email:</b> ${profile.email}<br>
+				<b>Address:</b> ${profile.address || ''}<br>
+				<img src="${profile.profile_image || 'https://placehold.co/100x100?text=No+Image'}" alt="Profile" style="width:100px;height:100px;border-radius:50%;"><br>
+				<button id="logout-btn" style="margin:10px 0;">Logout</button>
+				<button id="edit-profile-btn">Edit Profile</button>
+				<div id="profile-form-container"></div>
+			`;
+			document.getElementById('logout-btn').onclick = async function() {
+				await supabaseClient.auth.signOut();
+				userInfoDiv.remove();
+				showAuthUI();
+			};
+			document.getElementById('edit-profile-btn').onclick = function() {
+				showProfileForm(profile);
+			};
+		});
+}
+
+function showProfileForm(profile) {
+	const container = document.getElementById('profile-form-container');
+	container.innerHTML = `
+		<form id="profile-update-form" style="margin-top:10px;">
+			<label>Name: <input type="text" name="name" value="${profile.name || ''}"></label><br>
+			<label>Address: <input type="text" name="address" value="${profile.address || ''}"></label><br>
+			<label>Profile Image URL: <input type="text" name="profile_image" value="${profile.profile_image || ''}"></label><br>
+			<button type="submit">Save</button>
+		</form>
+		<div id="profile-update-msg"></div>
+	`;
+	document.getElementById('profile-update-form').onsubmit = async function(e) {
+		e.preventDefault();
+		const fd = new FormData(e.target);
+		const updates = {
+			name: fd.get('name'),
+			address: fd.get('address'),
+			profile_image: fd.get('profile_image')
+		};
+		const res = await fetch(API_BASE_URL + '/api/user/' + profile.id, {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(updates)
+		});
+		const data = await res.json();
+		const msgDiv = document.getElementById('profile-update-msg');
+		if (res.ok) {
+			msgDiv.textContent = 'Profile updated!';
+			showUserInfo(data.user);
+		} else {
+			msgDiv.textContent = data.error || 'Update failed.';
+		}
+	};
+}
 // Set your Render public API base URL
 const API_BASE_URL = 'https://phone-2cv4.onrender.com';
+
+let supabaseClient;
+window.addEventListener('DOMContentLoaded', function() {
+	if (window.supabase) {
+		supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+		checkAuthState();
+	} else {
+		var supabaseScript = document.createElement('script');
+		supabaseScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js';
+		document.head.appendChild(supabaseScript);
+		supabaseScript.onload = function() {
+			supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+			checkAuthState();
+		};
+	}
+});
+
+function checkAuthState() {
+	supabaseClient.auth.getSession().then(({ data }) => {
+		if (data.session && data.session.user) {
+			hideAuthUI();
+			showUserInfo(data.session.user);
+		} else {
+			showAuthUI();
+			let userInfoDiv = document.getElementById('user-info');
+			if (userInfoDiv) userInfoDiv.remove();
+		}
+	});
+}
+
+function hideAuthUI() {
+	var loginLink = document.getElementById('login-link');
+	var registerLink = document.getElementById('register-link');
+	var loginModal = document.getElementById('login-modal');
+	var registerModal = document.getElementById('register-modal');
+	if (loginLink) loginLink.style.display = 'none';
+	if (registerLink) registerLink.style.display = 'none';
+	if (loginModal) loginModal.style.display = 'none';
+	if (registerModal) registerModal.style.display = 'none';
+}
+
+function showAuthUI() {
+	var loginLink = document.getElementById('login-link');
+	var registerLink = document.getElementById('register-link');
+	if (loginLink) loginLink.style.display = '';
+	if (registerLink) registerLink.style.display = '';
+}
 
 // Order form logic (send order to backend, which saves to Supabase)
 function setupOrderForm() {
@@ -38,8 +152,6 @@ window.addEventListener('DOMContentLoaded', function() {
 	// ...existing code...
 });
 // Supabase config
-const SUPABASE_URL = 'https://jlwxkykznyjmstpjcgks.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ';
 
 window.addEventListener('DOMContentLoaded', function() {
 	// Registration, login, verification logic (already present)
@@ -181,27 +293,17 @@ if (registerForm) {
 		var password = fd.get('password');
 		registerError.style.display = 'none';
 		registerSuccess.style.display = 'none';
-	var backendUrl = API_BASE_URL + '/api/register';
 		try {
-			var res = await fetch(backendUrl, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: name, email: email, password: password })
-			});
-			var data = await res.json();
-			if (!res.ok) {
-				registerError.textContent = data.error || 'Registration failed.';
+			const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { name } } });
+			if (error) {
+				registerError.textContent = error.message || 'Registration failed.';
 				registerError.style.display = 'block';
 				return;
 			}
-			registerSuccess.textContent = data.message || 'Registration successful!';
+			registerSuccess.textContent = 'Registration successful! Please check your email to verify your account.';
 			registerSuccess.style.display = 'block';
 			registerForm.reset();
-			// Show verification modal
-			if (verifyModal && verifyEmailInput) {
-				verifyEmailInput.value = email;
-				verifyModal.style.display = 'flex';
-			}
+			hideAuthUI();
 		} catch (err) {
 			registerError.textContent = 'Network error.';
 			registerError.style.display = 'block';
@@ -251,19 +353,14 @@ if (loginForm) {
 		var password = fd.get('password');
 		loginError.style.display = 'none';
 		try {
-			var backendUrl = API_BASE_URL + '/api/login';
-			var res = await fetch(backendUrl, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email: email, password: password })
-			});
-			var data = await res.json();
-			if (!res.ok) {
-				loginError.textContent = data.error || 'Login failed.';
+			const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+			if (error) {
+				loginError.textContent = error.message || 'Login failed.';
 				loginError.style.display = 'block';
 				return;
 			}
 			loginModal.style.display = 'none';
+			hideAuthUI();
 			alert('Login successful!');
 		} catch (err) {
 			loginError.textContent = 'Network error.';

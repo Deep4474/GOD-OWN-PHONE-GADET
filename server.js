@@ -1,3 +1,30 @@
+// Get user info by id (requires user to be logged in)
+app.get('/api/user/:id', async (req, res) => {
+	const { id } = req.params;
+	const { data, error } = await supabase.from('users').select('*').eq('id', id).single();
+	if (error) return res.status(404).json({ error: 'User not found.' });
+	res.json(data);
+});
+
+// Update user profile info (name, address, profile_image)
+app.put('/api/user/:id', async (req, res) => {
+	const { id } = req.params;
+	const { name, address, profile_image } = req.body;
+	const updates = {};
+	if (name) updates.name = name;
+	if (address) updates.address = address;
+	if (profile_image) updates.profile_image = profile_image;
+	const { data, error } = await supabase.from('users').update(updates).eq('id', id).select();
+	if (error) return res.status(400).json({ error: 'Update failed.' });
+	res.json({ message: 'Profile updated!', user: data[0] });
+});
+
+// Admin: List all users (for management)
+app.get('/api/users', async (req, res) => {
+	const { data, error } = await supabase.from('users').select('*');
+	if (error) return res.status(500).json({ error: 'Failed to fetch users.' });
+	res.json(data);
+});
 
 // Express app setup
 const express = require('express');
@@ -24,27 +51,39 @@ const transporter = nodemailer.createTransport({
 	}
 });
 
-// Registration endpoint with email code
+
+
+// Registration endpoint using Supabase Auth and insert into users table
 app.post('/api/register', async (req, res) => {
 	const { name, email, password } = req.body;
 	if (!name || !email || !password) {
 		return res.status(400).json({ error: 'Name, email, and password are required.' });
 	}
-	// Generate 6-digit code
-	const code = Math.floor(100000 + Math.random() * 900000).toString();
-	verificationCodes[email] = code;
-	// Send email
 	try {
-		await transporter.sendMail({
-			from: EMAIL_USER,
-			to: email,
-			subject: 'Your Verification Code',
-			text: `Hello ${name},\nYour verification code is: ${code}`
+		const { data, error } = await supabase.auth.signUp({
+			email,
+			password,
+			options: { data: { name } }
 		});
-		res.json({ message: 'Registration successful! Verification code sent to your email.' });
+		if (error) {
+			if (error.message && error.message.includes('already registered')) {
+				return res.status(400).json({ error: 'Email is already registered.' });
+			}
+			return res.status(400).json({ error: error.message || 'Registration failed.' });
+		}
+		// Insert user info into public.users table
+		if (data && data.user) {
+			await supabase.from('users').insert([
+				{
+					id: data.user.id,
+					email: data.user.email,
+					name: name
+				}
+			]);
+		}
+		res.json({ message: 'Registration successful! Please check your email to verify your account.' });
 	} catch (err) {
-		console.error('Email error:', err);
-		res.status(500).json({ error: 'Failed to send verification email.' });
+		res.status(500).json({ error: 'Registration failed.' });
 	}
 });
 
@@ -62,14 +101,23 @@ app.post('/api/verify', (req, res) => {
 	}
 });
 
-// Placeholder login endpoint
-app.post('/api/login', (req, res) => {
+
+// Login endpoint using Supabase Auth
+app.post('/api/login', async (req, res) => {
 	const { email, password } = req.body;
 	if (!email || !password) {
 		return res.status(400).json({ error: 'Email and password are required.' });
 	}
-	// Simulate login success
-	res.json({ message: 'Login successful!' });
+	try {
+		const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+		if (error) {
+			return res.status(400).json({ error: error.message || 'Login failed.' });
+		}
+		// Return session info to frontend
+		res.json({ message: 'Login successful!', session: data.session, user: data.user });
+	} catch (err) {
+		res.status(500).json({ error: 'Login failed.' });
+	}
 });
 
 // Supabase client setup
