@@ -1,3 +1,9 @@
+
+// Express app setup
+const express = require('express');
+const app = express();
+app.use(express.json());
+
 // Placeholder registration endpoint
 app.post('/api/register', (req, res) => {
 	const { name, email, password } = req.body;
@@ -27,11 +33,6 @@ app.post('/api/login', (req, res) => {
 	// Simulate login success
 	res.json({ message: 'Login successful!' });
 });
-
-// Express app setup
-const express = require('express');
-const app = express();
-app.use(express.json());
 
 // Supabase client setup
 const { createClient } = require('@supabase/supabase-js');
