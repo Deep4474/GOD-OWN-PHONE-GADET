@@ -1,3 +1,9 @@
+
+// Express app setup
+const express = require('express');
+const app = express();
+app.use(express.json());
+
 // Get user info by id (requires user to be logged in)
 app.get('/api/user/:id', async (req, res) => {
 	const { id } = req.params;
@@ -25,11 +31,6 @@ app.get('/api/users', async (req, res) => {
 	if (error) return res.status(500).json({ error: 'Failed to fetch users.' });
 	res.json(data);
 });
-
-// Express app setup
-const express = require('express');
-const app = express();
-app.use(express.json());
 
 // Serve favicon.ico and other static files from root
 const path = require('path');
