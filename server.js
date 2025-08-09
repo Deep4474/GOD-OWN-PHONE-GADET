@@ -1,3 +1,8 @@
+// Serve favicon.ico
+const path = require('path');
+app.use('/favicon.ico', (req, res) => {
+	res.sendFile(path.join(__dirname, 'favicon.ico'));
+});
 
 // Express app setup
 const express = require('express');
