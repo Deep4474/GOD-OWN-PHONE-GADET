@@ -113,7 +113,7 @@ function displayProducts(products) {
             <p class="description">${product.description || ''}</p>
             <p class="price">₦${product.price.toLocaleString()}</p>
             <p class="stock-status ${stockClass}">${stockStatus}</p>
-            <button class="buy-now-btn" ${product.stock <= 0 ? 'disabled' : ''} onclick="openBuyNowModal('${product.name}', ${product.price}, '${product.image_url}')">
+            <button class="buy-now-btn" ${product.stock <= 0 ? 'disabled' : ''} data-product-name="${product.name}" data-product-price="${product.price}" data-product-image="${product.image_url}">
                 ${product.stock > 0 ? 'Buy Now' : 'Out of Stock'}
             </button>
         `;
@@ -252,6 +252,20 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeSlider();
         loadProducts();
         initializeTimer();
+        
+        // Add click event listener for Buy Now buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('buy-now-btn') && !e.target.disabled) {
+                const button = e.target;
+                const productName = button.dataset.productName;
+                const productPrice = parseFloat(button.dataset.productPrice);
+                const productImage = button.dataset.productImage;
+                
+                if (productName && productPrice && productImage) {
+                    openBuyNowModal(productName, productPrice, productImage);
+                }
+            }
+        });
     }
 
     const modal = document.getElementById('buyNowModal');
