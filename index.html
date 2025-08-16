@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="deals.css">
     <link rel="stylesheet" href="contact.css">
     <link rel="stylesheet" href="footer.css">
+    <link rel="stylesheet" href="modal.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="config.js"></script>
@@ -189,9 +190,9 @@
     <!-- Buy Now Modal -->
     <div id="buyNowModal" class="modal">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
             <div class="modal-header">
                 <h2>Complete Your Purchase</h2>
+                <button class="close-modal" aria-label="Close modal">&times;</button>
             </div>
             <div class="purchase-summary">
                 <img id="modalProductImage" src="" alt="Product Image">
@@ -202,48 +203,81 @@
             </div>
             <form id="purchaseForm" class="purchase-form">
                 <div class="form-group">
-                    <label for="customerName">Full Name:</label>
-                    <input type="text" id="customerName" required>
+                    <label for="customerName">Full Name</label>
+                    <input 
+                        type="text" 
+                        id="customerName" 
+                        name="name"
+                        required 
+                        pattern="[A-Za-z ]{3,}"
+                        title="Please enter your full name (minimum 3 characters)"
+                    >
+                    <span class="validation-message">Please enter your full name (minimum 3 characters)</span>
                 </div>
 
                 <div class="form-group">
-                    <label for="customerEmail">Email:</label>
-                    <input type="email" id="customerEmail" required>
+                    <label for="customerEmail">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="customerEmail" 
+                        name="email"
+                        required
+                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                    >
+                    <span class="validation-message">Please enter a valid email address</span>
                 </div>
+
                 <div class="form-group">
-                    <label for="customerPhone">Phone Number:</label>
-                    <input type="tel" id="customerPhone" required>
+                    <label for="customerPhone">Phone Number</label>
+                    <input 
+                        type="tel" 
+                        id="customerPhone" 
+                        name="phone"
+                        required
+                        pattern="[0-9]{11}"
+                        title="Please enter a valid Nigerian phone number"
+                    >
+                    <span class="validation-message">Please enter a valid phone number (11 digits)</span>
                 </div>
+
                 <div class="quantity-selector">
-                    <h3>Quantity</h3>
+                    <h3>Select Quantity</h3>
                     <div class="quantity-controls">
-                        <button type="button" class="quantity-btn minus">-</button>
-                        <input type="number" id="quantity" name="quantity" value="1" min="1" readonly>
-                        <button type="button" class="quantity-btn plus">+</button>
+                        <button type="button" class="quantity-btn minus" aria-label="Decrease quantity">-</button>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1" max="99" readonly>
+                        <button type="button" class="quantity-btn plus" aria-label="Increase quantity">+</button>
                     </div>
                 </div>
 
                 <div class="delivery-options">
-                    <h3>Delivery Method</h3>
+                    <h3>Choose Delivery Method</h3>
                     <div class="delivery-choice">
                         <input type="radio" id="pickup" name="deliveryMethod" value="pickup" checked>
                         <label for="pickup">
                             <span class="method-title">Store Pickup</span>
-                            <span class="method-desc">Free - Collect from our store</span>
+                            <span class="method-desc">Free - Collect from our store in Lagos</span>
                         </label>
                     </div>
                     <div class="delivery-choice">
                         <input type="radio" id="delivery" name="deliveryMethod" value="delivery">
                         <label for="delivery">
                             <span class="method-title">Home Delivery</span>
-                            <span class="method-desc">₦2,000 - Delivery within Lagos</span>
+                            <span class="method-desc">₦2,000 - Next-day delivery within Lagos</span>
                         </label>
                     </div>
                 </div>
+
                 <div id="deliveryAddress" class="form-group hidden">
-                    <label for="address">Delivery Address:</label>
-                    <textarea id="address" rows="3"></textarea>
+                    <label for="address">Delivery Address</label>
+                    <textarea 
+                        id="address" 
+                        name="address"
+                        rows="3"
+                        placeholder="Enter your complete delivery address"
+                    ></textarea>
+                    <span class="validation-message">Please enter your delivery address</span>
                 </div>
+
                 <div class="total-section">
                     <div class="subtotal">
                         <span>Subtotal:</span>
@@ -254,11 +288,14 @@
                         <span>₦<span id="deliveryFee">0</span></span>
                     </div>
                     <div class="total">
-                        <span>Total:</span>
+                        <span>Total Amount:</span>
                         <span>₦<span id="totalAmount">0</span></span>
                     </div>
                 </div>
-                <button type="submit" class="submit-order">Place Order</button>
+
+                <button type="submit" class="submit-order">
+                    Place Order
+                </button>
             </form>
         </div>
     </div>
