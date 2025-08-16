@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>God's Own Phone Gadgets - Your Ultimate Phone Accessories Store</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="deals.css">
+    <link rel="stylesheet" href="contact.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="config.js"></script>
@@ -73,14 +75,14 @@
 
     <!-- Special Deals Section -->
     <section class="deals" id="deals">
-        <h2>Special Deals</h2>
+        <h2>Current Offers</h2>
         <div class="deals-container">
             <div class="deal-card">
                 <div class="deal-content">
-                    <h3>Flash Sale!</h3>
-                    <p>Get 30% off on all phone cases</p>
-                    <span class="timer">Ends in: 24:00:00</span>
-                    <button class="deal-button">Grab Deal</button>
+                    <h3>Phone Cases</h3>
+                    <p>Special discount on selected phone cases</p>
+                    <p class="offer-text">Limited time offer</p>
+                    <button class="deal-button">View Details</button>
                 </div>
             </div>
         </div>
@@ -90,11 +92,21 @@
     <section class="contact" id="contact">
         <h2>Contact Us</h2>
         <div class="contact-container">
-            <form class="contact-form">
-                <input type="text" placeholder="Your Name">
-                <input type="email" placeholder="Your Email">
-                <textarea placeholder="Your Message"></textarea>
-                <button type="submit">Send Message</button>
+            <form class="contact-form" id="contactForm">
+                <div class="form-group">
+                    <label for="contactName">Full Name</label>
+                    <input type="text" id="contactName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactEmail">Email Address</label>
+                    <input type="email" id="contactEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactMessage">Message</label>
+                    <textarea id="contactMessage" name="message" rows="4" required></textarea>
+                </div>
+                <div class="form-feedback" id="formFeedback"></div>
+                <button type="submit" class="submit-button">Send Message</button>
             </form>
         </div>
     </section>
@@ -208,6 +220,7 @@
 
     <script src="script.js"></script>
     <script src="session.js"></script>
+    <script src="contact.js"></script>
 </body>
 </html>
 
