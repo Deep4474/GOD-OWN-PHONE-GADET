@@ -169,11 +169,19 @@ function openBuyNowModal(productName, price, imageUrl) {
     subtotalAmount.textContent = price.toLocaleString();
     updateTotal();
     
+    // Reset scroll position
+    const modalContent = modal.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.scrollTop = 0;
+    }
+    
     // Show modal with animation
-    modal.style.display = 'block';
-    // Trigger reflow
-    modal.offsetHeight;
-    modal.classList.add('show');
+    requestAnimationFrame(() => {
+        modal.style.display = 'block';
+        // Trigger reflow
+        modal.offsetHeight;
+        modal.classList.add('show');
+    });
 }
 
 function updateTotal() {
@@ -256,6 +264,11 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.remove('show');
         setTimeout(() => {
             modal.style.display = 'none';
+            // Reset form when modal is fully hidden
+            purchaseForm.reset();
+            document.getElementById('quantity').value = '1';
+            updateQuantityControls();
+            updateTotal();
         }, 300); // Match the CSS transition duration
     }
 
@@ -265,6 +278,13 @@ document.addEventListener('DOMContentLoaded', () => {
             closeModal();
         }
     };
+    
+    // Also close modal when pressing Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('show')) {
+            closeModal();
+        }
+    });
 
     // Handle quantity changes
     const quantityInput = document.getElementById('quantity');
