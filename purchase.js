@@ -1,29 +1,47 @@
-    // Modal scroll functionality
+// Auto-scroll functionality
 function initializeModalScroll() {
     const modalContent = document.querySelector('.modal-content');
     if (!modalContent) return;
 
-    // No auto-scroll, just manual scroll with touch handling
+    let scrollPosition = 0;
+    const scrollSpeed = 0.7; // Reduced speed for better mobile experience
+    const scrollDelay = 3000; // Wait 3 seconds before starting to scroll
+    let isPaused = false;
     let touchStartY = 0;
-    let isTouching = false;    // Handle touch events for mobile scroll
+    let isTouching = false;
+
+    // Handle touch events for mobile
     modalContent.addEventListener('touchstart', (e) => {
+        isPaused = true;
         isTouching = true;
         touchStartY = e.touches[0].clientY;
     }, { passive: true });
 
     modalContent.addEventListener('touchend', () => {
+        // Keep paused for a moment after touch to prevent immediate scroll
+        setTimeout(() => {
+            if (!isTouching) {
+                isPaused = false;
+            }
+        }, 1500);
         isTouching = false;
     }, { passive: true });
 
     modalContent.addEventListener('touchmove', (e) => {
-        if (!isTouching) return;
-        
-        const touchY = e.touches[0].clientY;
-        const deltaY = touchStartY - touchY;
-        
-        modalContent.scrollTop += deltaY;
-        touchStartY = touchY;
+        isPaused = true;
+        isTouching = true;
     }, { passive: true });
+
+    // Desktop events
+    modalContent.addEventListener('mouseenter', () => {
+        isPaused = true;
+    });
+
+    modalContent.addEventListener('mouseleave', () => {
+        if (!isTouching) {
+            isPaused = false;
+        }
+    });
 
     // Handle focus events for form inputs
     const formInputs = modalContent.querySelectorAll('input, textarea');
@@ -71,16 +89,27 @@ function initializeModalScroll() {
         return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
     }
 
-    // Smooth scroll to sections when needed
-    function smoothScrollTo(element) {
-        if (!element) return;
-        
-        const elementTop = element.offsetTop;
-        modalContent.scrollTo({
-            top: elementTop - 20, // Add some padding
-            behavior: 'smooth'
-        });
+    // Auto-scroll function
+    function autoScroll() {
+        if (!isPaused) {
+            const maxScroll = modalContent.scrollHeight - modalContent.clientHeight;
+            
+            if (scrollPosition >= maxScroll) {
+                // Smooth scroll back to top
+                scrollPosition = 0;
+                smoothScroll(0);
+            } else {
+                scrollPosition += scrollSpeed;
+                modalContent.scrollTop = scrollPosition;
+            }
+        }
+        requestAnimationFrame(autoScroll);
     }
+
+    // Start auto-scroll after delay
+    setTimeout(() => {
+        autoScroll();
+    }, scrollDelay);
 
     return { resetScroll };
 }
@@ -247,15 +276,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const { data: order, error } = await supabaseClient
                 .from('orders')
                 .insert([{
-                    name: formData.customerName,  // Changed from customer_name to name
+                    product_name: formData.productName,
+                    quantity: formData.quantity,
+                    customer_name: formData.customerName,
                     email: formData.email,
                     phone: formData.phone,
-                    product_id: null,  // We'll update this once we have product IDs
-                    product_name: formData.productName,  // Added for reference
-                    quantity: formData.quantity,
-                    delivery_option: formData.deliveryMethod,  // Changed from delivery_method
-                    address: formData.address,  // Changed from delivery_address
-                    total_amount: formData.total,  // This matches the schema
+                    delivery_method: formData.deliveryMethod,
+                    delivery_address: formData.address,
+                    subtotal: formData.subtotal,
+                    delivery_fee: formData.deliveryFee,
+                    total_amount: formData.total,
                     status: 'pending'
                 }])
                 .select()

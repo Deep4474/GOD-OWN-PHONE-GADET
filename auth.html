@@ -130,11 +130,27 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="auth_config.js"></script>
     <script src="config.js"></script>
     <script src="authService.js"></script>
     <script src="auth.js"></script>
+    <script>
+        // Verify Supabase client initialization
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Test the Supabase connection
+                const { data, error } = await supabaseClient.auth.getSession();
+                if (error) {
+                    throw error;
+                }
+                console.log('Supabase connection successful');
+            } catch (error) {
+                console.error('Supabase connection error:', error);
+                document.getElementById('loginError').textContent = 'Authentication service not available';
+            }
+        });
+    </script>
     <script>
         // Check for errors
         window.onerror = function(msg, url, lineNo, columnNo, error) {

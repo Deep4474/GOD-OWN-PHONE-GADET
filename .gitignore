@@ -1,10 +1,10 @@
-<<<<<<< HEAD
 # Dependencies
 node_modules/
 
 # Environment variables
 .env
 .env.local
+.env*.local
 
 # IDE
 .vscode/
@@ -13,19 +13,13 @@ node_modules/
 # OS
 .DS_Store
 Thumbs.db
-=======
-# Dependencies
-node_modules/
 
-# Environment variables
-.env
-.env.local
+# Build output
+dist/
+build/
 
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
->>>>>>> c244ea11b21dc4ddcf325b735f3bbe3e72b2736f
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
