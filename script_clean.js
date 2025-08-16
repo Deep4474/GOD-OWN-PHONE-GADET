@@ -1,54 +1,50 @@
 // Slider functionality
-if (typeof window.sliderState === 'undefined') {
-    window.sliderState = {
-        currentSlide: 0,
-        sliderInterval: null,
-        slides: null,
-        totalSlides: 0
-    };
-}
+let currentSlide = 0;
+let sliderInterval;
+let slides;
+let totalSlides;
 
 function showSlide(index) {
-    if (!window.sliderState.slides) return; // Guard clause if slides not initialized
+    if (!slides) return; // Guard clause if slides not initialized
     
-    window.sliderState.slides.forEach(slide => slide.classList.remove('active'));
+    slides.forEach(slide => slide.classList.remove('active'));
     
-    if (index >= window.sliderState.totalSlides) {
-        window.sliderState.currentSlide = 0;
+    if (index >= totalSlides) {
+        currentSlide = 0;
     } else if (index < 0) {
-        window.sliderState.currentSlide = window.sliderState.totalSlides - 1;
+        currentSlide = totalSlides - 1;
     } else {
-        window.sliderState.currentSlide = index;
+        currentSlide = index;
     }
     
-    window.sliderState.slides[window.sliderState.currentSlide].classList.add('active');
+    slides[currentSlide].classList.add('active');
 }
 
 function initializeSlider() {
-    window.sliderState.slides = document.querySelectorAll('.slide');
-    if (window.sliderState.slides.length === 0) return; // Exit if no slides found
+    slides = document.querySelectorAll('.slide');
+    if (slides.length === 0) return; // Exit if no slides found
 
-    window.sliderState.totalSlides = window.sliderState.slides.length;
+    totalSlides = slides.length;
 
     // Add event listeners for slider controls
     const nextButton = document.querySelector('.next-slide');
     const prevButton = document.querySelector('.prev-slide');
     
     if (nextButton) {
-        nextButton.addEventListener('click', () => showSlide(window.sliderState.currentSlide + 1));
+        nextButton.addEventListener('click', () => showSlide(currentSlide + 1));
     }
     if (prevButton) {
-        prevButton.addEventListener('click', () => showSlide(window.sliderState.currentSlide - 1));
+        prevButton.addEventListener('click', () => showSlide(currentSlide - 1));
     }
 
     // Start with first slide and auto-advance
     showSlide(0);
     
     // Clear any existing interval before setting a new one
-    if (window.sliderState.sliderInterval) {
-        clearInterval(window.sliderState.sliderInterval);
+    if (sliderInterval) {
+        clearInterval(sliderInterval);
     }
-    window.sliderState.sliderInterval = setInterval(() => showSlide(window.sliderState.currentSlide + 1), 5000);
+    sliderInterval = setInterval(() => showSlide(currentSlide + 1), 5000);
 }
 
 // Products functionality
