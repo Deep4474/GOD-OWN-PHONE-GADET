@@ -1,5 +1,124 @@
+// Auto-scroll functionality
+function initializeModalScroll() {
+    const modalContent = document.querySelector('.modal-content');
+    if (!modalContent) return;
+
+    let scrollPosition = 0;
+    const scrollSpeed = 0.7; // Reduced speed for better mobile experience
+    const scrollDelay = 3000; // Wait 3 seconds before starting to scroll
+    let isPaused = false;
+    let touchStartY = 0;
+    let isTouching = false;
+
+    // Handle touch events for mobile
+    modalContent.addEventListener('touchstart', (e) => {
+        isPaused = true;
+        isTouching = true;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    modalContent.addEventListener('touchend', () => {
+        // Keep paused for a moment after touch to prevent immediate scroll
+        setTimeout(() => {
+            if (!isTouching) {
+                isPaused = false;
+            }
+        }, 1500);
+        isTouching = false;
+    }, { passive: true });
+
+    modalContent.addEventListener('touchmove', (e) => {
+        isPaused = true;
+        isTouching = true;
+    }, { passive: true });
+
+    // Desktop events
+    modalContent.addEventListener('mouseenter', () => {
+        isPaused = true;
+    });
+
+    modalContent.addEventListener('mouseleave', () => {
+        if (!isTouching) {
+            isPaused = false;
+        }
+    });
+
+    // Handle focus events for form inputs
+    const formInputs = modalContent.querySelectorAll('input, textarea');
+    formInputs.forEach(input => {
+        input.addEventListener('focus', () => {
+            isPaused = true;
+        });
+        input.addEventListener('blur', () => {
+            if (!isTouching) {
+                isPaused = false;
+            }
+        });
+    });
+
+    // Reset scroll position when modal opens
+    function resetScroll() {
+        scrollPosition = 0;
+        modalContent.scrollTop = 0;
+    }
+
+    // Smooth scroll function
+    function smoothScroll(target) {
+        const start = modalContent.scrollTop;
+        const distance = target - start;
+        const duration = 1000;
+        let startTime = null;
+
+        function animation(currentTime) {
+            if (!startTime) startTime = currentTime;
+            const timeElapsed = currentTime - startTime;
+            const progress = Math.min(timeElapsed / duration, 1);
+            
+            modalContent.scrollTop = start + distance * easeInOutQuad(progress);
+
+            if (timeElapsed < duration) {
+                requestAnimationFrame(animation);
+            }
+        }
+
+        requestAnimationFrame(animation);
+    }
+
+    // Easing function for smoother scroll
+    function easeInOutQuad(t) {
+        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    }
+
+    // Auto-scroll function
+    function autoScroll() {
+        if (!isPaused) {
+            const maxScroll = modalContent.scrollHeight - modalContent.clientHeight;
+            
+            if (scrollPosition >= maxScroll) {
+                // Smooth scroll back to top
+                scrollPosition = 0;
+                smoothScroll(0);
+            } else {
+                scrollPosition += scrollSpeed;
+                modalContent.scrollTop = scrollPosition;
+            }
+        }
+        requestAnimationFrame(autoScroll);
+    }
+
+    // Start auto-scroll after delay
+    setTimeout(() => {
+        autoScroll();
+    }, scrollDelay);
+
+    return { resetScroll };
+}
+
 // Purchase Form Handler
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize auto-scroll
+    const scrollControls = initializeModalScroll();
+
     // Elements
     const modal = document.getElementById('buyNowModal');
     const closeBtn = document.querySelector('.close-modal');
@@ -91,7 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
         updateQuantityControls();
         updateAmounts();
         
-        // Show modal
+        // Reset scroll position and show modal
+        scrollControls.resetScroll();
         modal.style.display = 'block';
     };
 

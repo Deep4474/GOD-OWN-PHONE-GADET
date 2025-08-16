@@ -29,6 +29,8 @@
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #3498db #f1f1f1;
+    scroll-behavior: smooth;
+    transition: all 0.3s ease;
 }
 
 .modal-content::-webkit-scrollbar {
@@ -480,16 +482,33 @@
 
 /* Responsive Design */
 @media (max-width: 480px) {
+    .modal {
+        padding: 0;
+    }
+    
     .modal-content {
         margin: 0;
+        width: 100%;
         height: 100vh;
         border-radius: 0;
-        max-height: none;
+        max-height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    .modal-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
     }
 
     .purchase-summary {
         grid-template-columns: 1fr;
         text-align: center;
+        padding: 1rem;
     }
 
     .purchase-summary img {
@@ -497,7 +516,35 @@
         margin: 0 auto;
     }
 
+    .purchase-form {
+        padding: 1rem;
+    }
+
     .quantity-controls {
         justify-content: center;
+        margin: 0 auto;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        font-size: 16px; /* Prevents iOS zoom on focus */
+        padding: 12px;
+    }
+
+    .delivery-choice {
+        padding: 1rem;
+    }
+
+    .total-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .submit-order {
+        position: sticky;
+        bottom: 1rem;
+        margin: 0 1rem;
+        width: calc(100% - 2rem);
+        padding: 1rem;
     }
 }
