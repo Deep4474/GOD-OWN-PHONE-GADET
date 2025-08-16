@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -6,12 +5,3 @@
 
 [build]
   publish = "."
-=======
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-[build]
-  publish = "."
->>>>>>> c244ea11b21dc4ddcf325b735f3bbe3e72b2736f
