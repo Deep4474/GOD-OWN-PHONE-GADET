@@ -156,6 +156,11 @@ function initializeTimer() {
 
 // Buy Now Modal Functionality
 function openBuyNowModal(productName, price, imageUrl) {
+    // Don't open modal if another one is already open
+    if (document.querySelector('.modal.show')) {
+        return;
+    }
+
     const modal = document.getElementById('buyNowModal');
     const modalProductName = document.getElementById('modalProductName');
     const modalProductPrice = document.getElementById('modalProductPrice');
@@ -163,25 +168,42 @@ function openBuyNowModal(productName, price, imageUrl) {
     const subtotalAmount = document.getElementById('subtotalAmount');
     const totalAmount = document.getElementById('totalAmount');
     
+    // Set a maximum height for images to prevent full-screen takeover
+    modalProductImage.style.maxHeight = '200px';
+    modalProductImage.style.objectFit = 'contain';
+    
     modalProductName.textContent = productName;
     modalProductPrice.textContent = price.toLocaleString();
     modalProductImage.src = imageUrl;
     subtotalAmount.textContent = price.toLocaleString();
     updateTotal();
     
-    // Reset scroll position
+    // Reset scroll position and form
     const modalContent = modal.querySelector('.modal-content');
     if (modalContent) {
         modalContent.scrollTop = 0;
     }
     
-    // Show modal with animation
+    // Show modal with gentle animation
     requestAnimationFrame(() => {
         modal.style.display = 'block';
-        // Trigger reflow
-        modal.offsetHeight;
-        modal.classList.add('show');
+        // Small delay to ensure smooth animation
+        setTimeout(() => {
+            modal.classList.add('show');
+        }, 10);
     });
+    
+    // Auto-close modal if no interaction after 5 minutes
+    const autoCloseTimer = setTimeout(() => {
+        if (modal.classList.contains('show')) {
+            closeModal();
+        }
+    }, 300000); // 5 minutes
+    
+    // Clear timer on any user interaction
+    modal.addEventListener('click', () => {
+        clearTimeout(autoCloseTimer);
+    }, { once: true });
 }
 
 function updateTotal() {
@@ -318,20 +340,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const minusBtn = document.querySelector('.quantity-btn.minus');
     const plusBtn = document.querySelector('.quantity-btn.plus');
 
+    function updateQuantityControls() {
+        const currentValue = parseInt(quantityInput.value);
+        minusBtn.disabled = currentValue <= 1;
+        plusBtn.disabled = false;
+        updateTotal();
+    }
+
     minusBtn.addEventListener('click', () => {
         const currentValue = parseInt(quantityInput.value);
         if (currentValue > 1) {
             quantityInput.value = currentValue - 1;
-            updateTotal();
+            updateQuantityControls();
         }
-        minusBtn.disabled = currentValue <= 2;
     });
 
     plusBtn.addEventListener('click', () => {
         const currentValue = parseInt(quantityInput.value);
         quantityInput.value = currentValue + 1;
-        minusBtn.disabled = false;
-        updateTotal();
+        updateQuantityControls();
     });
 
     // Show/hide delivery address based on delivery method

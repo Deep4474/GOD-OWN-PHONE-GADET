@@ -130,24 +130,25 @@ loginForm.addEventListener('submit', async (e) => {
         return;
     }
 
+    const submitButton = loginForm.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+
     try {
         loginError.textContent = "";
         loginSuccess.textContent = "Sending login link...";
         loginSuccess.style.color = '#3498db';
 
-        // Send magic link for authentication
-        const { error: otpError } = await supabaseClient.auth.signInWithOtp({
-            email,
-            options: {
-                emailRedirectTo: 'https://glittery-torrone-d1184e.netlify.app/auth.html?confirmation=true'
-            }
-        });
+        // Use authService for login
+        const { error } = await authService.loginWithEmail(email);
         
-        if (otpError) throw otpError;
+        if (error) throw error;
 
         // Show success message
         loginSuccess.textContent = "Login link sent! Please check your email (including spam folder).";
         loginSuccess.style.color = '#2ecc71';
+
+        // Add visual feedback
+        showSuccessAnimation(loginBox);
 
         // Store email for confirmation
         localStorage.setItem('loginEmail', email);
@@ -164,6 +165,8 @@ loginForm.addEventListener('submit', async (e) => {
         loginError.textContent = errorMessage;
         loginError.style.color = '#e74c3c';
         loginSuccess.textContent = '';
+    } finally {
+        submitButton.disabled = false;
     }
 });
 
@@ -195,50 +198,29 @@ registerForm.addEventListener('submit', async (e) => {
         registerError.textContent = "Creating your account...";
         console.log('Attempting registration with email:', email);
         
-        // First create the user account
-        const { data, error } = await supabaseClient.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    full_name: fullName,
-                    phone: phone
-                },
-                emailRedirectTo: 'https://glittery-torrone-d1184e.netlify.app/auth.html'
-            }
-        });
+        // Use authService for registration
+        const { data, error } = await authService.register(email, password, fullName, phone);
 
         if (error) throw error;
-
-        // Then explicitly send the verification email
-        const { error: otpError } = await supabaseClient.auth.signInWithOtp({
-            email,
-            options: {
-                shouldCreateUser: false,
-                emailRedirectTo: 'https://glittery-torrone-d1184e.netlify.app/auth.html'
-            }
-        });
-
-        if (error) {
-            console.error('Registration error:', error);
-            throw error;
-        }
 
         console.log('Registration successful:', data);
 
         // Store email for verification
         localStorage.setItem('verificationEmail', email);
         
-        // Show success message and switch to verification form
+        // Show success message
         registerError.textContent = 'Registration successful! Please check your email for the verification code.';
         registerError.style.color = '#2ecc71';
+
+        // Add visual feedback
+        showSuccessAnimation(registerBox);
         
-        // Switch to verification form after 2 seconds
+        // Switch to verification form after animation
         setTimeout(() => {
             showForm(verificationBox);
-            document.getElementById('verificationEmail').value = email;
-            document.getElementById('otpInputContainer').classList.remove('hidden');
-            document.getElementById('sendVerificationBtn').textContent = 'Verify Code';
+            verificationEmail.value = email;
+            otpInputContainer.classList.remove('hidden');
+            sendVerificationBtn.textContent = 'Verify Code';
         }, 2000);
 
     } catch (error) {
