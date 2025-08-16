@@ -16,13 +16,25 @@
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 400px;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.auth-box.hidden {
+    display: block !important;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    position: absolute;
 }
 
 .auth-box h2 {
     text-align: center;
     color: #2c3e50;
     margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: 600;
 }
 
 .auth-form .form-group {
@@ -252,17 +264,57 @@
     to { transform: rotate(360deg); }
 }
 
+/* Mobile Bottom Navigation */
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+    z-index: 1000;
+}
+
+.mobile-bottom-nav .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #666;
+    font-size: 12px;
+    padding: 8px 0;
+}
+
+.mobile-bottom-nav .nav-item i {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.mobile-bottom-nav .nav-item span {
+    font-size: 12px;
+}
+
 /* Responsive design */
 @media (max-width: 480px) {
     body {
         background-color: #f8f9fa;
+        margin-bottom: 60px;
     }
 
     .auth-container {
-        padding: 10px;
+        padding: 15px;
         margin: 0;
-        min-height: 100vh;
-        padding-top: 80px;
+        min-height: calc(100vh - 120px);
+        padding-top: 70px;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 70px);
+    }
+
+    .mobile-bottom-nav {
+        display: flex;
+        justify-content: space-around;
     }
 
     .auth-box {

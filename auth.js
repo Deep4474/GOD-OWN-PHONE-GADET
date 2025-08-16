@@ -39,10 +39,32 @@ const confirmError = document.getElementById('confirmError');
 
 // Form visibility toggling
 function showForm(formToShow) {
-    [loginBox, registerBox, confirmationBox].forEach(form => {
-        form.classList.add('hidden');
+    const forms = [loginBox, registerBox, confirmationBox, verificationBox];
+    forms.forEach(form => {
+        if (form === formToShow) {
+            form.style.display = 'block';
+            // Trigger reflow
+            form.offsetHeight;
+            form.classList.remove('hidden');
+        } else {
+            form.classList.add('hidden');
+            setTimeout(() => {
+                if (form.classList.contains('hidden')) {
+                    form.style.display = 'none';
+                }
+            }, 300); // Match transition duration
+        }
     });
-    formToShow.classList.remove('hidden');
+
+    // Scroll to top of form with smooth animation
+    window.scrollTo({
+        top: formToShow.offsetTop - 80,
+        behavior: 'smooth'
+    });
+
+    // Clear any error messages
+    const errorMessages = formToShow.querySelectorAll('.error-message');
+    errorMessages.forEach(msg => msg.textContent = '');
 }
 
 // Event listeners for form navigation
@@ -51,6 +73,15 @@ if (showRegisterLink) {
         e.preventDefault();
         showForm(registerBox);
     });
+
+    // Add touch feedback
+    showRegisterLink.addEventListener('touchstart', () => {
+        showRegisterLink.style.opacity = '0.7';
+    });
+
+    showRegisterLink.addEventListener('touchend', () => {
+        showRegisterLink.style.opacity = '1';
+    });
 }
 
 if (showLoginLink) {
@@ -58,7 +89,35 @@ if (showLoginLink) {
         e.preventDefault();
         showForm(loginBox);
     });
+
+    // Add touch feedback
+    showLoginLink.addEventListener('touchstart', () => {
+        showLoginLink.style.opacity = '0.7';
+    });
+
+    showLoginLink.addEventListener('touchend', () => {
+        showLoginLink.style.opacity = '1';
+    });
 }
+
+// Add input focus handling for mobile
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('focus', () => {
+        // Add slight delay to ensure keyboard is shown
+        setTimeout(() => {
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+    });
+
+    // Add visual feedback for touch
+    input.addEventListener('touchstart', () => {
+        input.style.backgroundColor = '#f0f0f0';
+    });
+
+    input.addEventListener('touchend', () => {
+        input.style.backgroundColor = '#f8f9fa';
+    });
+});
 
 // Form submission handlers
 loginForm.addEventListener('submit', async (e) => {
