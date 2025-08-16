@@ -169,7 +169,11 @@ function openBuyNowModal(productName, price, imageUrl) {
     subtotalAmount.textContent = price.toLocaleString();
     updateTotal();
     
+    // Show modal with animation
     modal.style.display = 'block';
+    // Trigger reflow
+    modal.offsetHeight;
+    modal.classList.add('show');
 }
 
 function updateTotal() {
@@ -248,10 +252,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const deliveryAddress = document.getElementById('deliveryAddress');
     const purchaseForm = document.getElementById('purchaseForm');
 
-    closeBtn.onclick = () => modal.style.display = 'none';
+    function closeModal() {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300); // Match the CSS transition duration
+    }
+
+    closeBtn.onclick = closeModal;
     window.onclick = (event) => {
         if (event.target === modal) {
-            modal.style.display = 'none';
+            closeModal();
         }
     };
 
