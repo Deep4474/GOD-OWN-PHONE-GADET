@@ -1,0 +1,137 @@
+/* Mobile-specific improvements */
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: 16px;
+    background: #f8f9fa;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+@media (max-width: 768px) {
+    .form-group input,
+    .form-group textarea,
+    .submit-button,
+    .buy-now-btn,
+    .quantity-controls button {
+        min-height: 44px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-group label {
+        margin-bottom: 8px;
+        display: block;
+        font-size: 14px;
+        color: #2c3e50;
+    }
+
+    /* Improve mobile scroll behavior */
+    .modal-content {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* Better touch feedback */
+    .buy-now-btn:active,
+    .submit-button:active,
+    .quantity-controls button:active {
+        transform: scale(0.96);
+    }
+
+    /* Improve form validation messages */
+    .validation-message {
+        font-size: 12px;
+        color: #e74c3c;
+        margin-top: 4px;
+        display: none;
+    }
+
+    input:invalid + .validation-message {
+        display: block;
+    }
+
+    /* Better spacing for mobile forms */
+    .purchase-form {
+        padding: 16px;
+    }
+
+    .quantity-selector,
+    .delivery-options {
+        margin: 20px 0;
+    }
+
+    /* Improved mobile buttons */
+    .submit-order {
+        width: 100%;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        margin-top: 20px;
+        background: linear-gradient(to right, #2ecc71, #27ae60);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+    }
+
+    /* Better mobile navigation */
+    .nav-links {
+        background: linear-gradient(to bottom, #2c3e50, #34495e);
+    }
+
+    .nav-links li a {
+        padding: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Mobile product improvements */
+    .product-card .description {
+        font-size: 14px;
+        line-height: 1.4;
+        color: #666;
+    }
+
+    .product-card .price {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2ecc71;
+        margin: 12px 0;
+    }
+
+    /* Mobile footer improvements */
+    .footer-content {
+        padding: 20px;
+        grid-gap: 24px;
+    }
+
+    .social-icons a {
+        width: 40px;
+        height: 40px;
+        margin: 0 8px;
+    }
+
+    /* Safe area handling */
+    .navbar {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    .footer-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
