@@ -1,0 +1,169 @@
+const express = require('express');
+const router = express.Router();
+const fs = require('fs');
+const path = require('path');
+const usersFile = path.join(__dirname, 'users.json');
+let users = require('./users.json');
+const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+const nodemailer = require('nodemailer');
+
+// Helper to save users
+function saveUsers(users) {
+  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
+}
+
+// JWT authentication middleware
+function authenticateJWT(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) return res.status(401).json({ error: 'No token provided' });
+  const token = authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Malformed token' });
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: 'Invalid or expired token' });
+    req.user = user;
+    next();
+  });
+}
+
+// Email setup (Gmail with app password)
+const EMAIL_USER = 'ayomideoluniyi49@gmail.com';
+const EMAIL_PASS = 'cghk byam dkno yuks';
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: EMAIL_USER,
+    pass: EMAIL_PASS,
+  },
+});
+
+function sendVerificationEmail(email, token) {
+  const verifyUrl = `http://localhost:3000/api/auth/verify-email?token=${token}`;
+  const mailOptions = {
+    from: EMAIL_USER,
+    to: email,
+    subject: 'Verify your email',
+    html: `<p>Please verify your email by clicking <a href="${verifyUrl}">here</a>.</p>`
+  };
+  return transporter.sendMail(mailOptions);
+}
+
+function isValidEmail(email) {
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+}
+
+// Registration endpoint
+router.post('/register', async (req, res) => {
+  const { name, email, confirmEmail, password, phone, address, state, lga } = req.body;
+  if (!name || !email || !confirmEmail || !password) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  if (email !== confirmEmail) {
+    return res.status(400).json({ error: 'Emails do not match' });
+  }
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
+  }
+  if (users.find(u => u.email === email)) {
+    return res.status(400).json({ error: 'Email already registered' });
+  }
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    // Generate a 6-digit numeric verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const newUser = {
+      name,
+      email,
+      password: hashedPassword,
+      phone,
+      address,
+      state,
+      lga,
+      verified: false,
+      verificationCode // store the code
+    };
+    users.push(newUser);
+    saveUsers(users);
+    try {
+      // Send the code in the email
+      await transporter.sendMail({
+        from: EMAIL_USER,
+        to: email,
+        subject: "GOD'SOWN PHONE GADGET - Email Verification Code",
+        html: `<h2>Welcome to GOD'SOWN PHONE GADGET!</h2><p>Your verification code is:</p><h3 style='color:#2563eb;'>${verificationCode}</h3><p>Enter this code in the app to verify your email.</p>`
+      });
+    } catch (e) {
+      console.error('Email sending error:', e);
+      return res.status(500).json({ error: 'Failed to send verification email', details: e.message, stack: e.stack });
+    }
+    res.json({ user: { ...newUser, password: undefined, verificationCode: undefined }, message: 'Registration successful. Please check your email for your verification code.' });
+  } catch (err) {
+    console.error('Registration error:', err);
+    res.status(500).json({ error: 'Registration failed', details: err.message, stack: err.stack });
+  }
+});
+
+// Login endpoint
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = users.find(u => u.email === email);
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+  if (!user.verified) {
+    return res.status(403).json({ error: 'Please verify your email before logging in.' });
+  }
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+  // Generate JWT token
+  const token = jwt.sign({ email: user.email, name: user.name }, JWT_SECRET, { expiresIn: '1h' });
+  res.json({ user: { ...user, password: undefined, verificationToken: undefined }, token, message: 'Login successful' });
+});
+
+// Logout endpoint (dummy, just returns success)
+router.post('/logout', (req, res) => {
+  res.json({ message: 'Logged out' });
+});
+
+// Example protected route
+router.get('/protected', authenticateJWT, (req, res) => {
+  res.json({ message: 'This is a protected route', user: req.user });
+});
+
+// Email verification endpoint
+router.get('/verify-email', (req, res) => {
+  const { token } = req.query;
+  const user = users.find(u => u.verificationToken === token);
+  if (!user) {
+    return res.status(400).json({ error: 'Invalid or expired verification token' });
+  }
+  user.verified = true;
+  user.verificationToken = undefined;
+  saveUsers(users);
+  res.json({ message: 'Email verified successfully. You can now log in.' });
+});
+
+// Update the verification endpoint to use the code
+router.post('/verify', (req, res) => {
+  const { email, code } = req.body;
+  const user = users.find(u => u.email === email);
+  if (!user) {
+    return res.status(400).json({ error: 'User not found' });
+  }
+  if (user.verified) {
+    return res.json({ success: true, message: 'User already verified' });
+  }
+  if (user.verificationCode !== code) {
+    return res.status(400).json({ error: 'Invalid verification code' });
+  }
+  user.verified = true;
+  user.verificationCode = undefined;
+  saveUsers(users);
+  res.json({ success: true, message: 'Email verified successfully. You can now log in.' });
+});
+
+module.exports = router; 

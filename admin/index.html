@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - God's Own Phone Gadget</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Panel</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="#products"><i class="fas fa-mobile-alt"></i> Products</a>
+                    </li>
+                    <li>
+                        <a href="#orders"><i class="fas fa-shopping-cart"></i> Orders</a>
+                    </li>
+                    <li>
+                        <a href="#customers"><i class="fas fa-users"></i> Customers</a>
+                    </li>
+                    <li>
+                        <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="search-bar">
+                    <input type="search" placeholder="Search...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="admin-profile">
+                    <span class="admin-name">Admin</span>
+                    <div class="admin-avatar-placeholder">A</div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div id="dashboard-section" class="section-content dashboard-content">
+                <h1>Dashboard</h1>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon orders">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>Total Orders</h3>
+                            <p class="stat-number" id="totalOrders">0</p>
+                            <p class="stat-change positive">+15% from last week</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon revenue">
+                            <i class="fas fa-naira-sign"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>Revenue</h3>
+                            <p class="stat-number" id="totalRevenue">₦0</p>
+                            <p class="stat-change positive">+23% from last week</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon products">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>Products</h3>
+                            <p class="stat-number" id="totalProducts">0</p>
+                            <p class="stat-change neutral">No change</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon customers">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>Customers</h3>
+                            <p class="stat-number" id="totalCustomers">0</p>
+                            <p class="stat-change positive">+8% from last week</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders Table -->
+                <div class="recent-orders">
+                    <div class="section-header">
+                        <h2>Recent Orders</h2>
+                        <button class="view-all-btn">View All</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="recentOrdersTable">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Product</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Orders will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Low Stock Alert -->
+                <div class="low-stock-alert">
+                    <div class="section-header">
+                        <h2>Low Stock Alert</h2>
+                        <button class="view-all-btn">View All</button>
+                    </div>
+                    <div class="alert-container" id="lowStockContainer">
+                        <!-- Low stock items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div id="products-section" class="section-content">
+                <h1>Products</h1>
+                <div class="section-header">
+                    <button class="add-btn" onclick="showAddProductForm()">Add New Product</button>
+                </div>
+                <div id="products-table" class="table-container"></div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="orders-section" class="section-content">
+                <h1>Orders</h1>
+                <div id="orders-table" class="table-container"></div>
+            </div>
+
+            <!-- Customers Section -->
+            <div id="customers-section" class="section-content">
+                <h1>Customers</h1>
+                <div id="customers-table" class="table-container"></div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings-section" class="section-content">
+                <h1>Settings</h1>
+                <div class="settings-container">
+                    <div class="setting-group">
+                        <h3>Store Settings</h3>
+                        <div class="setting-item">
+                            <label>Store Name</label>
+                            <input type="text" value="God's Own Phone Gadget" id="storeName">
+                        </div>
+                        <div class="setting-item">
+                            <label>Contact Email</label>
+                            <input type="email" id="storeEmail">
+                        </div>
+                        <button class="save-btn">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="../config.js"></script>
+    <script src="error-handler.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
