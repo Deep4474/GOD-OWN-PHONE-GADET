@@ -185,15 +185,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Close Modal
     function closeModal() {
-        modal.style.display = 'none';
-        form.reset();
-        quantityInput.value = 1;
-        updateQuantityControls();
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            form.reset();
+            quantityInput.value = 1;
+            updateQuantityControls();
+            updateAmounts();
+        }, 300); // Match CSS transition duration
     }
 
     closeBtn.addEventListener('click', closeModal);
     window.addEventListener('click', (e) => {
         if (e.target === modal) closeModal();
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('show')) {
+            closeModal();
+        }
     });
 
     // Handle Product Selection
@@ -211,8 +222,17 @@ document.addEventListener('DOMContentLoaded', () => {
         updateAmounts();
         
         // Reset scroll position and show modal
-        scrollControls.resetScroll();
-        modal.style.display = 'block';
+        if (scrollControls) {
+            scrollControls.resetScroll();
+        }
+        
+        // Show modal with animation
+        requestAnimationFrame(() => {
+            modal.style.display = 'block';
+            // Force reflow
+            modal.offsetHeight;
+            modal.classList.add('show');
+        });
     };
 
     // Form Submission
