@@ -32,17 +32,17 @@ async function checkDatabaseStructure() {
             console.log('Sample product:', products[0]);
         }
 
-        // Check users table
-        const { data: users, error: usersError } = await supabaseClient
-            .from('users')
-            .select('id, email, name, verified')
+        // Check profiles table
+        const { data: profiles, error: profilesError } = await supabaseClient
+            .from('profiles')
+            .select('id, email, full_name, verified')
             .limit(1);
 
-        if (usersError) {
-            results.errors.push(`Users table error: ${usersError.message}`);
+        if (profilesError) {
+            results.errors.push(`Profiles table error: ${profilesError.message}`);
         } else {
             results.users = true;
-            console.log('Users table exists');
+            console.log('Profiles table exists');
         }
 
         return results;
