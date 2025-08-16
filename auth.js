@@ -248,8 +248,46 @@ confirmNoBtn.addEventListener('click', async () => {
     }
 });
 
+// Mobile menu functionality
+function initializeMobileNav() {
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const navLinks = document.querySelector('.nav-links');
+    let isMenuOpen = false;
+
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+            navLinks.classList.toggle('active');
+            mobileMenuBtn.querySelector('i').classList.toggle('fa-bars');
+            mobileMenuBtn.querySelector('i').classList.toggle('fa-times');
+            
+            // Prevent body scroll when menu is open
+            document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+            
+            // Animate menu items
+            const menuItems = navLinks.querySelectorAll('li');
+            menuItems.forEach((item, index) => {
+                item.style.transitionDelay = isMenuOpen ? `${index * 0.1}s` : '0s';
+            });
+        });
+
+        // Close menu when clicking a link
+        navLinks.addEventListener('click', (e) => {
+            if (e.target.tagName === 'A') {
+                isMenuOpen = false;
+                navLinks.classList.remove('active');
+                mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+                mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+                document.body.style.overflow = '';
+            }
+        });
+    }
+}
+
 // Check URL parameters and user session on load
 window.addEventListener('load', async () => {
+    // Initialize mobile navigation
+    initializeMobileNav();
     // Check if this is a confirmation redirect
     const urlParams = new URLSearchParams(window.location.search);
     const isConfirmation = urlParams.get('confirmation') === 'true';
