@@ -123,43 +123,58 @@ document.querySelectorAll('input').forEach(input => {
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    
+    // Reset error/success messages
+    loginError.textContent = "";
+    loginSuccess.textContent = "";
     
     // Basic validation
     if (!email) {
         loginError.textContent = "Email is required";
+        loginError.style.color = '#e74c3c';
         return;
     }
 
     const submitButton = loginForm.querySelector('button[type="submit"]');
     submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
 
     try {
-        loginError.textContent = "";
-        loginSuccess.textContent = "Sending login link...";
+        loginSuccess.textContent = "Attempting to log in...";
         loginSuccess.style.color = '#3498db';
 
-        // Use authService for login
-        const { error } = await authService.loginWithEmail(email);
+        // Try login with password first, falls back to magic link
+        const { data, error, message } = await authService.loginWithEmail(email, password);
         
         if (error) throw error;
 
-        // Show success message
-        loginSuccess.textContent = "Login link sent! Please check your email (including spam folder).";
-        loginSuccess.style.color = '#2ecc71';
+        if (data) {
+            // Regular login successful
+            loginSuccess.textContent = "Login successful! Redirecting...";
+            loginSuccess.style.color = '#2ecc71';
+            
+            // Redirect to main page
+            window.location.href = '/index.html';
+        } else {
+            // Magic link sent
+            loginSuccess.textContent = message;
+            loginSuccess.style.color = '#2ecc71';
+            localStorage.setItem('loginEmail', email);
+        }
 
         // Add visual feedback
         showSuccessAnimation(loginBox);
 
-        // Store email for confirmation
-        localStorage.setItem('loginEmail', email);
-
     } catch (err) {
         console.error('Login error:', err);
-        let errorMessage = err.message || 'Failed to send login link. Please try again.';
+        let errorMessage = err.message || 'Login failed. Please try again.';
         
-        // Handle rate limiting error specifically
-        if (errorMessage.includes('security purposes')) {
-            errorMessage = 'Please wait a few seconds before requesting another login link.';
+        // Handle specific error cases
+        if (errorMessage.includes('Invalid login credentials')) {
+            errorMessage = 'Invalid email or password. Please try again.';
+        } else if (errorMessage.includes('security purposes')) {
+            errorMessage = 'Please wait a few seconds before trying again.';
         }
         
         loginError.textContent = errorMessage;
@@ -167,6 +182,7 @@ loginForm.addEventListener('submit', async (e) => {
         loginSuccess.textContent = '';
     } finally {
         submitButton.disabled = false;
+        submitButton.innerHTML = 'Login';
     }
 });
 

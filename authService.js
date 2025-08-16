@@ -1,12 +1,27 @@
 // Authentication Service
 class AuthService {
     constructor(supabaseClient) {
+        if (!supabaseClient) {
+            throw new Error('Supabase client is required');
+        }
         this.supabase = supabaseClient;
     }
 
     // Register a new user
     async register(email, password, fullName, phone) {
         try {
+            console.log('Starting registration process for:', email);
+            
+            // Input validation
+            if (!email || !password || !fullName || !phone) {
+                throw new Error('All fields are required');
+            }
+
+            if (password.length < 6) {
+                throw new Error('Password must be at least 6 characters long');
+            }
+
+            // Register user with Supabase
             const { data, error } = await this.supabase.auth.signUp({
                 email,
                 password,
@@ -15,19 +30,30 @@ class AuthService {
                         full_name: fullName,
                         phone: phone
                     },
-                    emailRedirectTo: 'https://glittery-torrone-d1184e.netlify.app/auth.html'
+                    // Use current domain for redirect
+                    emailRedirectTo: `${window.location.origin}/auth.html`
                 }
             });
 
             if (error) throw error;
 
+            console.log('Registration successful:', data);
+
             // Send verification email
             await this.sendVerificationEmail(email);
 
-            return { data, error: null };
+            return { 
+                data, 
+                error: null,
+                message: 'Registration successful! Please check your email for verification.' 
+            };
         } catch (error) {
             console.error('Registration error:', error);
-            return { data: null, error };
+            return { 
+                data: null, 
+                error,
+                message: error.message || 'Registration failed. Please try again.' 
+            };
         }
     }
 
@@ -50,21 +76,54 @@ class AuthService {
         }
     }
 
-    // Login with email
-    async loginWithEmail(email) {
+    // Login with email and password
+    async loginWithEmail(email, password) {
         try {
-            const { error } = await this.supabase.auth.signInWithOtp({
+            console.log('Attempting login for:', email);
+
+            if (!email || !password) {
+                throw new Error('Email and password are required');
+            }
+
+            // First try password login
+            const { data, error } = await this.supabase.auth.signInWithPassword({
                 email,
-                options: {
-                    emailRedirectTo: 'https://glittery-torrone-d1184e.netlify.app/auth.html?confirmation=true'
-                }
+                password
             });
 
-            if (error) throw error;
-            return { error: null };
+            if (error) {
+                // If password login fails, try magic link
+                console.log('Password login failed, trying magic link...');
+                const { error: otpError } = await this.supabase.auth.signInWithOtp({
+                    email,
+                    options: {
+                        emailRedirectTo: `${window.location.origin}/auth.html?confirmation=true`
+                    }
+                });
+
+                if (otpError) throw otpError;
+                
+                return {
+                    data: null,
+                    error: null,
+                    message: 'Magic link sent! Please check your email.'
+                };
+            }
+
+            // Password login successful
+            return {
+                data,
+                error: null,
+                message: 'Login successful!'
+            };
+
         } catch (error) {
             console.error('Login error:', error);
-            return { error };
+            return {
+                data: null,
+                error,
+                message: error.message || 'Login failed. Please try again.'
+            };
         }
     }
 
