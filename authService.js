@@ -21,6 +21,17 @@ class AuthService {
                 throw new Error('Password must be at least 6 characters long');
             }
 
+            // First check if the user already exists
+            const { data: existingUser } = await this.supabase
+                .from('profiles')
+                .select('id')
+                .eq('email', email)
+                .single();
+
+            if (existingUser) {
+                throw new Error('An account with this email already exists');
+            }
+
             // Register user with Supabase
             const { data, error } = await this.supabase.auth.signUp({
                 email,
@@ -30,8 +41,7 @@ class AuthService {
                         full_name: fullName,
                         phone: phone
                     },
-                    // Use current domain for redirect
-                    emailRedirectTo: `${window.location.origin}/auth.html`
+                    emailRedirectTo: window.location.origin + '/auth.html'
                 }
             });
 
@@ -85,23 +95,43 @@ class AuthService {
                 throw new Error('Email and password are required');
             }
 
-            // First try password login
+            // First check if user exists
+            const { data: existingUser, error: userError } = await this.supabase
+                .from('profiles')
+                .select('id')
+                .eq('email', email)
+                .single();
+
+            if (!existingUser) {
+                throw new Error('No account found with this email. Please register first.');
+            }
+
+            // Try password login
             const { data, error } = await this.supabase.auth.signInWithPassword({
                 email,
                 password
             });
 
             if (error) {
-                // If password login fails, try magic link
+                if (error.message.includes('Invalid login credentials')) {
+                    throw new Error('Incorrect email or password');
+                }
+                
+                // If password login fails with other error, try magic link
                 console.log('Password login failed, trying magic link...');
                 const { error: otpError } = await this.supabase.auth.signInWithOtp({
                     email,
                     options: {
-                        emailRedirectTo: `${window.location.origin}/auth.html?confirmation=true`
+                        emailRedirectTo: window.location.origin + '/auth.html?confirmation=true'
                     }
                 });
 
-                if (otpError) throw otpError;
+                if (otpError) {
+                    if (otpError.message.includes('Email rate limit exceeded')) {
+                        throw new Error('Too many attempts. Please try again later.');
+                    }
+                    throw otpError;
+                }
                 
                 return {
                     data: null,
