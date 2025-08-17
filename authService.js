@@ -38,24 +38,19 @@ class AuthService {
 
             if (!user) throw new Error('User registration failed');
 
-            // Create profile in the public.profiles table
-            const { error: profileError } = await this.supabase
-                .from('profiles')
-                .insert([
-                    {
-                        id: user.id,
-                        email: email,
-                        full_name: fullName,
-                        phone: phone,
-                        role: 'user'
-                    }
-                ]);
+            // Instead of manual profile creation, use metadata
+            const { data: updateData, error: updateError } = await this.supabase.auth.updateUser({
+                data: {
+                    full_name: fullName,
+                    phone: phone,
+                    role: 'customer',
+                    created_at: new Date().toISOString()
+                }
+            });
 
-            if (profileError) {
-                console.error('Profile creation error:', profileError);
-                // If profile creation fails, we should clean up the auth user
-                await this.supabase.auth.admin.deleteUser(user.id);
-                throw new Error('Failed to create user profile. Please try again.');
+            if (updateError) {
+                console.error('Profile update error:', updateError);
+                throw new Error('Failed to update user profile. Please try again.');
             }
 
             console.log('Registration successful:', user);

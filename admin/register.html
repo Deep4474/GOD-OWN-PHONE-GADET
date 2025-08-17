@@ -217,32 +217,50 @@
                     throw new Error('Password must be at least 6 characters long');
                 }
 
+                // Validate phone number (Nigerian format)
+                const phone = document.getElementById('phone').value.trim();
+                const phoneRegex = /^(\+?234|0)[789]\d{9}$/;
+                const cleanPhone = phone.replace(/\s+/g, '');
+                if (!phoneRegex.test(cleanPhone)) {
+                    throw new Error('Please enter a valid Nigerian phone number (e.g., 0801234XXXX or +2348012345XXX)');
+                }
+
                 // Show loading state
                 submitButton.disabled = true;
                 submitButton.textContent = 'Creating Account...';
 
-                // Create user account
-                const { data: { user }, error: signUpError } = await supabaseClient.auth.signUp({
+                // Create user account with proper error handling
+                const { data, error: signUpError } = await window.supabaseClient.auth.signUp({
                     email,
                     password,
                     options: {
                         data: {
                             full_name: fullName,
+                            phone_number: document.getElementById('phone').value.trim(),
                             isAdmin: true // Set admin flag
                         }
                     }
                 });
 
-                if (signUpError) throw signUpError;
+                if (signUpError) {
+                    console.error('Signup error details:', signUpError);
+                    if (signUpError.message.includes('unique constraint')) {
+                        throw new Error('This email is already registered. Please try logging in instead.');
+                    } else {
+                        throw signUpError;
+                    }
+                }
 
-                if (!user) {
-                    throw new Error('Failed to create account');
+                if (!data?.user) {
+                    console.error('No user data received');
+                    throw new Error('Failed to create account. Please try again.');
                 }
 
                 // Show success message
-                errorDiv.textContent = 'Registration successful! Redirecting to login...';
-                errorDiv.style.color = '#28a745';
-                errorDiv.style.display = 'block';
+                const successDiv = document.getElementById('registerSuccess');
+                successDiv.textContent = 'Registration successful! Please check your email to verify your account.';
+                successDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
 
                 // Clear form
                 document.getElementById('registerForm').reset();
@@ -254,11 +272,43 @@
 
             } catch (error) {
                 console.error('Registration error:', error);
-                errorDiv.textContent = error.message || 'Failed to create account. Please try again.';
+                
+                // Handle different types of errors
+                let errorMessage = error.message || 'Failed to create account. Please try again.';
+                
+                if (!navigator.onLine) {
+                    errorMessage = 'Please check your internet connection and try again.';
+                } else if (error.message.includes('database') || error.message.includes('Database')) {
+                    errorMessage = 'Server is busy. Please try again in a few moments.';
+                    // Retry mechanism for database errors
+                    setTimeout(() => {
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Try Again';
+                    }, 5000);
+                    return;
+                }
+
+                // Show error with improved visibility on mobile
+                errorDiv.textContent = errorMessage;
                 errorDiv.style.display = 'block';
+                errorDiv.style.padding = '12px';
+                errorDiv.style.marginTop = '10px';
+                errorDiv.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+                errorDiv.style.borderRadius = '8px';
+                errorDiv.style.fontSize = '14px';
+
+                // Vibrate for error feedback on mobile
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+
+                // Scroll error into view on mobile
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Register';
+                if (!errorDiv.textContent.includes('Server is busy')) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Register';
+                }
             }
         });
 

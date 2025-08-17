@@ -227,7 +227,7 @@ registerForm.addEventListener('submit', async (e) => {
 
     // Get button and show loading state
     const submitButton = registerForm.querySelector('button[type="submit"]');
-    const originalText = submitButton.innerHTML;
+    window.originalButtonText = submitButton.innerHTML; // Store it globally for access in finally block
     submitButton.disabled = true;
     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
 
@@ -307,7 +307,8 @@ registerForm.addEventListener('submit', async (e) => {
         }
         
         // Restore button state
-        hideLoading(submitButton, originalButtonText);
+        submitButton.disabled = false;
+        submitButton.innerHTML = window.originalButtonText;
         
         // Scroll error into view if on mobile
         if (window.innerWidth <= 768 && registerError.textContent) {

@@ -52,26 +52,60 @@ async function handleRegistration(e) {
         registerError.textContent = '';
         registerError.style.display = 'none';
 
-        // Register the user with Supabase directly
-        const { data, error } = await window.supabaseClient.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    full_name: fullName,
-                    phone_number: phone,
-                    role: 'customer'
+        // Register the user with Supabase directly with retry mechanism
+        let retryCount = 0;
+        const maxRetries = 3;
+        let data, error;
+
+        while (retryCount < maxRetries) {
+            try {
+                const result = await window.supabaseClient.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            full_name: fullName,
+                            phone_number: cleanPhone, // Use cleaned phone number
+                            role: 'customer'
+                        },
+                        emailRedirectTo: window.location.origin + '/auth.html'
+                    }
+                });
+                
+                data = result.data;
+                error = result.error;
+
+                if (!error) {
+                    break; // Success - exit retry loop
                 }
+
+                if (error.message.includes('already registered')) {
+                    throw error; // Don't retry for existing users
+                }
+
+                // If it's a database error, wait before retrying
+                if (error.message.includes('database')) {
+                    await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+                    retryCount++;
+                    continue;
+                }
+
+                throw error; // For non-database errors, throw immediately
+            } catch (e) {
+                if (!e.message.includes('database') || retryCount === maxRetries - 1) {
+                    throw e;
+                }
+                retryCount++;
             }
-        });
+        }
 
         if (error) {
             console.error('Supabase registration error:', error);
-            throw new Error(error.message);
+            throw error;
         }
 
-        if (!data.user) {
-            throw new Error('Failed to create user account');
+        if (!data?.user) {
+            throw new Error('Failed to create user account. Please try again.');
         }
 
         // Show success message
@@ -99,14 +133,30 @@ async function handleRegistration(e) {
         
         // Handle different types of errors
         let errorMessage = error.message;
+        let retryTimeout = 0;
+
         if (!navigator.onLine) {
             errorMessage = 'Please check your internet connection and try again.';
         } else if (error.message.includes('already registered') || error.message.includes('already been taken')) {
             errorMessage = 'This email is already registered. Please try logging in instead.';
+            // Show login link
+            const loginLink = document.createElement('a');
+            loginLink.href = '#';
+            loginLink.textContent = 'Click here to login';
+            loginLink.onclick = (e) => {
+                e.preventDefault();
+                showForm(loginBox);
+            };
+            registerError.appendChild(document.createElement('br'));
+            registerError.appendChild(loginLink);
         } else if (error.message.includes('database') || error.message.includes('Database')) {
-            errorMessage = 'Unable to create account at the moment. Please try again in a few minutes.';
+            errorMessage = 'The server is busy. We will automatically retry in 5 seconds...';
+            retryTimeout = 5000;
         } else if (error.message.includes('password')) {
             errorMessage = 'Password must be at least 6 characters long and contain both letters and numbers.';
+        } else if (error.message.includes('rate') || error.message.includes('Rate')) {
+            errorMessage = 'Too many attempts. Please wait a moment before trying again.';
+            retryTimeout = 10000;
         }
 
         // Show error message with improved mobile visibility
@@ -114,9 +164,34 @@ async function handleRegistration(e) {
         registerError.style.display = 'block';
         registerError.style.color = '#e74c3c';
         registerError.style.padding = '12px';
-        registerError.style.borderRadius = '4px';
+        registerError.style.borderRadius = '8px';
         registerError.style.marginBottom = '15px';
         registerError.style.backgroundColor = 'rgba(231, 76, 60, 0.1)';
+        registerError.style.fontSize = '14px';
+
+        // For mobile devices, ensure the error is visible
+        if (window.innerWidth <= 768) {
+            registerError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Vibrate on mobile for error feedback
+        if (navigator.vibrate) {
+            navigator.vibrate(200);
+        }
+
+        // If it's a temporary error, auto-retry
+        if (retryTimeout > 0) {
+            submitButton.disabled = true;
+            let countdown = retryTimeout / 1000;
+            const countdownInterval = setInterval(() => {
+                submitButton.textContent = `Retrying in ${countdown}s...`;
+                countdown--;
+                if (countdown < 0) {
+                    clearInterval(countdownInterval);
+                    handleRegistration(e);
+                }
+            }, 1000);
+        }
 
         // Vibrate on mobile for error feedback
         if (navigator.vibrate) {
