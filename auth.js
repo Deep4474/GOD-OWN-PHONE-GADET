@@ -1,3 +1,21 @@
+// Check if user is already logged in immediately
+async function checkAndRedirectLoggedInUser() {
+    try {
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        if (session) {
+            // User is logged in, redirect to main page
+            window.location.href = 'https://glittery-torrone-d1184e.netlify.app/index.html';
+            return true;
+        }
+    } catch (error) {
+        console.error('Error checking session:', error);
+    }
+    return false;
+}
+
+// Run session check immediately
+checkAndRedirectLoggedInUser();
+
 // Form containers
 const loginBox = document.getElementById('loginBox');
 const registerBox = document.getElementById('registerBox');
@@ -345,6 +363,7 @@ function initializeMobileNav() {
 window.addEventListener('load', async () => {
     // Initialize mobile navigation
     initializeMobileNav();
+    
     // Check if this is a confirmation redirect
     const urlParams = new URLSearchParams(window.location.search);
     const isConfirmation = urlParams.get('confirmation') === 'true';
@@ -354,10 +373,7 @@ window.addEventListener('load', async () => {
         showForm(confirmationBox);
         return;
     }
-
-    // Check if user is already logged in
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (user) {
-        window.location.href = 'https://glittery-torrone-d1184e.netlify.app/index.html';
-    }
+    
+    // Check if user is already logged in (if not already redirected)
+    await checkAndRedirectLoggedInUser();
 });

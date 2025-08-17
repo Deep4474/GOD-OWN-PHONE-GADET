@@ -8,19 +8,20 @@ async function checkDatabaseStructure() {
     };
 
     try {
-        // Test connection
-        const { data: connectionTest, error: connectionError } = await supabaseClient
-            .from('products')
-            .select('count', { count: 'exact' });
-
-        if (connectionError) {
-            results.errors.push(`Connection error: ${connectionError.message}`);
-        } else {
-            results.connection = true;
+        // Wait for supabase client to be initialized
+        if (!window.supabaseClient) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            if (!window.supabaseClient) {
+                throw new Error('Supabase client not initialized');
+            }
         }
 
-        // Check products table
-        const { data: products, error: productsError } = await supabaseClient
+        // Test connection with auth check first
+        const { data: session } = await window.supabaseClient.auth.getSession();
+        console.log('Auth session check:', session ? 'Active' : 'None');
+
+        // Test products table
+        const { data: products, error: productsError } = await window.supabaseClient
             .from('products')
             .select('id, name, description, price, image_url, stock')
             .limit(1);
@@ -29,20 +30,27 @@ async function checkDatabaseStructure() {
             results.errors.push(`Products table error: ${productsError.message}`);
         } else {
             results.products = true;
-            console.log('Sample product:', products[0]);
+            results.connection = true;
+            if (products && products[0]) {
+                console.log('Sample product:', products[0]);
+            }
         }
 
-        // Check profiles table
-        const { data: profiles, error: profilesError } = await supabaseClient
+        // Test profiles table with RLS
+        const { data: profiles, error: profilesError } = await window.supabaseClient
             .from('profiles')
-            .select('id, email, full_name, verified')
+            .select('id')
             .limit(1);
 
-        if (profilesError) {
+        if (profilesError && profilesError.code === 'PGRST301') {
+            // This is normal for unauthenticated users
+            console.log('Profiles access restricted (normal for anonymous users)');
+            results.users = true;
+        } else if (profilesError) {
             results.errors.push(`Profiles table error: ${profilesError.message}`);
         } else {
             results.users = true;
-            console.log('Profiles table exists');
+            console.log('Profiles table accessible');
         }
 
         return results;

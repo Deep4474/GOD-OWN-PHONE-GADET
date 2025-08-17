@@ -1,11 +1,24 @@
 // Check user session and handle authentication
 async function checkSession() {
     try {
+        // First check if we're on the auth page
+        const isAuthPage = window.location.pathname.includes('auth.html');
+        
         const { data: { user }, error } = await supabaseClient.auth.getUser();
         
         if (error || !user) {
-            // No valid session, redirect to login
-            window.location.replace('https://glittery-torrone-d1184e.netlify.app/auth.html');
+            // No valid session
+            if (!isAuthPage) {
+                // Only redirect to login if we're not already on the auth page
+                window.location.replace('https://glittery-torrone-d1184e.netlify.app/auth.html');
+            }
+            return;
+        }
+
+        // User is logged in
+        if (isAuthPage) {
+            // If we're on the auth page and logged in, redirect to main page
+            window.location.replace('https://glittery-torrone-d1184e.netlify.app/index.html');
             return;
         }
 
@@ -17,7 +30,9 @@ async function checkSession() {
         
     } catch (error) {
         console.error('Session check failed:', error);
-        window.location.replace('https://glittery-torrone-d1184e.netlify.app/auth.html');
+        if (!window.location.pathname.includes('auth.html')) {
+            window.location.replace('https://glittery-torrone-d1184e.netlify.app/auth.html');
+        }
     }
 }
 
