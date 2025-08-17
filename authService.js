@@ -12,30 +12,22 @@ class AuthService {
         try {
             console.log('Starting registration process for:', email);
             
-            // Input validation
-            if (!email || !password || !fullName || !phone) {
-                throw new Error('All fields are required');
+            // Basic validation
+            if (!email || !password || !fullName) {
+                throw new Error('Email, password, and name are required');
             }
 
             if (password.length < 6) {
                 throw new Error('Password must be at least 6 characters long');
             }
 
-            // Validate email format
-            const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-            if (!emailRegex.test(email)) {
-                throw new Error('Please enter a valid email address');
-            }
-
-            // Register user with Supabase
+            // Register user with minimal data
             const { data, error } = await this.supabase.auth.signUp({
                 email,
                 password,
                 options: {
                     data: {
-                        full_name: fullName,
-                        phone_number: phone,
-                        role: 'customer'
+                        full_name: fullName
                     },
                     emailRedirectTo: window.location.origin + '/auth.html'
                 }
