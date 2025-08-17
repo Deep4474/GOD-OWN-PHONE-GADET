@@ -241,25 +241,29 @@ function showNotification(message, type = 'info') {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Admin panel initializing...');
     
-    // Wait for Supabase client to be ready
-    let retries = 0;
-    const maxRetries = 20; // Increase max retries
-    
-    while (!window.supabaseClient && retries < maxRetries) {
-        console.log(`Waiting for Supabase client... (${retries + 1}/${maxRetries})`);
-        await new Promise(resolve => setTimeout(resolve, 200));
-        retries++;
-    }
-
+    // Initialize Supabase client immediately
     if (!window.supabaseClient) {
-        console.error('Failed to initialize Supabase client');
-        document.querySelector('.main-content').innerHTML = `
-            <div class="error-message">
-                <p>Failed to connect to the database. Please refresh the page to try again.</p>
-                <button onclick="location.reload()">Refresh</button>
-            </div>
-        `;
-        return;
+        const supabaseUrl = 'https://jlwxkykznyjmstpjcgks.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ';
+        
+        try {
+            window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey, {
+                auth: {
+                    autoRefreshToken: true,
+                    persistSession: true,
+                    detectSessionInUrl: true
+                }
+            });
+        } catch (error) {
+            console.error('Failed to initialize Supabase client:', error);
+            document.querySelector('.main-content').innerHTML = `
+                <div class="error-message">
+                    <p>Failed to connect to the database. Please refresh the page to try again.</p>
+                    <button onclick="location.reload()">Refresh</button>
+                </div>
+            `;
+            return;
+        }
     }
     
     console.log('Supabase client initialized successfully');
