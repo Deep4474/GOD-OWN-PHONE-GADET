@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - God's Own Phone Gadget</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/admin/style.css">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
     <div class="admin-container">
@@ -180,8 +181,35 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <script src="../config.js"></script>
+    <script src="admin-config.js"></script>
     <script src="error-handler.js"></script>
     <script src="admin.js"></script>
+    <script>
+        // Admin-only authentication check
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Check if admin is logged in
+                const adminToken = localStorage.getItem('admin-token');
+                if (!adminToken) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Verify admin token with Supabase
+                const { data: { user }, error } = await window.supabaseClient.auth.getUser(adminToken);
+                
+                if (error || !user || !user.user_metadata?.isAdmin) {
+                    localStorage.removeItem('admin-token');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                console.log('Admin access verified');
+            } catch (error) {
+                console.error('Admin verification error:', error);
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
 </body>
 </html>

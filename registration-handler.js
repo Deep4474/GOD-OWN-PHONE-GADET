@@ -36,12 +36,11 @@ async function handleRegistration(e) {
             throw new Error('Password must be at least 6 characters long');
         }
 
-        // Phone validation (if provided)
-        if (phone) {
-            const phoneRegex = /^\+?[\d\s-]{10,}$/;
-            if (!phoneRegex.test(phone)) {
-                throw new Error('Please enter a valid phone number');
-            }
+        // Phone validation (Nigerian format)
+        const phoneRegex = /^(\+?234|0)[789]\d{9}$/;
+        const cleanPhone = phone.replace(/\s+/g, '');
+        if (!phoneRegex.test(cleanPhone)) {
+            throw new Error('Please enter a valid Nigerian phone number (e.g., 0801234XXXX or +2348012345XXX)');
         }
 
         // Name validation
@@ -53,10 +52,27 @@ async function handleRegistration(e) {
         registerError.textContent = '';
         registerError.style.display = 'none';
 
-        // Register the user
-        const { data, error } = await authService.register(email, password, fullName, phone);
+        // Register the user with Supabase directly
+        const { data, error } = await window.supabaseClient.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    full_name: fullName,
+                    phone_number: phone,
+                    role: 'customer'
+                }
+            }
+        });
 
-        if (error) throw error;
+        if (error) {
+            console.error('Supabase registration error:', error);
+            throw new Error(error.message);
+        }
+
+        if (!data.user) {
+            throw new Error('Failed to create user account');
+        }
 
         // Show success message
         const successMessage = document.createElement('div');
@@ -85,8 +101,12 @@ async function handleRegistration(e) {
         let errorMessage = error.message;
         if (!navigator.onLine) {
             errorMessage = 'Please check your internet connection and try again.';
-        } else if (error.message.includes('already registered')) {
+        } else if (error.message.includes('already registered') || error.message.includes('already been taken')) {
             errorMessage = 'This email is already registered. Please try logging in instead.';
+        } else if (error.message.includes('database') || error.message.includes('Database')) {
+            errorMessage = 'Unable to create account at the moment. Please try again in a few minutes.';
+        } else if (error.message.includes('password')) {
+            errorMessage = 'Password must be at least 6 characters long and contain both letters and numbers.';
         }
 
         // Show error message with improved mobile visibility
