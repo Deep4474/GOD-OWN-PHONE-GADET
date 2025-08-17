@@ -140,10 +140,26 @@
         </div>
     </div>
 
+    <!-- Load dependencies in correct order -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <script src="authService.js"></script>
-    <script src="auth.js"></script>
+    <script>
+        // Wait for Supabase initialization before loading other scripts
+        window.addEventListener('supabaseready', function() {
+            // Load auth service and main auth script
+            const authServiceScript = document.createElement('script');
+            authServiceScript.src = 'authService.js';
+            
+            const authScript = document.createElement('script');
+            authScript.src = 'auth.js';
+            
+            authServiceScript.onload = function() {
+                document.body.appendChild(authScript);
+            };
+            
+            document.body.appendChild(authServiceScript);
+        });
+    </script>
     <script>
         // Check for errors
         window.onerror = function(msg, url, lineNo, columnNo, error) {

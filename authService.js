@@ -194,5 +194,8 @@ class AuthService {
     }
 }
 
-// Create auth service instance
-const authService = new AuthService(supabaseClient);
+// Create auth service instance and make it globally available
+window.authService = new AuthService(window.supabaseClient);
+
+// Signal that auth service is ready
+window.dispatchEvent(new Event('authserviceready'));

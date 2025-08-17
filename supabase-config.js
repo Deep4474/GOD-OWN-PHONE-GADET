@@ -62,8 +62,17 @@ async function initializeSupabase() {
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    initializeSupabase().catch(error => {
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        window.supabaseClient = await initializeSupabase();
+        // Dispatch event when Supabase is ready
+        const event = new Event('supabaseready');
+        window.dispatchEvent(event);
+    } catch (error) {
         console.error('Supabase initialization failed:', error);
-    });
+        const errorElements = document.querySelectorAll('.error-message');
+        errorElements.forEach(el => {
+            el.textContent = 'Authentication service is temporarily unavailable. Please try again later.';
+        });
+    }
 });
