@@ -21,27 +21,50 @@ class AuthService {
                 throw new Error('Password must be at least 6 characters long');
             }
 
-            // Register user with minimal data
-            const { data, error } = await this.supabase.auth.signUp({
+            // Start a Supabase transaction
+            const { data: { user }, error: signUpError } = await this.supabase.auth.signUp({
                 email,
                 password,
                 options: {
                     data: {
-                        full_name: fullName
+                        full_name: fullName,
+                        phone: phone
                     },
-                    emailRedirectTo: window.location.origin + '/auth.html'
+                    emailRedirectTo: 'https://glittery-torrone-d1184e.netlify.app/auth.html'
                 }
             });
 
-            if (error) throw error;
+            if (signUpError) throw signUpError;
 
-            console.log('Registration successful:', data);
+            if (!user) throw new Error('User registration failed');
+
+            // Create profile in the public.profiles table
+            const { error: profileError } = await this.supabase
+                .from('profiles')
+                .insert([
+                    {
+                        id: user.id,
+                        email: email,
+                        full_name: fullName,
+                        phone: phone,
+                        role: 'user'
+                    }
+                ]);
+
+            if (profileError) {
+                console.error('Profile creation error:', profileError);
+                // If profile creation fails, we should clean up the auth user
+                await this.supabase.auth.admin.deleteUser(user.id);
+                throw new Error('Failed to create user profile. Please try again.');
+            }
+
+            console.log('Registration successful:', user);
 
             // Send verification email
             await this.sendVerificationEmail(email);
 
             return { 
-                data, 
+                data: { user },
                 error: null,
                 message: 'Registration successful! Please check your email for verification.' 
             };

@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="auth.css">
     <link rel="stylesheet" href="auth.mobile.css">
+    <link rel="stylesheet" href="mobile-errors.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -142,22 +143,67 @@
 
     <!-- Load dependencies in correct order -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
+    <script src="config.js"></script>
+    <script src="database-check.js"></script>
+    <script src="registrationHelper.js"></script>
+    <script src="registration-handler.js"></script>
     <script>
-        // Wait for Supabase initialization before loading other scripts
-        window.addEventListener('supabaseready', function() {
-            // Load auth service and main auth script
-            const authServiceScript = document.createElement('script');
-            authServiceScript.src = 'authService.js';
+        // Show loading indicator
+        function showLoading(button) {
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            return originalText;
+        }
+
+        // Hide loading indicator
+        function hideLoading(button, originalText) {
+            button.disabled = false;
+            button.textContent = originalText;
+        }
+
+        // Show error message with mobile-friendly styling
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                errorElement.style.padding = '12px';
+                errorElement.style.marginTop = '10px';
+                errorElement.style.borderRadius = '8px';
+                // Scroll error into view on mobile
+                if (window.innerWidth <= 768) {
+                    errorElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        // Wait for all dependencies to load
+        window.addEventListener('DOMContentLoaded', function() {
+            // Load scripts in sequence
+            const scripts = [
+                { src: 'authService.js', id: 'authService' },
+                { src: 'auth.js', id: 'auth' }
+            ];
             
-            const authScript = document.createElement('script');
-            authScript.src = 'auth.js';
+            function loadScript(index) {
+                if (index >= scripts.length) return;
+                
+                const script = document.createElement('script');
+                script.src = scripts[index].src;
+                script.id = scripts[index].id;
+                
+                script.onload = () => loadScript(index + 1);
+                script.onerror = (error) => {
+                    console.error(`Error loading ${scripts[index].src}:`, error);
+                    showError('loginError', 'Failed to load required scripts. Please refresh the page.');
+                };
+                
+                document.body.appendChild(script);
+            }
             
-            authServiceScript.onload = function() {
-                document.body.appendChild(authScript);
-            };
-            
-            document.body.appendChild(authServiceScript);
+            // Start loading scripts
+            loadScript(0);
         });
     </script>
     <script>

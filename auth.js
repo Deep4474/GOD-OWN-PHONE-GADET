@@ -2,9 +2,13 @@
 async function checkAndRedirectLoggedInUser() {
     try {
         const { data: { session }, error } = await supabaseClient.auth.getSession();
-        if (session) {
-            // User is logged in, redirect to main page
-            window.location.href = 'https://glittery-torrone-d1184e.netlify.app/index.html';
+        if (session && !localStorage.getItem('preventRedirect')) {
+            // User is logged in, show a confirmation dialog
+            if (confirm('You are already logged in. Would you like to go to the main page?')) {
+                window.location.href = 'https://glittery-torrone-d1184e.netlify.app/index.html';
+            } else {
+                localStorage.setItem('preventRedirect', 'true');
+            }
             return true;
         }
     } catch (error) {
@@ -13,8 +17,10 @@ async function checkAndRedirectLoggedInUser() {
     return false;
 }
 
-// Run session check immediately
-checkAndRedirectLoggedInUser();
+// Only run session check if not prevented
+if (!localStorage.getItem('preventRedirect')) {
+    checkAndRedirectLoggedInUser();
+}
 
 // Form containers
 const loginBox = document.getElementById('loginBox');
@@ -169,11 +175,17 @@ loginForm.addEventListener('submit', async (e) => {
 
         if (data) {
             // Regular login successful
-            loginSuccess.textContent = "Login successful! Redirecting...";
+            loginSuccess.textContent = "Login successful! Click here to continue to main page.";
             loginSuccess.style.color = '#2ecc71';
             
-            // Redirect to main page
-            window.location.href = '/index.html';
+            // Create continue button
+            const continueBtn = document.createElement('button');
+            continueBtn.className = 'auth-button';
+            continueBtn.textContent = 'Continue to Main Page';
+            continueBtn.onclick = () => {
+                window.location.href = '/index.html';
+            };
+            loginBox.appendChild(continueBtn);
         } else {
             // Magic link sent
             loginSuccess.textContent = message;
@@ -204,38 +216,47 @@ loginForm.addEventListener('submit', async (e) => {
     }
 });
 
+// Handle registration form submission
 registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
     const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
     const fullName = document.getElementById('regFullName').value.trim();
     const phone = document.getElementById('regPhone').value.trim();
 
-    // Basic validation
-    if (!email || !password || !fullName || !phone) {
-        registerError.textContent = "All fields are required";
-        registerError.style.color = '#e74c3c';
-        return;
-    }
-
-    // Password validation
-    if (password.length < 6) {
-        registerError.textContent = "Password must be at least 6 characters long";
-        registerError.style.color = '#e74c3c';
-        return;
-    }
-
+    // Get button and show loading state
     const submitButton = registerForm.querySelector('button[type="submit"]');
+    const originalText = submitButton.innerHTML;
     submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
 
     try {
-        registerError.textContent = "Creating your account...";
+        // Use registration helper for validation
+        await window.registrationHelpers.validateRegistration(email, password, fullName, phone);
+        
+        registerError.textContent = "";
+        registerError.style.display = "none";
+        // Show loading message
+        const loadingMessage = document.createElement('div');
+        loadingMessage.className = 'loading-message';
+        loadingMessage.innerHTML = `
+            <div class="spinner"></div>
+            <span>Creating your account...</span>
+        `;
+        registerForm.appendChild(loadingMessage);
+        
         console.log('Attempting registration with email:', email);
         
         // Use authService for registration
         const { data, error } = await authService.register(email, password, fullName, phone);
 
-        if (error) throw error;
+        if (error) {
+            // Use registration helper for error handling
+            const errorMessage = await window.registrationHelpers.handleRegistrationError(error);
+            showError('registerError', errorMessage);
+            throw error;
+        }
 
         console.log('Registration successful:', data);
 
@@ -243,10 +264,15 @@ registerForm.addEventListener('submit', async (e) => {
         localStorage.setItem('verificationEmail', email);
         
         // Show success message
-        registerError.textContent = 'Registration successful! Please check your email for the verification code.';
-        registerError.style.color = '#2ecc71';
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
+        successDiv.innerHTML = `
+            <i class="fas fa-check-circle"></i>
+            <span>Registration successful! Please check your email for the verification code.</span>
+        `;
+        registerForm.appendChild(successDiv);
 
-        // Add visual feedback
+        // Add success animation
         showSuccessAnimation(registerBox);
         
         // Switch to verification form after animation
@@ -259,10 +285,34 @@ registerForm.addEventListener('submit', async (e) => {
 
     } catch (error) {
         console.error('Registration error details:', error);
-        registerError.textContent = error.message || 'Failed to register. Please try again.';
-        registerError.style.color = '#e74c3c';
+        
+        // Handle network errors specially
+        if (!navigator.onLine) {
+            showError('registerError', 'Please check your internet connection and try again.');
+        } else {
+            const errorMessage = error.message || 'Failed to register. Please try again.';
+            showError('registerError', errorMessage);
+        }
+
+        // Add vibration feedback on mobile for errors
+        if (navigator.vibrate) {
+            navigator.vibrate(200);
+        }
+
     } finally {
-        submitButton.disabled = false;
+        // Remove loading message if it exists
+        const loadingMessage = registerForm.querySelector('.loading-message');
+        if (loadingMessage) {
+            loadingMessage.remove();
+        }
+        
+        // Restore button state
+        hideLoading(submitButton, originalButtonText);
+        
+        // Scroll error into view if on mobile
+        if (window.innerWidth <= 768 && registerError.textContent) {
+            registerError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     }
 });
 
@@ -292,12 +342,20 @@ confirmYesBtn.addEventListener('click', async () => {
             // Check if the user is an admin
             const isAdmin = session.user?.user_metadata?.role === 'admin';
             
-            // Redirect based on user role
-            if (isAdmin) {
-                window.location.href = 'https://glittery-torrone-d1184e.netlify.app/admin/index.html';
-            } else {
-                window.location.replace('https://glittery-torrone-d1184e.netlify.app/index.html');
-            }
+            // Show confirmation message with continue button
+            const confirmMessage = document.createElement('div');
+            confirmMessage.className = 'success-message';
+            confirmMessage.innerHTML = `
+                <p>Login confirmed! Click below to continue:</p>
+                <button class="auth-button" onclick="window.location.href='${
+                    isAdmin ? 
+                    'https://glittery-torrone-d1184e.netlify.app/admin/index.html' : 
+                    'https://glittery-torrone-d1184e.netlify.app/index.html'
+                }'">
+                    Continue to ${isAdmin ? 'Admin' : 'Main'} Page
+                </button>
+            `;
+            confirmationBox.appendChild(confirmMessage);
         } else {
             throw new Error('No session found');
         }

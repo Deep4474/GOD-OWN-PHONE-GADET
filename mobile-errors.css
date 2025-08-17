@@ -1,0 +1,96 @@
+/* Mobile-specific error handling styles */
+@media (max-width: 768px) {
+    .error-message {
+        background-color: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 8px;
+        font-size: 14px;
+        text-align: center;
+        display: none;
+    }
+
+    .error-message.visible {
+        display: block;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .loading-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        background-color: rgba(52, 152, 219, 0.1);
+        border-radius: 8px;
+        margin: 10px 0;
+    }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #3498db;
+        border-top-color: transparent;
+        border-radius: 50%;
+        margin-right: 10px;
+        animation: spin 1s linear infinite;
+    }
+
+    .success-message {
+        background-color: rgba(46, 204, 113, 0.1);
+        color: #27ae60;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+
+    .success-message i {
+        margin-right: 10px;
+        font-size: 18px;
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+        from {
+            transform: translateY(-10px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Form improvements */
+    .form-group input {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        font-size: 16px !important;
+    }
+
+    /* Better touch feedback */
+    .auth-button:active {
+        transform: scale(0.98);
+    }
+
+    /* Improved validation feedback */
+    input:invalid {
+        border-color: #e74c3c;
+    }
+
+    input:invalid:focus {
+        border-color: #e74c3c;
+        box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+    }
+}

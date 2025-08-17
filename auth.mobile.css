@@ -65,12 +65,14 @@
         padding: 15px;
         border: 2px solid #e0e0e0;
         border-radius: 12px;
-        font-size: 16px !important;
+        font-size: 16px !important; /* Prevents iOS zoom */
         background-color: #f8f9fa;
         transition: all 0.3s ease;
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
+        touch-action: manipulation; /* Prevents double-tap zoom */
+        -webkit-tap-highlight-color: transparent; /* Removes tap highlight on iOS */
     }
 
     .auth-form input:focus {
@@ -159,6 +161,24 @@
     .mobile-bottom-nav i {
         font-size: 20px;
         margin-bottom: 4px;
+    }
+
+    /* Touch feedback */
+    .touch-feedback {
+        transition: transform 0.2s ease-out;
+    }
+
+    .touch-feedback:active {
+        transform: scale(0.98);
+    }
+
+    /* Improved tap targets for better accessibility */
+    .auth-button,
+    .auth-links a,
+    .mobile-bottom-nav a {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 12px;
     }
 
     /* Loading state */
