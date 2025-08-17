@@ -21,15 +21,10 @@ class AuthService {
                 throw new Error('Password must be at least 6 characters long');
             }
 
-            // First check if the user already exists
-            const { data: existingUser } = await this.supabase
-                .from('profiles')
-                .select('id')
-                .eq('email', email)
-                .single();
-
-            if (existingUser) {
-                throw new Error('An account with this email already exists');
+            // Validate email format
+            const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                throw new Error('Please enter a valid email address');
             }
 
             // Register user with Supabase
@@ -39,7 +34,8 @@ class AuthService {
                 options: {
                     data: {
                         full_name: fullName,
-                        phone: phone
+                        phone_number: phone,
+                        role: 'customer'
                     },
                     emailRedirectTo: window.location.origin + '/auth.html'
                 }
@@ -95,18 +91,7 @@ class AuthService {
                 throw new Error('Email and password are required');
             }
 
-            // First check if user exists
-            const { data: existingUser, error: userError } = await this.supabase
-                .from('profiles')
-                .select('id')
-                .eq('email', email)
-                .single();
-
-            if (!existingUser) {
-                throw new Error('No account found with this email. Please register first.');
-            }
-
-            // Try password login
+            // Try password login first
             const { data, error } = await this.supabase.auth.signInWithPassword({
                 email,
                 password
