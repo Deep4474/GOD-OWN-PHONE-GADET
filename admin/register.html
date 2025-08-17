@@ -185,23 +185,31 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="admin-config.js"></script>
     <script>
-        // Initialize Supabase Client for admin
-        const supabaseUrl = 'https://jlwxkykznyjmstpjcgks.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ';
-
-        // Create Supabase client properly
-        const { createClient } = supabase;
-        const supabaseClient = createClient(supabaseUrl, supabaseKey);
+        // Wait for Supabase client to be initialized
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Ensure Supabase client exists
+            if (!window.supabaseClient) {
+                console.error('Supabase client not initialized');
+                const errorDiv = document.getElementById('registerError');
+                errorDiv.textContent = 'System initialization error. Please refresh the page.';
+                errorDiv.style.display = 'block';
+                return;
+            }
 
         // Handle admin registration
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        const registerForm = document.getElementById('registerForm');
+        const errorDiv = document.getElementById('registerError');
+        const successDiv = document.getElementById('registerSuccess');
+
+        registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            const errorDiv = document.getElementById('registerError');
             const submitButton = document.querySelector('.auth-button');
 
             try {
