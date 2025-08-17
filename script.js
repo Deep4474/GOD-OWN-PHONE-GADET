@@ -109,14 +109,23 @@ function displayProducts(products) {
         
         productCard.innerHTML = `
             <div class="image-container">
-                <img src="${product.image_url}" alt="${product.name}" loading="lazy" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x300?text=Image+Not+Available'">
+                <img 
+                    src="${product.image_url}" 
+                    alt="${product.name}" 
+                    loading="lazy" 
+                    onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400?text=Image+Not+Available'"
+                >
             </div>
             <div class="product-details">
                 <h3>${product.name}</h3>
                 <p class="description">${product.description || ''}</p>
                 <p class="price">₦${product.price.toLocaleString()}</p>
                 <p class="stock-status ${stockClass}">${stockStatus}</p>
-                <button class="buy-now-btn" ${product.stock <= 0 ? 'disabled' : ''} data-product-name="${product.name}" data-product-price="${product.price}" data-product-image="${product.image_url}">
+                <button class="buy-now-btn" ${product.stock <= 0 ? 'disabled' : ''} 
+                    data-product-name="${product.name}" 
+                    data-product-price="${product.price}" 
+                    data-product-image="${product.image_url}"
+                >
                     ${product.stock > 0 ? 'Buy Now' : 'Out of Stock'}
                 </button>
             </div>
