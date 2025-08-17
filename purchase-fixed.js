@@ -115,13 +115,7 @@ function initializeModalScroll() {
 }
 
 // Purchase Form Handler
-document.addEventListener('DOMContentLoaded', async () => {
-    // Check if we have the required global functions
-    if (!window.supabaseClient || !window.createOrder || !window.showMessage || !window.showLoading || !window.hideLoading) {
-        console.error('Required dependencies not loaded');
-        return;
-    }
-
+document.addEventListener('DOMContentLoaded', () => {
     // Initialize auto-scroll
     const scrollControls = initializeModalScroll();
 
@@ -142,7 +136,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const totalAmount = document.getElementById('totalAmount');
     
     let currentPrice = 0;
-    let currentProduct = null;
 
     // Update all amounts based on quantity and delivery method
     function updateAmounts() {
@@ -215,17 +208,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Handle Product Selection
-    window.openBuyNowModal = function(product, price, imageUrl) {
-        // Store the current product
-        currentProduct = typeof product === 'string' ? { name: product } : product;
-        if (typeof product === 'object') {
-            currentProduct = product;
-        } else {
-            currentProduct = { name: product };
-        }
-        
+    window.openBuyNowModal = function(productName, price, imageUrl) {
         // Update modal content
-        document.getElementById('modalProductName').textContent = currentProduct.name;
+        document.getElementById('modalProductName').textContent = productName;
         document.getElementById('modalProductPrice').textContent = price.toLocaleString();
         document.getElementById('modalProductImage').src = imageUrl;
         currentPrice = price;
@@ -254,65 +239,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        // Get form data
+        const formData = {
+            product_name: document.getElementById('modalProductName').textContent,
+            quantity: parseInt(quantityInput.value),
+            customer_name: document.getElementById('customerName').value.trim(),
+            email: document.getElementById('customerEmail').value.trim(),
+            phone: document.getElementById('customerPhone').value.trim(),
+            delivery_method: document.querySelector('input[name="deliveryMethod"]:checked').value,
+            delivery_address: document.getElementById('address').value.trim(),
+            subtotal: parseFloat(subtotalAmount.textContent.replace(/,/g, '')),
+            delivery_fee: parseFloat(deliveryFeeAmount.textContent.replace(/,/g, '')),
+            total_amount: parseFloat(totalAmount.textContent.replace(/,/g, '')),
+            status: 'pending'
+        };
+
+        // Validate phone number
+        const phoneRegex = /^[0-9]{11}$/;
+        if (!phoneRegex.test(formData.phone)) {
+            showMessage('Please enter a valid Nigerian phone number (11 digits)', 'error');
+            return;
+        }
+
+        // Validate delivery address if delivery method is selected
+        if (formData.delivery_method === 'delivery' && !formData.delivery_address) {
+            showMessage('Please enter your delivery address', 'error');
+            return;
+        }
+
         try {
-            // Check if user is logged in first
-            const { data: { user }, error: userError } = await window.supabaseClient.auth.getUser();
-            if (!user || userError) {
-                showMessage('Please login to place an order', 'error');
-                // Redirect to login page
-                window.location.href = 'auth.html';
-                return;
-            }
-
-            // Get form data
-            const quantity = parseInt(quantityInput.value);
-            const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
-            const address = document.getElementById('address').value.trim();
-            const phone = document.getElementById('customerPhone').value.trim();
-            const subtotal = parseFloat(subtotalAmount.textContent.replace(/,/g, ''));
-            const deliveryFee = parseFloat(deliveryFeeAmount.textContent.replace(/,/g, ''));
-            const total = parseFloat(totalAmount.textContent.replace(/,/g, ''));
-
-            // Validate phone number
-            const phoneRegex = /^[0-9]{11}$/;
-            if (!phoneRegex.test(phone)) {
-                showMessage('Please enter a valid Nigerian phone number (11 digits)', 'error');
-                return;
-            }
-
-            // Validate delivery address if delivery method is selected
-            if (deliveryMethod === 'delivery' && !address) {
-                showMessage('Please enter your delivery address', 'error');
-                return;
-            }
-
             showLoading();
             // Disable submit button and show loading state
             const submitBtn = form.querySelector('.submit-order');
             submitBtn.disabled = true;
             submitBtn.classList.add('loading');
 
-            // Create order with the actual table schema
-            const order = await window.createOrder({
-                product_id: currentProduct.id,
-                quantity: quantity,
-                delivery_option: deliveryMethod,
-                email: user.email,
-                name: document.getElementById('customerName').value.trim(),
-                phone: phone,
-                total_amount: total,
-                status: 'pending'
-            });
+            // Create order using the global createOrder function
+            const order = await window.createOrder(formData);
 
             if (!order) throw new Error('Failed to create order');
 
             // Show success message
-            showOrderConfirmation(order[0].id, {
-                product_name: currentProduct.name,
-                quantity: quantity,
-                total_amount: total,
-                email: user.email
-            });
+            showOrderConfirmation(order[0].id, formData);
             closeModal();
 
         } catch (error) {

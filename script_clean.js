@@ -109,9 +109,7 @@ function displayProducts(products) {
             <p class="description">${product.description || ''}</p>
             <p class="price">₦${product.price.toLocaleString()}</p>
             <p class="stock-status ${stockClass}">${stockStatus}</p>
-            <button class="buy-now-btn" ${product.stock <= 0 ? 'disabled' : ''} onclick="openBuyNowModal('${product.name}', ${product.price}, '${product.image_url}')">
-                ${product.stock > 0 ? 'Buy Now' : 'Out of Stock'}
-            </button>
+            <button class="buy-now-btn" ${product.stock <= 0 ? 'disabled' : ''} onclick="openBuyNowModal(${JSON.stringify(product).replace(/'/g, "\\'")})"
         `;
         
         productGrid.appendChild(productCard);
@@ -151,7 +149,7 @@ function initializeTimer() {
 }
 
 // Buy Now Modal Functionality
-function openBuyNowModal(productName, price, imageUrl) {
+function openBuyNowModal(product) {
     const modal = document.getElementById('buyNowModal');
     const modalProductName = document.getElementById('modalProductName');
     const modalProductPrice = document.getElementById('modalProductPrice');
@@ -159,10 +157,13 @@ function openBuyNowModal(productName, price, imageUrl) {
     const subtotalAmount = document.getElementById('subtotalAmount');
     const totalAmount = document.getElementById('totalAmount');
     
-    modalProductName.textContent = productName;
-    modalProductPrice.textContent = price.toLocaleString();
-    modalProductImage.src = imageUrl;
-    subtotalAmount.textContent = price.toLocaleString();
+    // Store the product object
+    window.currentProduct = product;
+    
+    modalProductName.textContent = product.name;
+    modalProductPrice.textContent = product.price.toLocaleString();
+    modalProductImage.src = product.image_url;
+    subtotalAmount.textContent = product.price.toLocaleString();
     updateTotal();
     
     modal.style.display = 'block';
@@ -266,21 +267,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (productError) throw productError;
 
-            // Create the order with exact table structure
-            const { data: order, error: orderError } = await supabaseClient
-                .from('orders')
-                .insert([{
-                    product_id: productData.id,
-                    quantity: quantity,
-                    delivery_option: formData.delivery_method,
-                    email: formData.email,
-                    name: formData.full_name,
-                    phone: formData.phone,
-                    status: 'pending',
-                    total_amount: orderTotal
-                }])
-                .select()
-                .single();
+            // Create the order using our createOrder function
+            const order = await window.createOrder({
+                user_id: window.supabaseClient.auth.user().id,
+                total_amount: orderTotal,
+                delivery_address: formData.delivery_method === 'delivery' ? formData.address : 'Store Pickup',
+                delivery_option: formData.delivery_method,
+                phone: formData.phone,
+                status: 'pending',
+                payment_status: 'pending',
+                product_id: productData.id,
+                quantity: quantity,
+                price_at_time: basePrice
+            });
 
             if (orderError) throw orderError;
 

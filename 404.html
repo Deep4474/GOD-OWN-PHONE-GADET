@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - God's Own Phone Gadgets</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .error-container {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .error-icon {
+            font-size: 64px;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+
+        .error-title {
+            font-size: 32px;
+            color: #2c3e50;
+            margin-bottom: 16px;
+        }
+
+        .error-message {
+            font-size: 18px;
+            color: #7f8c8d;
+            margin-bottom: 32px;
+            max-width: 600px;
+        }
+
+        .back-home {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-home:hover {
+            background-color: #2980b9;
+        }
+
+        @media (max-width: 768px) {
+            .error-title {
+                font-size: 24px;
+            }
+
+            .error-message {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <h1>God's Own Phone Gadgets</h1>
+        </div>
+    </nav>
+
+    <div class="error-container">
+        <i class="fas fa-exclamation-circle error-icon"></i>
+        <h1 class="error-title">Page Not Found</h1>
+        <p class="error-message">
+            Oops! The page you're looking for doesn't exist. You might have mistyped the address or the page may have moved.
+        </p>
+        <a href="/" class="back-home">
+            <i class="fas fa-home"></i> Back to Home
+        </a>
+    </div>
+
+    <footer>
+        <div class="footer-bottom">
+            <p>&copy; 2025 God's Own Phone Gadgets. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

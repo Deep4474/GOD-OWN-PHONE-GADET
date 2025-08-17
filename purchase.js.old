@@ -115,13 +115,7 @@ function initializeModalScroll() {
 }
 
 // Purchase Form Handler
-document.addEventListener('DOMContentLoaded', async () => {
-    // Check if we have the required global functions
-    if (!window.supabaseClient || !window.createOrder || !window.showMessage || !window.showLoading || !window.hideLoading) {
-        console.error('Required dependencies not loaded');
-        return;
-    }
-
+document.addEventListener('DOMContentLoaded', () => {
     // Initialize auto-scroll
     const scrollControls = initializeModalScroll();
 
@@ -142,7 +136,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const totalAmount = document.getElementById('totalAmount');
     
     let currentPrice = 0;
-    let currentProduct = null;
 
     // Update all amounts based on quantity and delivery method
     function updateAmounts() {
@@ -215,17 +208,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Handle Product Selection
-    window.openBuyNowModal = function(product, price, imageUrl) {
-        // Store the current product
-        currentProduct = typeof product === 'string' ? { name: product } : product;
-        if (typeof product === 'object') {
-            currentProduct = product;
-        } else {
-            currentProduct = { name: product };
-        }
-        
+    window.openBuyNowModal = function(productName, price, imageUrl) {
         // Update modal content
-        document.getElementById('modalProductName').textContent = currentProduct.name;
+        document.getElementById('modalProductName').textContent = productName;
         document.getElementById('modalProductPrice').textContent = price.toLocaleString();
         document.getElementById('modalProductImage').src = imageUrl;
         currentPrice = price;
@@ -254,72 +239,69 @@ document.addEventListener('DOMContentLoaded', async () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        // Get form data
+        const formData = {
+            productName: document.getElementById('modalProductName').textContent,
+            quantity: parseInt(quantityInput.value),
+            customerName: document.getElementById('customerName').value.trim(),
+            email: document.getElementById('customerEmail').value.trim(),
+            phone: document.getElementById('customerPhone').value.trim(),
+            deliveryMethod: document.querySelector('input[name="deliveryMethod"]:checked').value,
+            address: document.getElementById('address').value.trim(),
+            subtotal: parseFloat(subtotalAmount.textContent.replace(/,/g, '')),
+            deliveryFee: parseFloat(deliveryFeeAmount.textContent.replace(/,/g, '')),
+            total: parseFloat(totalAmount.textContent.replace(/,/g, ''))
+        };
+
+        // Validate phone number
+        const phoneRegex = /^[0-9]{11}$/;
+        if (!phoneRegex.test(formData.phone)) {
+            alert('Please enter a valid Nigerian phone number (11 digits)');
+            return;
+        }
+
+        // Validate delivery address if delivery method is selected
+        if (formData.deliveryMethod === 'delivery' && !formData.address) {
+            alert('Please enter your delivery address');
+            return;
+        }
+
         try {
-            // Check if user is logged in first
-            const { data: { user }, error: userError } = await window.supabaseClient.auth.getUser();
-            if (!user || userError) {
-                showMessage('Please login to place an order', 'error');
-                // Redirect to login page
-                window.location.href = 'auth.html';
-                return;
-            }
-
-            // Get form data
-            const quantity = parseInt(quantityInput.value);
-            const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
-            const address = document.getElementById('address').value.trim();
-            const phone = document.getElementById('customerPhone').value.trim();
-            const subtotal = parseFloat(subtotalAmount.textContent.replace(/,/g, ''));
-            const deliveryFee = parseFloat(deliveryFeeAmount.textContent.replace(/,/g, ''));
-            const total = parseFloat(totalAmount.textContent.replace(/,/g, ''));
-
-            // Validate phone number
-            const phoneRegex = /^[0-9]{11}$/;
-            if (!phoneRegex.test(phone)) {
-                showMessage('Please enter a valid Nigerian phone number (11 digits)', 'error');
-                return;
-            }
-
-            // Validate delivery address if delivery method is selected
-            if (deliveryMethod === 'delivery' && !address) {
-                showMessage('Please enter your delivery address', 'error');
-                return;
-            }
-
-            showLoading();
             // Disable submit button and show loading state
             const submitBtn = form.querySelector('.submit-order');
             submitBtn.disabled = true;
             submitBtn.classList.add('loading');
 
-            // Create order with the actual table schema
-            const order = await window.createOrder({
-                product_id: currentProduct.id,
-                quantity: quantity,
-                delivery_option: deliveryMethod,
-                email: user.email,
-                name: document.getElementById('customerName').value.trim(),
-                phone: phone,
-                total_amount: total,
-                status: 'pending'
-            });
+            // Create order in Supabase
+            const { data: order, error } = await supabaseClient
+                .from('orders')
+                .insert([{
+                    product_name: formData.productName,
+                    quantity: formData.quantity,
+                    customer_name: formData.customerName,
+                    email: formData.email,
+                    phone: formData.phone,
+                    delivery_method: formData.deliveryMethod,
+                    delivery_address: formData.address,
+                    subtotal: formData.subtotal,
+                    delivery_fee: formData.deliveryFee,
+                    total_amount: formData.total,
+                    status: 'pending'
+                }])
+                .select()
+                .single();
 
-            if (!order) throw new Error('Failed to create order');
+            if (error) throw error;
 
             // Show success message
-            showOrderConfirmation(order[0].id, {
-                product_name: currentProduct.name,
-                quantity: quantity,
-                total_amount: total,
-                email: user.email
-            });
+            const orderNumber = order.id;
+            showOrderConfirmation(orderNumber, formData);
             closeModal();
 
         } catch (error) {
             console.error('Error submitting order:', error);
-            showMessage(error.message || 'There was an error processing your order. Please try again.', 'error');
+            alert('There was an error processing your order. Please try again.');
         } finally {
-            hideLoading();
             // Re-enable submit button and remove loading state
             const submitBtn = form.querySelector('.submit-order');
             submitBtn.disabled = false;
@@ -332,7 +314,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 function showOrderConfirmation(orderNumber, formData) {
     // Create confirmation modal
     const confirmationModal = document.createElement('div');
-    confirmationModal.className = 'modal confirmation-modal show'; // Add show class immediately
+    confirmationModal.className = 'modal confirmation-modal';
     confirmationModal.innerHTML = `
         <div class="modal-content">
             <div class="modal-header">
@@ -346,9 +328,9 @@ function showOrderConfirmation(orderNumber, formData) {
                 <h3>Thank you for your order!</h3>
                 <div class="order-details">
                     <p class="order-number">Order #${orderNumber}</p>
-                    <p class="order-product">${formData.product_name}</p>
+                    <p class="order-product">${formData.productName}</p>
                     <p class="order-quantity">Quantity: ${formData.quantity}</p>
-                    <p class="order-total">Total: ₦${formData.total_amount.toLocaleString()}</p>
+                    <p class="order-total">Total: ₦${formData.total.toLocaleString()}</p>
                 </div>
                 <div class="confirmation-message">
                     <p>We have sent a confirmation email to ${formData.email}</p>
@@ -361,16 +343,14 @@ function showOrderConfirmation(orderNumber, formData) {
 
     // Add confirmation modal to body
     document.body.appendChild(confirmationModal);
+    confirmationModal.style.display = 'block';
 
     // Handle close button
     const closeBtn = confirmationModal.querySelector('.close-modal');
     const doneBtn = confirmationModal.querySelector('.close-confirmation');
     
     function closeConfirmation() {
-        confirmationModal.classList.remove('show');
-        setTimeout(() => {
-            confirmationModal.remove();
-        }, 300); // Match CSS transition
+        confirmationModal.remove();
     }
 
     closeBtn.addEventListener('click', closeConfirmation);

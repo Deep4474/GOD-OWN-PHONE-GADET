@@ -122,15 +122,33 @@ async function getProducts() {
 // Orders
 async function createOrder(orderData) {
     const supabaseClient = await waitForSupabase();
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    const { data, error } = await supabaseClient
-        .from('orders')
-        .insert([{
-            ...orderData,
-            user_id: user?.id
-        }])
-    if (error) throw error
-    return data
+    
+    try {
+        // Validate required fields
+        const requiredFields = ['product_id', 'quantity', 'delivery_option', 'email', 'name', 'phone', 'total_amount'];
+        const missingFields = requiredFields.filter(field => !orderData[field]);
+        
+        if (missingFields.length > 0) {
+            throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+        }
+
+        // Create the order
+        const { data: order, error: orderError } = await supabaseClient
+            .from('orders')
+            .insert([orderData])
+            .select()
+            .single();
+        
+        if (orderError) {
+            console.error('Order creation error:', orderError);
+            throw new Error('Failed to create order');
+        }
+
+        return [order];
+    } catch (error) {
+        console.error('Error in createOrder:', error);
+        throw error;
+    }
 }
 
 async function getUserOrders() {

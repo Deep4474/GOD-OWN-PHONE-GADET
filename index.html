@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="footer.css">
     <link rel="stylesheet" href="modal.css">
     <link rel="stylesheet" href="mobile.css">
+    <link rel="stylesheet" href="mobile-layout.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
@@ -239,7 +240,7 @@
                         id="customerEmail" 
                         name="email"
                         required
-                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                        pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
                     >
                     <span class="validation-message">Please enter a valid email address</span>
                 </div>
