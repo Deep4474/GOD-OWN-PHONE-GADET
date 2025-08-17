@@ -1,7 +1,26 @@
+[build]
+  publish = "."
+  command = ""
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-[build]
-  publish = "."
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = """
+      default-src 'self' https://jlwxkykznyjmstpjcgks.supabase.co;
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net;
+      style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
+      img-src 'self' data: https: blob:;
+      font-src 'self' https://cdnjs.cloudflare.com;
+      connect-src 'self' https://jlwxkykznyjmstpjcgks.supabase.co;
+      frame-ancestors 'none';
+      form-action 'self';
+      """
