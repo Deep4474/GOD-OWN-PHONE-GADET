@@ -1,3 +1,6 @@
+// Initialize error element
+const registerError = document.getElementById('registerError') || document.createElement('div');
+
 // Handle registration form submission
 async function handleRegistration(e) {
     e.preventDefault();
@@ -52,10 +55,13 @@ async function handleRegistration(e) {
         registerError.textContent = '';
         registerError.style.display = 'none';
 
-        // Register the user with Supabase directly with retry mechanism
+        // Register the user with Supabase
+        let data, error;
         let retryCount = 0;
         const maxRetries = 3;
-        let data, error;
+        
+        // Log registration attempt
+        console.log('Attempting registration for:', email);
 
         while (retryCount < maxRetries) {
             try {
@@ -150,8 +156,9 @@ async function handleRegistration(e) {
             registerError.appendChild(document.createElement('br'));
             registerError.appendChild(loginLink);
         } else if (error.message.includes('database') || error.message.includes('Database')) {
-            errorMessage = 'The server is busy. We will automatically retry in 5 seconds...';
-            retryTimeout = 5000;
+            errorMessage = 'Unable to create account at this time. Please try again later.';
+            // Remove auto-retry for database errors
+            retryTimeout = 0;
         } else if (error.message.includes('password')) {
             errorMessage = 'Password must be at least 6 characters long and contain both letters and numbers.';
         } else if (error.message.includes('rate') || error.message.includes('Rate')) {
@@ -183,14 +190,13 @@ async function handleRegistration(e) {
         if (retryTimeout > 0) {
             submitButton.disabled = true;
             let countdown = retryTimeout / 1000;
-            const countdownInterval = setInterval(() => {
-                submitButton.textContent = `Retrying in ${countdown}s...`;
-                countdown--;
-                if (countdown < 0) {
-                    clearInterval(countdownInterval);
-                    handleRegistration(e);
-                }
-            }, 1000);
+            // Only attempt one retry after timeout
+            if (retryTimeout > 0) {
+                setTimeout(() => {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalText;
+                }, retryTimeout);
+            }
         }
 
         // Vibrate on mobile for error feedback
@@ -203,7 +209,7 @@ async function handleRegistration(e) {
         submitButton.disabled = false;
         submitButton.innerHTML = originalText;
     }
-}
+} // Close handleRegistration function
 
 // Initialize registration form
 if (registerForm) {

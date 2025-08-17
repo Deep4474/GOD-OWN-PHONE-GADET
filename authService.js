@@ -21,32 +21,44 @@ class AuthService {
                 throw new Error('Password must be at least 6 characters long');
             }
 
-            // Start a Supabase transaction
+            // First check if user exists
+            const { data: existingUser } = await this.supabase.auth.signInWithPassword({
+                email,
+                password: 'temp-check-123'
+            }).catch(() => ({ data: null }));
+
+            if (existingUser?.user) {
+                throw new Error('Email already registered. Please login instead.');
+            }
+
+            // Proceed with sign up
             const { data: { user }, error: signUpError } = await this.supabase.auth.signUp({
                 email,
                 password,
                 options: {
                     data: {
                         full_name: fullName,
-                        phone: phone
+                        phone_number: phone,
+                        role: 'customer',
+                        created_at: new Date().toISOString()
                     },
-                    emailRedirectTo: 'https://glittery-torrone-d1184e.netlify.app/auth.html'
+                    emailRedirectTo: window.location.origin + '/auth.html'
                 }
             });
 
-            if (signUpError) throw signUpError;
+            if (signUpError) {
+                console.error('Registration error:', signUpError.message);
+                // Check for specific error types
+                if (signUpError.message?.includes('already registered')) {
+                    throw new Error('This email is already registered. Please try logging in instead.');
+                } else if (signUpError.status === 500) {
+                    throw new Error('Server error. Please try again in a few moments.');
+                } else {
+                    throw new Error(signUpError.message || 'Registration failed. Please try again.');
+                }
+            }
 
             if (!user) throw new Error('User registration failed');
-
-            // Instead of manual profile creation, use metadata
-            const { data: updateData, error: updateError } = await this.supabase.auth.updateUser({
-                data: {
-                    full_name: fullName,
-                    phone: phone,
-                    role: 'customer',
-                    created_at: new Date().toISOString()
-                }
-            });
 
             if (updateError) {
                 console.error('Profile update error:', updateError);

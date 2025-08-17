@@ -8,6 +8,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://jlwxkykznyjmstpjcgks.supabase.co https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https: blob:; connect-src 'self' https://jlwxkykznyjmstpjcgks.supabase.co; frame-ancestors 'none'; form-action 'self'; base-uri 'self'">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>Login - God's Own Phone Gadget</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="auth.css">
@@ -141,75 +144,16 @@
         </div>
     </div>
 
-    <!-- Load dependencies in correct order -->
+    <!-- Load dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
-    <script src="database-check.js"></script>
-    <script src="registrationHelper.js"></script>
-    <script src="registration-handler.js"></script>
+    <script src="auth_new.js"></script>
+    <script src="auth_register.js"></script>
+
+    <!-- Error handling -->
     <script>
-        // Show loading indicator
-        function showLoading(button) {
-            button.disabled = true;
-            const originalText = button.textContent;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-            return originalText;
-        }
-
-        // Hide loading indicator
-        function hideLoading(button, originalText) {
-            button.disabled = false;
-            button.textContent = originalText;
-        }
-
-        // Show error message with mobile-friendly styling
-        function showError(elementId, message) {
-            const errorElement = document.getElementById(elementId);
-            if (errorElement) {
-                errorElement.textContent = message;
-                errorElement.style.display = 'block';
-                errorElement.style.padding = '12px';
-                errorElement.style.marginTop = '10px';
-                errorElement.style.borderRadius = '8px';
-                // Scroll error into view on mobile
-                if (window.innerWidth <= 768) {
-                    errorElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }
-        }
-
-        // Wait for all dependencies to load
-        window.addEventListener('DOMContentLoaded', function() {
-            // Load scripts in sequence
-            const scripts = [
-                { src: 'authService.js', id: 'authService' },
-                { src: 'auth.js', id: 'auth' }
-            ];
-            
-            function loadScript(index) {
-                if (index >= scripts.length) return;
-                
-                const script = document.createElement('script');
-                script.src = scripts[index].src;
-                script.id = scripts[index].id;
-                
-                script.onload = () => loadScript(index + 1);
-                script.onerror = (error) => {
-                    console.error(`Error loading ${scripts[index].src}:`, error);
-                    showError('loginError', 'Failed to load required scripts. Please refresh the page.');
-                };
-                
-                document.body.appendChild(script);
-            }
-            
-            // Start loading scripts
-            loadScript(0);
-        });
-    </script>
-    <script>
-        // Check for errors
         window.onerror = function(msg, url, lineNo, columnNo, error) {
-            console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError object: ' + JSON.stringify(error));
+            console.error('Error:', { msg, url, lineNo, columnNo, error });
             return false;
         };
     </script>

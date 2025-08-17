@@ -108,14 +108,18 @@ function displayProducts(products) {
         const stockClass = product.stock > 0 ? 'in-stock' : 'out-of-stock';
         
         productCard.innerHTML = `
-            <img src="${product.image_url}" alt="${product.name}">
-            <h3>${product.name}</h3>
-            <p class="description">${product.description || ''}</p>
-            <p class="price">₦${product.price.toLocaleString()}</p>
-            <p class="stock-status ${stockClass}">${stockStatus}</p>
-            <button class="buy-now-btn" ${product.stock <= 0 ? 'disabled' : ''} data-product-name="${product.name}" data-product-price="${product.price}" data-product-image="${product.image_url}">
-                ${product.stock > 0 ? 'Buy Now' : 'Out of Stock'}
-            </button>
+            <div class="image-container">
+                <img src="${product.image_url}" alt="${product.name}" loading="lazy" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x300?text=Image+Not+Available'">
+            </div>
+            <div class="product-details">
+                <h3>${product.name}</h3>
+                <p class="description">${product.description || ''}</p>
+                <p class="price">₦${product.price.toLocaleString()}</p>
+                <p class="stock-status ${stockClass}">${stockStatus}</p>
+                <button class="buy-now-btn" ${product.stock <= 0 ? 'disabled' : ''} data-product-name="${product.name}" data-product-price="${product.price}" data-product-image="${product.image_url}">
+                    ${product.stock > 0 ? 'Buy Now' : 'Out of Stock'}
+                </button>
+            </div>
         `;
         
         productGrid.appendChild(productCard);
@@ -169,8 +173,10 @@ function openBuyNowModal(productName, price, imageUrl) {
     const totalAmount = document.getElementById('totalAmount');
     
     // Set a maximum height for images to prevent full-screen takeover
-    modalProductImage.style.maxHeight = '200px';
-    modalProductImage.style.objectFit = 'contain';
+    modalProductImage.style.width = '100%';
+    modalProductImage.style.height = '300px';
+    modalProductImage.style.objectFit = 'cover';
+    modalProductImage.style.borderRadius = '8px';
     
     modalProductName.textContent = productName;
     modalProductPrice.textContent = price.toLocaleString();
