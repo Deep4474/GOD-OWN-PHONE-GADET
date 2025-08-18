@@ -26,7 +26,6 @@
       style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
       img-src 'self' data: https: blob:;
       font-src 'self' https://cdnjs.cloudflare.com;
-      frame-ancestors 'none';
       form-action 'self';
       connect-src 'self' https://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co wss://*.supabase.co;
       object-src 'none';
