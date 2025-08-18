@@ -31,7 +31,7 @@
       connect-src 'self' https://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co wss://*.supabase.co;
       object-src 'none';
       base-uri 'self';
-      trusted-types 'none';
+      frame-ancestors 'none';
       upgrade-insecure-requests;
       """
     Permissions-Policy = """
@@ -41,7 +41,6 @@
       payment=(),
       autoplay=(),
       display-capture=(),
-      document-domain=(),
       fullscreen=(),
       interest-cohort=(),
       sync-xhr=(self)
