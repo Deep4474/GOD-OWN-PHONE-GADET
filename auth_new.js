@@ -72,11 +72,29 @@ loginForm.addEventListener('submit', async (e) => {
 
     } catch (err) {
         console.error('Login error:', err);
-        loginError.textContent = err.message || 'Failed to send login link. Please try again.';
-        loginError.style.color = '#e74c3c';
-        loginSuccess.textContent = '';
         const submitButton = loginForm.querySelector('button[type="submit"]');
-        submitButton.disabled = false;
+        
+        // Handle specific error cases
+        if (err.message?.includes('rate limit exceeded')) {
+            loginError.textContent = 'Too many login attempts. Please wait a few minutes before trying again.';
+            // Store the rate limit time in localStorage
+            const now = Date.now();
+            localStorage.setItem('authRateLimit', now + (5 * 60 * 1000)); // 5 minutes
+            
+            // Update button state
+            submitButton.disabled = true;
+            setTimeout(() => {
+                submitButton.disabled = false;
+                loginError.textContent = '';
+            }, 5 * 60 * 1000); // Re-enable after 5 minutes
+        } else {
+            loginError.textContent = 'Failed to send login link. Please try again.';
+            submitButton.disabled = false;
+        }
+        
+        loginError.style.color = '#e74c3c';
+        loginError.style.display = 'block';
+        loginSuccess.textContent = '';
     }
 });
 
@@ -137,6 +155,29 @@ if (showRegisterLink) {
 
 // Check URL parameters and session on load
 globalThis.addEventListener('load', async () => {
+    // Check for existing rate limit
+    const rateLimitUntil = localStorage.getItem('authRateLimit');
+    if (rateLimitUntil) {
+        const now = Date.now();
+        if (now < parseInt(rateLimitUntil)) {
+            const submitButton = loginForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            loginError.textContent = 'Too many login attempts. Please wait a few minutes before trying again.';
+            loginError.style.color = '#e74c3c';
+            loginError.style.display = 'block';
+            
+            // Re-enable after remaining time
+            const remainingTime = parseInt(rateLimitUntil) - now;
+            setTimeout(() => {
+                submitButton.disabled = false;
+                loginError.textContent = '';
+                localStorage.removeItem('authRateLimit');
+            }, remainingTime);
+        } else {
+            localStorage.removeItem('authRateLimit');
+        }
+    }
+
     // Check if this is a confirmation redirect
     const urlParams = new URLSearchParams(globalThis.location.search);
     const isConfirmation = urlParams.get('confirmation') === 'true';

@@ -31,6 +31,7 @@
       connect-src 'self' https://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co wss://*.supabase.co;
       object-src 'none';
       base-uri 'self';
-      require-trusted-types-for 'script';
+      trusted-types 'none';
+      upgrade-insecure-requests;
       """
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
