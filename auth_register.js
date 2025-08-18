@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const phone = document.getElementById('regPhone').value.trim();
         const submitButton = registerForm.querySelector('button[type="submit"]');
         const errorDiv = document.getElementById('registerError');
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
 
         try {
             // Show loading state
@@ -51,26 +53,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (error) throw error;
 
-            // Show success message
-            errorDiv.textContent = 'Registration successful! Please check your email to verify your account.';
-            errorDiv.style.color = '#28a745';
-            errorDiv.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
-            errorDiv.style.display = 'block';
+            // Show animated success message
+            successDiv.innerHTML = `
+                <div class="success-animation">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <p>Registration successful!</p>
+                <p class="success-details">Please check your email to verify your account.</p>
+            `;
+            successDiv.style.color = '#28a745';
+            successDiv.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+            successDiv.style.padding = '20px';
+            successDiv.style.borderRadius = '8px';
+            successDiv.style.marginTop = '20px';
+            successDiv.style.textAlign = 'center';
+            
+            // Remove any existing success message
+            const existingSuccess = registerForm.querySelector('.success-message');
+            if (existingSuccess) {
+                existingSuccess.remove();
+            }
 
-            // Clear form
-            registerForm.reset();
+            // Add success message to form
+            registerForm.appendChild(successDiv);
+            
+            // Hide error message if any
+            errorDiv.style.display = 'none';
 
             // Store email for verification
             localStorage.setItem('verificationEmail', email);
 
-            // Switch to verification form if it exists
+            // Disable form fields but don't reset
+            const formInputs = registerForm.querySelectorAll('input');
+            formInputs.forEach(input => {
+                input.disabled = true;
+            });
+            
+            // Change button text and style
+            submitButton.innerHTML = '<i class="fas fa-envelope"></i> Check Your Email';
+            submitButton.style.backgroundColor = '#28a745';
+            
+            // Add verification box with smooth transition
             const verificationBox = document.getElementById('verificationBox');
             if (verificationBox) {
-                const verificationEmail = document.getElementById('verificationEmail');
-                if (verificationEmail) verificationEmail.value = email;
-                verificationBox.classList.remove('hidden');
-                registerBox.classList.add('hidden');
-                verificationBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                setTimeout(() => {
+                    // Prepare verification form
+                    const verificationEmail = document.getElementById('verificationEmail');
+                    if (verificationEmail) {
+                        verificationEmail.value = email;
+                    }
+                    
+                    // Show verification form with animation
+                    verificationBox.style.opacity = '0';
+                    verificationBox.classList.remove('hidden');
+                    verificationBox.style.display = 'block';
+                    
+                    // Trigger animation
+                    setTimeout(() => {
+                        verificationBox.style.opacity = '1';
+                        verificationBox.style.transition = 'opacity 0.3s ease-in-out';
+                        
+                        // Scroll to verification form
+                        verificationBox.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'start'
+                        });
+                    }, 50);
+                }, 2000); // Show verification form after 2 seconds
             }
 
         } catch (error) {

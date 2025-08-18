@@ -1,0 +1,78 @@
+/* Animation styles for auth forms */
+.success-animation {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.success-animation i {
+    font-size: 48px;
+    color: #28a745;
+    animation: checkmark 0.5s ease-in-out;
+}
+
+@keyframes checkmark {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.success-message {
+    animation: slideIn 0.3s ease-out;
+}
+
+.success-details {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.auth-button.success {
+    background-color: #28a745;
+    transition: background-color 0.3s ease;
+}
+
+.auth-button.success:hover {
+    background-color: #218838;
+}
+
+/* Form transition animations */
+.auth-box {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.auth-box.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+/* Input disabled state */
+input:disabled {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Button with icon */
+.auth-button i {
+    margin-right: 8px;
+}
