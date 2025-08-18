@@ -1,11 +1,10 @@
-class RateLimiter {
-    constructor(maxAttempts = 3, duration = 60000) {
-        this.maxAttempts = maxAttempts;
-        this.duration = duration;
-        this.attempts = new Map();
-    }
+// Rate limiter for authentication
+const _RateLimiter = {
+    attempts: new Map(),
+    maxAttempts: 3,
+    duration: 60000, // 1 minute
 
-    checkLimit(key) {
+    checkLimit: function(key) {
         const now = Date.now();
         const userAttempts = this.attempts.get(key) || { count: 0, timestamp: now };
 
@@ -23,7 +22,4 @@ class RateLimiter {
         this.attempts.set(key, userAttempts);
         return true;
     }
-}
-
-const authLimiter = new RateLimiter();
-export { authLimiter, RateLimiter };
+};

@@ -6,7 +6,7 @@ class RateLimiter {
         this.attempts = new Map();
     }
 
-    async checkLimit(key) {
+    checkLimit(key) {
         const now = Date.now();
         const userAttempts = this.attempts.get(key) || { count: 0, timestamp: now };
 

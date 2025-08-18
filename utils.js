@@ -33,6 +33,6 @@ function hideLoading() {
 }
 
 // Make functions globally available
-window.showMessage = showMessage;
-window.showLoading = showLoading;
-window.hideLoading = hideLoading;
+globalThis.showMessage = showMessage;
+globalThis.showLoading = showLoading;
+globalThis.hideLoading = hideLoading;

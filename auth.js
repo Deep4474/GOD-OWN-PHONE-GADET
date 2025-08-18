@@ -1,11 +1,11 @@
 // Check if user is already logged in immediately
 async function checkAndRedirectLoggedInUser() {
     try {
-        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        const { data: { session }, error: _error } = await supabaseClient.auth.getSession();
         if (session && !localStorage.getItem('preventRedirect')) {
             // User is logged in, show a confirmation dialog
             if (confirm('You are already logged in. Would you like to go to the main page?')) {
-                window.location.href = 'https://glittery-torrone-d1184e.netlify.app/index.html';
+                globalThis.location.href = 'https://glittery-torrone-d1184e.netlify.app/index.html';
             } else {
                 localStorage.setItem('preventRedirect', 'true');
             }
@@ -30,36 +30,36 @@ const verificationBox = document.getElementById('verificationBox');
 
 // Form elements
 const loginForm = document.getElementById('loginForm');
-const loginEmail = document.getElementById('loginEmail');
+const _loginEmail = document.getElementById('loginEmail');
 const loginError = document.getElementById('loginError');
 const loginSuccess = document.getElementById('loginSuccess');
 
 // Register form elements
 const registerForm = document.getElementById('registerForm');
-const regEmail = document.getElementById('regEmail');
-const regFullName = document.getElementById('regFullName');
-const regPhone = document.getElementById('regPhone');
-const regPassword = document.getElementById('regPassword');
+const _regEmail = document.getElementById('regEmail');
+const _regFullName = document.getElementById('regFullName');
+const _regPhone = document.getElementById('regPhone');
+const _regPassword = document.getElementById('regPassword');
 const registerError = document.getElementById('registerError');
 
 // Verification form elements
-const verificationForm = document.getElementById('verificationForm');
+const _verificationForm = document.getElementById('verificationForm');
 const verificationEmail = document.getElementById('verificationEmail');
-const verificationCode = document.getElementById('verificationCode');
+const _verificationCode = document.getElementById('verificationCode');
 const otpInputContainer = document.getElementById('otpInputContainer');
-const verificationError = document.getElementById('verificationError');
-const verificationSuccess = document.getElementById('verificationSuccess');
+const _verificationError = document.getElementById('verificationError');
+const _verificationSuccess = document.getElementById('verificationSuccess');
 const sendVerificationBtn = document.getElementById('sendVerificationBtn');
 
 // Navigation elements
 const showRegisterLink = document.getElementById('showRegister');
 const showLoginLink = document.getElementById('showLogin');
-const backToLoginFromVerification = document.getElementById('backToLoginFromVerification');
+const _backToLoginFromVerification = document.getElementById('backToLoginFromVerification');
 
 // Confirmation elements
 const confirmYesBtn = document.getElementById('confirmYes');
 const confirmNoBtn = document.getElementById('confirmNo');
-const confirmError = document.getElementById('confirmError');
+const _confirmError = document.getElementById('confirmError');
 
 // Form visibility toggling
 function showForm(formToShow) {
@@ -81,7 +81,7 @@ function showForm(formToShow) {
     });
 
     // Scroll to top of form with smooth animation
-    window.scrollTo({
+    globalThis.scrollTo({
         top: formToShow.offsetTop - 80,
         behavior: 'smooth'
     });
@@ -183,7 +183,7 @@ loginForm.addEventListener('submit', async (e) => {
             continueBtn.className = 'auth-button';
             continueBtn.textContent = 'Continue to Main Page';
             continueBtn.onclick = () => {
-                window.location.href = '/index.html';
+                globalThis.location.href = '/index.html';
             };
             loginBox.appendChild(continueBtn);
         } else {
@@ -227,13 +227,13 @@ registerForm.addEventListener('submit', async (e) => {
 
     // Get button and show loading state
     const submitButton = registerForm.querySelector('button[type="submit"]');
-    window.originalButtonText = submitButton.innerHTML; // Store it globally for access in finally block
+    globalThis.originalButtonText = submitButton.innerHTML; // Store it globally for access in finally block
     submitButton.disabled = true;
     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
 
     try {
         // Use registration helper for validation
-        await window.registrationHelpers.validateRegistration(email, password, fullName, phone);
+        await globalThis.registrationHelpers.validateRegistration(email, password, fullName, phone);
         
         registerError.textContent = "";
         registerError.style.display = "none";
@@ -253,7 +253,7 @@ registerForm.addEventListener('submit', async (e) => {
 
         if (error) {
             // Use registration helper for error handling
-            const errorMessage = await window.registrationHelpers.handleRegistrationError(error);
+            const errorMessage = await globalThis.registrationHelpers.handleRegistrationError(error);
             showError('registerError', errorMessage);
             throw error;
         }
@@ -308,10 +308,10 @@ registerForm.addEventListener('submit', async (e) => {
         
         // Restore button state
         submitButton.disabled = false;
-        submitButton.innerHTML = window.originalButtonText;
+        submitButton.innerHTML = globalThis.originalButtonText;
         
         // Scroll error into view if on mobile
-        if (window.innerWidth <= 768 && registerError.textContent) {
+        if (globalThis.innerWidth <= 768 && registerError.textContent) {
             registerError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     }
@@ -348,7 +348,7 @@ confirmYesBtn.addEventListener('click', async () => {
             confirmMessage.className = 'success-message';
             confirmMessage.innerHTML = `
                 <p>Login confirmed! Click below to continue:</p>
-                <button class="auth-button" onclick="window.location.href='${
+                <button class="auth-button" onclick="globalThis.location.href='${
                     isAdmin ? 
                     'https://glittery-torrone-d1184e.netlify.app/admin/index.html' : 
                     'https://glittery-torrone-d1184e.netlify.app/index.html'
@@ -361,7 +361,7 @@ confirmYesBtn.addEventListener('click', async () => {
             throw new Error('No session found');
         }
     } catch (error) {
-        const confirmError = document.getElementById('confirmError');
+        const _confirmError = document.getElementById('confirmError');
         confirmError.textContent = error.message || 'Failed to confirm login';
         confirmError.style.color = '#e74c3c';
     }
@@ -419,12 +419,12 @@ function initializeMobileNav() {
 }
 
 // Check URL parameters and user session on load
-window.addEventListener('load', async () => {
+globalThis.addEventListener('load', async () => {
     // Initialize mobile navigation
     initializeMobileNav();
     
     // Check if this is a confirmation redirect
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(globalThis.location.search);
     const isConfirmation = urlParams.get('confirmation') === 'true';
 
     if (isConfirmation) {

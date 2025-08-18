@@ -1,5 +1,5 @@
 // Admin registration handler
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     // Ensure Supabase client exists
     if (!globalThis.supabaseClient) {
         console.error('Supabase client not initialized');

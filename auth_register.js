@@ -1,12 +1,11 @@
 // Form elements
 const registerBox = document.getElementById('registerBox');
 const registerForm = document.getElementById('registerForm');
-const verificationBox = document.getElementById('verificationBox');
 const verificationForm = document.getElementById('verificationForm');
 
 // Initialize registration handlers
 document.addEventListener('DOMContentLoaded', () => {
-    if (!window.supabaseClient) {
+    if (!globalThis.supabaseClient) {
         console.error('Supabase client not initialized');
         return;
     }
@@ -36,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Create user account
-            const { data, error } = await window.supabaseClient.auth.signUp({
+            const { data: _data, error } = await globalThis.supabaseClient.auth.signUp({
                 email,
                 password,
                 options: {
@@ -46,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         role: 'customer',
                         created_at: new Date().toISOString()
                     },
-                    emailRedirectTo: window.location.origin + '/auth.html'
+                    emailRedirectTo: globalThis.location.origin + '/auth.html'
                 }
             });
 
@@ -118,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 errorDiv.style.display = 'none';
 
                 // Verify the email
-                const { error } = await window.supabaseClient.auth.verifyOtp({
+                const { error } = await globalThis.supabaseClient.auth.verifyOtp({
                     email,
                     token: code,
                     type: 'signup'
@@ -133,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Redirect to login after successful verification
                 setTimeout(() => {
-                    window.location.href = '/auth.html';
+                    globalThis.location.href = '/auth.html';
                 }, 2000);
 
             } catch (error) {

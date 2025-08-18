@@ -7,7 +7,7 @@ const SUPABASE_CONFIG = {
             autoRefreshToken: true,
             persistSession: true,
             detectSessionInUrl: true,
-            storage: window.localStorage,
+            storage: globalThis.localStorage,
             storageKey: 'supabase-auth-token',
         },
         db: {
@@ -32,7 +32,7 @@ async function createSupabaseClient(retries = 3) {
             );
 
             // Test the connection
-            const { data, error } = await client.auth.getSession();
+            const { data: _data, error } = await client.auth.getSession();
             if (error) throw error;
 
             console.log('Supabase client created successfully');
@@ -48,8 +48,8 @@ async function createSupabaseClient(retries = 3) {
 // Initialize client
 async function initializeSupabase() {
     try {
-        window.supabaseClient = await createSupabaseClient();
-        return window.supabaseClient;
+        globalThis.supabaseClient = await createSupabaseClient();
+        return globalThis.supabaseClient;
     } catch (error) {
         console.error('Failed to initialize Supabase:', error);
         // Show error in UI
@@ -64,10 +64,10 @@ async function initializeSupabase() {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        window.supabaseClient = await initializeSupabase();
+        globalThis.supabaseClient = await initializeSupabase();
         // Dispatch event when Supabase is ready
         const event = new Event('supabaseready');
-        window.dispatchEvent(event);
+        globalThis.dispatchEvent(event);
     } catch (error) {
         console.error('Supabase initialization failed:', error);
         const errorElements = document.querySelectorAll('.error-message');
