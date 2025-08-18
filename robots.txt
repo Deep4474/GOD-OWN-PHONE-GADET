@@ -1,0 +1,12 @@
+User-agent: *
+Disallow: /auth.html
+Disallow: /admin/
+Allow: /
+
+# Prevent indexing of ad-related content
+Disallow: */ads/
+Disallow: */advertisement/
+Disallow: */popup/
+
+# Site contains no advertisements or misleading content
+Clean-Site: true

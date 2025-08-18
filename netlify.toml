@@ -34,4 +34,15 @@
       trusted-types 'none';
       upgrade-insecure-requests;
       """
-    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Permissions-Policy = """
+      geolocation=(),
+      microphone=(),
+      camera=(),
+      payment=(),
+      autoplay=(),
+      display-capture=(),
+      document-domain=(),
+      fullscreen=(),
+      interest-cohort=(),
+      sync-xhr=(self)
+      """
