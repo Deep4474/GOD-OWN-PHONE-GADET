@@ -23,6 +23,9 @@ function showForm(formToShow) {
     if (formToShow) formToShow.classList.remove('hidden');
 }
 
+// Import rate limiter
+import { authLimiter } from './js/rateLimiter.js';
+
 // Handle login form submission
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -31,6 +34,15 @@ loginForm.addEventListener('submit', async (e) => {
     // Basic validation
     if (!email) {
         loginError.textContent = "Please enter your email address";
+        return;
+    }
+
+    try {
+        // Check rate limiting
+        authLimiter.checkLimit(email);
+    } catch (error) {
+        loginError.textContent = error.message;
+        loginError.style.color = '#e74c3c';
         return;
     }
 

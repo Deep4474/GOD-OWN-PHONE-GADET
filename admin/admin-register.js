@@ -1,7 +1,7 @@
 // Admin registration handler
 document.addEventListener('DOMContentLoaded', async () => {
     // Ensure Supabase client exists
-    if (!window.supabaseClient) {
+    if (!globalThis.supabaseClient) {
         console.error('Supabase client not initialized');
         const errorDiv = document.getElementById('registerError');
         errorDiv.textContent = 'System initialization error. Please refresh the page.';
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             while (retryCount < maxRetries) {
                 try {
-                    const { data, error } = await window.supabaseClient.auth.signUp({
+                    const { data, error } = await globalThis.supabaseClient.auth.signUp({
                         email,
                         password,
                         options: {
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Redirect to login after a delay
             setTimeout(() => {
-                window.location.href = 'login.html';
+                globalThis.location.href = 'login.html';
             }, 2000);
 
         } catch (error) {
