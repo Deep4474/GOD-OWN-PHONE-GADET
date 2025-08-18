@@ -1,6 +1,5 @@
 // supabase/functions/send-email/index.ts
-import { serve } from 'http/server'
-import { SmtpClient } from 'smtp'
+import { serve, SmtpClient } from './deps.ts'
 
 const SMTP_HOSTNAME = Deno.env.get('SMTP_HOSTNAME') || 'smtp.gmail.com'
 const SMTP_PORT = parseInt(Deno.env.get('SMTP_PORT') || '587')
