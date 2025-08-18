@@ -1,5 +1,4 @@
 // Form elements
-const registerBox = document.getElementById('registerBox');
 const registerForm = document.getElementById('registerForm');
 const verificationForm = document.getElementById('verificationForm');
 
@@ -103,22 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         verificationEmail.value = email;
                     }
                     
-                    // Show verification form with animation
-                    verificationBox.style.opacity = '0';
-                    verificationBox.classList.remove('hidden');
-                    verificationBox.style.display = 'block';
-                    
-                    // Trigger animation
-                    setTimeout(() => {
-                        verificationBox.style.opacity = '1';
-                        verificationBox.style.transition = 'opacity 0.3s ease-in-out';
-                        
-                        // Scroll to verification form
-                        verificationBox.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'start'
-                        });
-                    }, 50);
+                    // Use the utility function to show verification form
+                    globalThis.utils.showForm(verificationBox);
                 }, 2000); // Show verification form after 2 seconds
             }
 

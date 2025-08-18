@@ -147,7 +147,59 @@
         .auth-links a:hover {
             text-decoration: underline;
         }
+
+        /* Success animation styles */
+        .success-animation {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .success-animation i {
+            font-size: 48px;
+            color: #28a745;
+            animation: checkmark 0.5s ease-in-out;
+        }
+
+        @keyframes checkmark {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-details {
+            margin: 10px 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .auth-button.success {
+            background-color: #28a745;
+            margin-top: 15px;
+        }
+
+        .auth-button.success:hover {
+            background-color: #218838;
+        }
+
+        .auth-button i {
+            margin-right: 8px;
+        }
+
+        input:disabled {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="auth-body">
     <div class="auth-container">
@@ -264,19 +316,29 @@
                     throw new Error('Failed to create account. Please try again.');
                 }
 
-                // Show success message
+                // Show animated success message
                 const successDiv = document.getElementById('registerSuccess');
-                successDiv.textContent = 'Registration successful! Please check your email to verify your account.';
+                successDiv.innerHTML = `
+                    <div class="success-animation">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <p>Registration successful!</p>
+                    <p class="success-details">Please check your email to verify your account.</p>
+                    <button type="button" class="auth-button success" onclick="window.location.href='login.html'">
+                        <i class="fas fa-sign-in-alt"></i> Go to Login
+                    </button>
+                `;
                 successDiv.style.display = 'block';
                 errorDiv.style.display = 'none';
 
-                // Clear form
-                document.getElementById('registerForm').reset();
+                // Disable form fields
+                const formInputs = registerForm.querySelectorAll('input');
+                formInputs.forEach(input => {
+                    input.disabled = true;
+                });
 
-                // Redirect to login after a delay
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
+                // Hide submit button
+                submitButton.style.display = 'none';
 
             } catch (error) {
                 console.error('Registration error:', error);

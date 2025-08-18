@@ -9,7 +9,7 @@ function showError(message, container) {
     container.prepend(errorDiv);
 }
 
-function handleLoadingError(error, section) {
+function _handleLoadingError(error, section) {
     console.error(`Error in ${section}:`, error);
     const container = document.querySelector('.main-content');
     showError(`Unable to load ${section}. Please try refreshing the page.`, container);

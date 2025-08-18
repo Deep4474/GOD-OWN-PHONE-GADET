@@ -15,7 +15,7 @@ const initSupabase = () => {
             console.log('Supabase client initialized successfully');
             
             // Test the connection immediately
-            window.supabaseClient.auth.getSession()
+            globalThis.supabaseClient.auth.getSession()
                 .then(({ data: { session } }) => {
                     console.log('Auth state checked:', session ? 'Logged in' : 'Not logged in');
                 })
