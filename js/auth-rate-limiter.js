@@ -1,5 +1,5 @@
 // Rate limiter for authentication
-const _RateLimiter = {
+globalThis.RateLimiter = {
     attempts: new Map(),
     maxAttempts: 3,
     duration: 60000, // 1 minute
