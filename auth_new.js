@@ -52,20 +52,27 @@ loginForm.addEventListener('submit', async (e) => {
         loginSuccess.textContent = "Sending login link...";
         loginSuccess.style.color = '#3498db';
 
-        // Send magic link for authentication
-        const { error: otpError } = await supabaseClient.auth.signInWithOtp({
+        // Sign in with email and password
+        const password = document.getElementById('loginPassword').value;
+        const { error: signInError } = await supabaseClient.auth.signInWithPassword({
             email,
-            options: {
-                emailRedirectTo: globalThis.location.origin + '/auth.html?confirmation=true'
-            }
+            password
         });
         
-        if (otpError) throw otpError;
+        if (signInError) throw signInError;
 
-        // Show success message
-        loginSuccess.textContent = "Login link sent! Please check your email (including spam folder).";
+        // Show success message and redirect
+        loginSuccess.textContent = "Login successful! Redirecting...";
         loginSuccess.style.color = '#2ecc71';
-        submitButton.textContent = "Link Sent";
+        submitButton.textContent = "Logged In";
+
+        // Redirect to appropriate page
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        const isAdmin = user?.user_metadata?.role === 'admin';
+        
+        setTimeout(() => {
+            globalThis.location.replace(isAdmin ? '/admin/index.html' : '/index.html');
+        }, 1500);
         
         // Store email for confirmation
         localStorage.setItem('loginEmail', email);

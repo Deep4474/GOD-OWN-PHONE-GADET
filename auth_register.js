@@ -19,8 +19,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const phone = document.getElementById('regPhone').value.trim();
         const submitButton = registerForm.querySelector('button[type="submit"]');
         const errorDiv = document.getElementById('registerError');
-        const successDiv = document.createElement('div');
-        successDiv.className = 'success-message';
+
+        // Basic validation
+        if (!email || !password || !fullName || !phone) {
+            globalThis.utils.showError('registerError', 'Please fill in all fields');
+            return;
+        }
+        
+        if (password.length < 6) {
+            globalThis.utils.showError('registerError', 'Password must be at least 6 characters long');
+            return;
+        }
 
         try {
             // Show loading state
@@ -35,8 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Please enter a valid Nigerian phone number (e.g., 0801234XXXX or +2348012345XXX)');
             }
 
-            // Create user account
-            const { data: _data, error } = await globalThis.supabaseClient.auth.signUp({
+            // Create user account with password
+            const { data, error } = await globalThis.supabaseClient.auth.signUp({
                 email,
                 password,
                 options: {
@@ -45,36 +54,43 @@ document.addEventListener('DOMContentLoaded', () => {
                         phone_number: cleanPhone,
                         role: 'customer',
                         created_at: new Date().toISOString()
-                    },
-                    emailRedirectTo: globalThis.location.origin + '/auth.html'
+                    }
                 }
             });
 
+            // Check if user was created successfully
+            if (data?.user) {
+                // Attempt immediate sign in
+                const { error: signInError } = await globalThis.supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (signInError) throw signInError;
+            }
+
             if (error) throw error;
 
-            // Show animated success message
-            successDiv.innerHTML = `
+            // Show success message
+            const successMessage = `
                 <div class="success-animation">
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <p>Registration successful!</p>
-                <p class="success-details">Please check your email to verify your account.</p>
+                <p class="success-details">Redirecting to the main page...</p>
             `;
-            successDiv.style.color = '#28a745';
-            successDiv.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
-            successDiv.style.padding = '20px';
-            successDiv.style.borderRadius = '8px';
-            successDiv.style.marginTop = '20px';
-            successDiv.style.textAlign = 'center';
             
-            // Remove any existing success message
-            const existingSuccess = registerForm.querySelector('.success-message');
-            if (existingSuccess) {
-                existingSuccess.remove();
+            // Create a dedicated success box if it doesn't exist
+            let successBox = document.getElementById('registerSuccess');
+            if (!successBox) {
+                successBox = document.createElement('div');
+                successBox.id = 'registerSuccess';
+                successBox.className = 'success-message';
+                registerForm.insertBefore(successBox, submitButton);
             }
-
-            // Add success message to form
-            registerForm.appendChild(successDiv);
+            
+            successBox.innerHTML = successMessage;
+            successBox.style.display = 'block';
             
             // Hide error message if any
             errorDiv.style.display = 'none';
@@ -119,12 +135,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 errorMessage = 'Too many attempts. Please try again in a few minutes.';
             }
 
-            // Show error message
-            errorDiv.textContent = errorMessage;
-            errorDiv.style.color = '#dc3545';
-            errorDiv.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
-            errorDiv.style.display = 'block';
-            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Show error message using utility function
+            globalThis.utils.showError('registerError', errorMessage);
+            
+            // Enable inputs in case they were disabled
+            const formInputs = registerForm.querySelectorAll('input');
+            formInputs.forEach(input => {
+                input.disabled = false;
+            });
 
             // Vibrate for error feedback on mobile
             if (navigator.vibrate) {
@@ -159,10 +177,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (error) throw error;
 
-                // Show success and redirect
-                errorDiv.textContent = 'Email verified! Redirecting to login...';
-                errorDiv.style.color = '#28a745';
-                errorDiv.style.display = 'block';
+                // Show success using utility function
+                globalThis.utils.showSuccess('verificationSuccess', 'Email verified! Redirecting to login...');
+                
+                // Clear stored email
+                localStorage.removeItem('verificationEmail');
 
                 // Redirect to login after successful verification
                 setTimeout(() => {
