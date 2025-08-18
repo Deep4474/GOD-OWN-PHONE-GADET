@@ -41,6 +41,7 @@ loginForm.addEventListener('submit', async (e) => {
         } catch (rateLimitError) {
             loginError.textContent = rateLimitError.message;
             loginError.style.color = '#e74c3c';
+            loginError.style.display = 'block';
             loginSuccess.textContent = '';
             return;
         }
