@@ -1,0 +1,14 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-net --allow-env --watch index.ts"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "strict": true,
+    "lib": ["deno.window"]
+  },
+  "imports": {
+    "http/server": "https://deno.land/std@0.168.0/http/server.ts",
+    "smtp": "https://deno.land/x/smtp@v0.7.0/mod.ts"
+  }
+}

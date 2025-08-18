@@ -1,0 +1,43 @@
+/* Ad-related element overrides */
+.welcome-banner {
+    contain: content;
+    content-visibility: auto;
+}
+
+.discount-tag {
+    contain: content;
+    content-visibility: auto;
+}
+
+.product-grid {
+    contain: layout style paint;
+    content-visibility: auto;
+}
+
+/* Overrides for ad-blocking false positives */
+.featured-products,
+.special-offers,
+.promotional-content,
+.banner-content {
+    contain: content;
+    content-visibility: auto;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+    .featured-products,
+    .special-offers,
+    .promotional-content,
+    .banner-content {
+        contain: strict;
+        content-visibility: auto;
+    }
+    
+    .welcome-banner {
+        contain: strict;
+        content-visibility: auto;
+    }
+}
