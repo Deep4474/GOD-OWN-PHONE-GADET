@@ -1,10 +1,10 @@
 /* Ad-related element overrides */
-.welcome-banner {
+.hero-welcome {
     contain: content;
     content-visibility: auto;
 }
 
-.discount-tag {
+.price-tag {
     contain: content;
     content-visibility: auto;
 }
@@ -14,11 +14,11 @@
     content-visibility: auto;
 }
 
-/* Overrides for ad-blocking false positives */
-.featured-products,
-.special-offers,
-.promotional-content,
-.banner-content {
+/* Main content sections */
+.product-showcase,
+.special-items,
+.main-content,
+.hero-content {
     contain: content;
     content-visibility: auto;
     display: block !important;
