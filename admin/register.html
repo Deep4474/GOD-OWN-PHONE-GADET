@@ -257,6 +257,7 @@
 
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            e.stopPropagation(); // Prevent any other submit handlers
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
             const phone = document.getElementById('phone').value.trim();
@@ -324,7 +325,7 @@
                     </div>
                     <p>Registration successful!</p>
                     <p class="success-details">Please check your email to verify your account.</p>
-                    <button type="button" class="auth-button success" onclick="window.location.href='login.html'">
+                    <button type="button" class="auth-button success" id="loginRedirect">
                         <i class="fas fa-sign-in-alt"></i> Go to Login
                     </button>
                 `;
@@ -339,6 +340,12 @@
 
                 // Hide submit button
                 submitButton.style.display = 'none';
+
+                // Add event listener for login redirect button
+                document.getElementById('loginRedirect').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = 'login.html';
+                });
 
             } catch (error) {
                 console.error('Registration error:', error);

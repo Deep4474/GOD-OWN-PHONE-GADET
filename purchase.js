@@ -7,14 +7,14 @@ function initializeModalScroll() {
     const scrollSpeed = 0.7; // Reduced speed for better mobile experience
     const scrollDelay = 3000; // Wait 3 seconds before starting to scroll
     let isPaused = false;
-    let touchStartY = 0;
+    let _touchStartY = 0;
     let isTouching = false;
 
     // Handle touch events for mobile
     modalContent.addEventListener('touchstart', (e) => {
         isPaused = true;
         isTouching = true;
-        touchStartY = e.touches[0].clientY;
+        _touchStartY = e.touches[0].clientY;
     }, { passive: true });
 
     modalContent.addEventListener('touchend', () => {
@@ -27,7 +27,7 @@ function initializeModalScroll() {
         isTouching = false;
     }, { passive: true });
 
-    modalContent.addEventListener('touchmove', (e) => {
+    modalContent.addEventListener('touchmove', (_e) => {
         isPaused = true;
         isTouching = true;
     }, { passive: true });
@@ -117,7 +117,7 @@ function initializeModalScroll() {
 // Purchase Form Handler
 document.addEventListener('DOMContentLoaded', async () => {
     // Check if we have the required global functions
-    if (!window.supabaseClient || !window.createOrder || !window.showMessage || !window.showLoading || !window.hideLoading) {
+    if (!globalThis.supabaseClient || !globalThis.createOrder || !globalThis.showMessage || !globalThis.showLoading || !globalThis.hideLoading) {
         console.error('Required dependencies not loaded');
         return;
     }
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Handle Product Selection
-    window.openBuyNowModal = function(product, price, imageUrl) {
+    globalThis.openBuyNowModal = function(product, price, imageUrl) {
         // Store the current product
         currentProduct = typeof product === 'string' ? { name: product } : product;
         if (typeof product === 'object') {
@@ -256,11 +256,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             // Check if user is logged in first
-            const { data: { user }, error: userError } = await window.supabaseClient.auth.getUser();
+            const { data: { user }, error: userError } = await globalThis.supabaseClient.auth.getUser();
             if (!user || userError) {
-                showMessage('Please login to place an order', 'error');
+                globalThis.showMessage('Please login to place an order', 'error');
                 // Redirect to login page
-                window.location.href = 'auth.html';
+                globalThis.location.href = 'auth.html';
                 return;
             }
 
@@ -269,8 +269,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
             const address = document.getElementById('address').value.trim();
             const phone = document.getElementById('customerPhone').value.trim();
-            const subtotal = parseFloat(subtotalAmount.textContent.replace(/,/g, ''));
-            const deliveryFee = parseFloat(deliveryFeeAmount.textContent.replace(/,/g, ''));
+            const _subtotal = parseFloat(subtotalAmount.textContent.replace(/,/g, ''));
+            const _deliveryFee = parseFloat(deliveryFeeAmount.textContent.replace(/,/g, ''));
             const total = parseFloat(totalAmount.textContent.replace(/,/g, ''));
 
             // Validate phone number
@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             submitBtn.classList.add('loading');
 
             // Create order with the actual table schema
-            const order = await window.createOrder({
+            const order = await globalThis.createOrder({
                 product_id: currentProduct.id,
                 quantity: quantity,
                 delivery_option: deliveryMethod,
@@ -306,6 +306,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (!order) throw new Error('Failed to create order');
 
+            // Send order confirmation email
+            await globalThis.emailUtils.sendOrderConfirmationEmail({
+                orderId: order[0].id,
+                email: user.email,
+                productName: currentProduct.name,
+                quantity: quantity,
+                totalAmount: total,
+                deliveryMethod: deliveryMethod,
+                address: document.getElementById('address')?.value
+            });
+
             // Show success message
             showOrderConfirmation(order[0].id, {
                 product_name: currentProduct.name,
@@ -317,7 +328,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         } catch (error) {
             console.error('Error submitting order:', error);
-            showMessage(error.message || 'There was an error processing your order. Please try again.', 'error');
+            globalThis.showMessage(error.message || 'There was an error processing your order. Please try again.', 'error');
         } finally {
             hideLoading();
             // Re-enable submit button and remove loading state

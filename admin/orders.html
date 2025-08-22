@@ -229,9 +229,26 @@
                             
                             try {
                                 showLoading();
-                                await window.updateOrderStatus(orderId, newStatus);
+                                const order = await window.updateOrderStatus(orderId, newStatus);
+                                
+                                // Send email notification about status change
+                                if (order && order[0]) {
+                                    const orderDetails = {
+                                        orderId: order[0].id,
+                                        email: order[0].email,
+                                        productName: order[0].product_name,
+                                        quantity: order[0].quantity,
+                                        totalAmount: order[0].total_amount,
+                                        status: newStatus,
+                                        deliveryMethod: order[0].delivery_option,
+                                        trackingLink: order[0].tracking_link
+                                    };
+                                    await window.emailUtils.sendOrderStatusEmail(orderDetails, newStatus);
+                                }
+                                
                                 await loadOrders(); // Refresh the order list
                             } catch (error) {
+                                console.error('Error:', error);
                                 alert('Error updating order status: ' + error.message);
                             } finally {
                                 hideLoading();

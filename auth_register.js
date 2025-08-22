@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle registration
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        e.stopPropagation(); // Prevent any other submit handlers
         
         const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
@@ -105,8 +106,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             // Change button text and style
-            submitButton.innerHTML = '<i class="fas fa-envelope"></i> Check Your Email';
+            submitButton.innerHTML = '<i class="fas fa-check-circle"></i> Registration Complete';
             submitButton.style.backgroundColor = '#28a745';
+            submitButton.disabled = true;
             
             // Add verification box with smooth transition
             const verificationBox = document.getElementById('verificationBox');
@@ -116,10 +118,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     const verificationEmail = document.getElementById('verificationEmail');
                     if (verificationEmail) {
                         verificationEmail.value = email;
+                        verificationEmail.readOnly = true; // Prevent editing
                     }
                     
-                    // Use the utility function to show verification form
+                    // Use the utility function to show verification form with animation
+                    verificationBox.style.opacity = '0';
                     globalThis.utils.showForm(verificationBox);
+                    requestAnimationFrame(() => {
+                        verificationBox.style.transition = 'opacity 0.5s ease-in-out';
+                        verificationBox.style.opacity = '1';
+                    });
                 }, 2000); // Show verification form after 2 seconds
             }
 
@@ -183,9 +191,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Clear stored email
                 localStorage.removeItem('verificationEmail');
 
-                // Redirect to login after successful verification
+                // Use the utility function to show login form after a delay
                 setTimeout(() => {
-                    globalThis.location.href = '/auth.html';
+                    const loginBox = document.getElementById('loginBox');
+                    if (loginBox) {
+                        globalThis.utils.showForm(loginBox);
+                    }
                 }, 2000);
 
             } catch (error) {
