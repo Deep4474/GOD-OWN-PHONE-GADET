@@ -147,20 +147,47 @@
 
     <!-- Load dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module" src="config.js"></script>
-    <script type="module" src="js/utils.js"></script>
-    <script type="module" src="js/auth-rate-limiter.js"></script>
-    <script type="module" src="emailUtils.js"></script>
-    <script type="module" src="auth_new.js"></script>
-    <script type="module" src="auth_register.js"></script>
-
-    <!-- Error handling -->
+    
+    <!-- Main initialization module -->
     <script type="module">
+        // Global error handler
         globalThis.onerror = function(msg, url, lineNo, columnNo, error) {
             console.error('Error:', { msg, url, lineNo, columnNo, error });
             return false;
         };
-        import { initializeApp } from './js/init.js';
+
+        // Import and initialize all modules
+        async function initializeModules() {
+            try {
+                const [
+                    { default: config },
+                    { default: utils },
+                    { default: emailUtils },
+                    { initializeApp }
+                ] = await Promise.all([
+                    import('./config.js'),
+                    import('./js/utils.js'),
+                    import('./emailUtils.js'),
+                    import('./js/init.js')
+                ]);
+
+                // Initialize modules
+                globalThis.utils = utils;
+                globalThis.emailUtils = emailUtils;
+                
+                // Initialize the app
+                initializeApp();
+            } catch (error) {
+                console.error('Error loading modules:', error);
+            }
+        }
+
+        // Start initialization when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeModules);
+        } else {
+            initializeModules();
+        }
     </script>
 </body>
 </html>
