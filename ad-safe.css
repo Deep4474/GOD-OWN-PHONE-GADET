@@ -1,75 +1,98 @@
-/* Core layout containment */
+/* Core layout containment and security */
 :root {
-    contain: strict;
     content-visibility: auto;
+    contain-intrinsic-size: auto;
 }
 
-/* Reset and base styles */
 * {
+    contain: style layout;
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+    min-height: 0;
+    min-width: 0;
 }
 
-/* Layout containment */
-body {
-    contain: content;
+/* Strict containment */
+html, body {
+    contain: strict;
     content-visibility: auto;
     overflow-x: hidden;
 }
 
-/* Main sections */
-main,
-header,
-footer,
-section,
-nav {
-    contain: layout style paint;
-    content-visibility: auto;
-}
-
-/* Content containers */
-.auth-container,
-.auth-box {
-    contain: layout paint style;
+/* Main container protection */
+.auth-container {
+    contain: layout style size;
     content-visibility: auto;
     display: block !important;
     position: relative !important;
     z-index: 1 !important;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* Form controls */
+/* Form security */
+.auth-box,
 .auth-form,
 .form-group {
-    contain: layout;
+    contain: layout style;
+    content-visibility: auto;
     position: relative;
+    z-index: 2;
 }
 
-/* Interactive elements */
-button,
+/* Navigation protection */
+.navbar,
+.mobile-bottom-nav {
+    contain: layout style;
+    content-visibility: auto;
+    position: relative;
+    z-index: 1000;
+    pointer-events: auto !important;
+}
+
+/* Input security */
 input,
+button,
 select,
 textarea {
-    contain: layout paint;
+    contain: strict;
+    content-visibility: auto;
+    -webkit-user-select: auto !important;
+    user-select: auto !important;
 }
 
-/* Prevent unwanted content */
+/* Anti-injection measures */
 body::before,
 body::after,
-[class*="ad"],
+div::before,
+div::after,
+main::before,
+main::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Comprehensive ad blocking */
+[id*="google"],
+[class*="google"],
 [id*="ad"],
-[class*="advertisement"],
-[id*="advertisement"],
-[class*="banner"],
+[class*="ad"],
+[id*="ads"],
+[class*="ads"],
+[id*="adsense"],
+[class*="adsense"],
+[id*="adwords"],
+[class*="adwords"],
 [id*="banner"],
-[class*="popup"],
+[class*="banner"],
 [id*="popup"],
-[class*="modal"],
-[id*="modal"],
-[class*="overlay"],
-[id*="overlay"],
-[class*="float"],
-[id*="float"],
+[class*="popup"],
+[id*="sponsor"],
+[class*="sponsor"],
+[id*="promo"],
+[class*="promo"],
+[class*="_ad_"],
+[id*="_ad_"],
 iframe:not([src^="https://jlwxkykznyjmstpjcgks.supabase.co"]) {
     display: none !important;
     visibility: hidden !important;
@@ -78,34 +101,41 @@ iframe:not([src^="https://jlwxkykznyjmstpjcgks.supabase.co"]) {
     height: 0 !important;
     position: absolute !important;
     pointer-events: none !important;
-    clip: rect(0, 0, 0, 0) !important;
-    margin: -1px !important;
-    padding: 0 !important;
-    border: 0 !important;
-    contain: strict !important;
+    clip: rect(1px, 1px, 1px, 1px) !important;
+    clip-path: inset(50%) !important;
 }
 
-/* Performance optimizations */
-.auth-container {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    perspective: 1000px;
-    contain-intrinsic-size: auto;
-}
-
-/* Size containment */
+/* Layout protection */
+.auth-container,
 .auth-box,
 .form-group {
     contain-intrinsic-size: auto;
     min-height: fit-content;
+    transform: translateZ(0);
+    will-change: transform;
 }
 
-/* Prevent third-party insertions */
-script[src*="ads"],
-script[src*="analytics"],
-script[src*="tracker"],
-link[href*="ads"],
-link[href*="analytics"],
-link[href*="tracker"] {
-    display: none !important;
+/* Mobile optimization and protection */
+@media (max-width: 768px) {
+    * {
+        contain: strict;
+        content-visibility: auto;
+        overflow-anchor: none;
+    }
+    
+    body {
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .auth-container {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
+/* Prevent unwanted behaviors */
+* {
+    animation: none !important;
+    transition: none !important;
 }
