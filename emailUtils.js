@@ -1,5 +1,5 @@
-﻿import { emailConfig } from './config/emailConfig.js';
-import emailTemplates from './emailTemplates.js';
+﻿const { emailConfig } = await import('./config/emailConfig.js');
+const emailTemplates = await import('./emailTemplates.js').then(m => m.default);
 
 // Email utility functions
 const emailUtils = {

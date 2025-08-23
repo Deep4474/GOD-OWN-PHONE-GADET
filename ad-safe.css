@@ -1,20 +1,34 @@
 /* Ad-related element overrides */
-.hero-welcome {
+* {
+    contain: style layout paint;
+}
+
+.auth-container,
+.auth-box,
+.form-group {
     contain: content;
     content-visibility: auto;
 }
 
-.price-tag {
-    contain: content;
+/* Navigation */
+.navbar,
+.mobile-bottom-nav {
+    contain: layout style;
     content-visibility: auto;
 }
 
-.product-grid {
-    contain: layout style paint;
+/* Forms and inputs */
+.auth-form {
+    contain: layout style;
     content-visibility: auto;
 }
 
-/* Main content sections */
+input,
+button {
+    contain: style layout;
+}
+
+/* Content sections */
 .product-showcase,
 .special-items,
 .main-content,
@@ -24,6 +38,17 @@
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
+}
+
+/* Product elements */
+.product-grid {
+    contain: layout style paint;
+    content-visibility: auto;
+}
+
+.price-tag {
+    contain: content;
+    content-visibility: auto;
 }
 
 /* Mobile optimization */
@@ -40,4 +65,13 @@
         contain: strict;
         content-visibility: auto;
     }
+}
+
+/* Prevent unwanted ad placements */
+iframe,
+[id*="ads"],
+[class*="ads"],
+[id*="banner"],
+[class*="banner"] {
+    display: none !important;
 }
