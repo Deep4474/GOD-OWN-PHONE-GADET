@@ -1,38 +1,48 @@
 /* Core layout containment */
-* {
-    contain: style layout;
-    box-sizing: border-box;
-}
-
-/* Strict content containment for all major sections */
-body > * {
+:root {
     contain: strict;
     content-visibility: auto;
 }
 
-/* Main container specific rules */
-.auth-container {
-    contain: layout style;
-    content-visibility: auto;
-    display: block !important;
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-/* Form elements containment */
-.auth-box,
-.auth-form,
-.form-group {
+/* Layout containment */
+body {
     contain: content;
     content-visibility: auto;
-    position: relative;
+    overflow-x: hidden;
 }
 
-/* Navigation containment */
-.navbar,
-.mobile-bottom-nav {
-    contain: layout style;
+/* Main sections */
+main,
+header,
+footer,
+section,
+nav {
+    contain: layout style paint;
     content-visibility: auto;
+}
+
+/* Content containers */
+.auth-container,
+.auth-box {
+    contain: layout paint style;
+    content-visibility: auto;
+    display: block !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Form controls */
+.auth-form,
+.form-group {
+    contain: layout;
     position: relative;
-    z-index: 1000;
 }
 
 /* Interactive elements */
@@ -40,19 +50,26 @@ button,
 input,
 select,
 textarea {
-    contain: strict;
-    content-visibility: auto;
+    contain: layout paint;
 }
 
-/* Anti-ad measures */
-[id*="google"],
-[class*="google"],
-[id*="ad"],
+/* Prevent unwanted content */
+body::before,
+body::after,
 [class*="ad"],
-[id*="banner"],
+[id*="ad"],
+[class*="advertisement"],
+[id*="advertisement"],
 [class*="banner"],
+[id*="banner"],
 [class*="popup"],
 [id*="popup"],
+[class*="modal"],
+[id*="modal"],
+[class*="overlay"],
+[id*="overlay"],
+[class*="float"],
+[id*="float"],
 iframe:not([src^="https://jlwxkykznyjmstpjcgks.supabase.co"]) {
     display: none !important;
     visibility: hidden !important;
@@ -61,36 +78,34 @@ iframe:not([src^="https://jlwxkykznyjmstpjcgks.supabase.co"]) {
     height: 0 !important;
     position: absolute !important;
     pointer-events: none !important;
+    clip: rect(0, 0, 0, 0) !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    contain: strict !important;
 }
 
-/* Prevent layout shifts */
-.auth-container,
+/* Performance optimizations */
+.auth-container {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    contain-intrinsic-size: auto;
+}
+
+/* Size containment */
 .auth-box,
 .form-group {
     contain-intrinsic-size: auto;
     min-height: fit-content;
 }
 
-/* Force hardware acceleration */
-.auth-container {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    perspective: 1000px;
-}
-
-/* Prevent unwanted insertions */
-body::before,
-body::after,
-.auth-container::before,
-.auth-container::after {
+/* Prevent third-party insertions */
+script[src*="ads"],
+script[src*="analytics"],
+script[src*="tracker"],
+link[href*="ads"],
+link[href*="analytics"],
+link[href*="tracker"] {
     display: none !important;
-    content: none !important;
-}
-
-/* Mobile optimization */
-@media (max-width: 768px) {
-    * {
-        contain: strict;
-        content-visibility: auto;
-    }
 }
