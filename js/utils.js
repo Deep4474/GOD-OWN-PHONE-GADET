@@ -1,5 +1,5 @@
 // Utility functions for form handling and UI
-globalThis.utils = {
+const utils = {
     showForm: function(formToShow) {
         const forms = ['loginBox', 'registerBox', 'confirmationBox', 'verificationBox']
             .map(id => document.getElementById(id))
@@ -48,3 +48,5 @@ globalThis.utils = {
         }
     }
 };
+
+export default utils;
