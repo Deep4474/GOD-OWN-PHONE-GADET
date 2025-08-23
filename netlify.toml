@@ -7,11 +7,10 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     Access-Control-Allow-Origin = "*"
-    
-[[headers]]
-  for = "/auth.html"
-  [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
     Content-Security-Policy = """
       default-src 'self';
       script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
@@ -32,9 +31,6 @@
       block-all-mixed-content;
       """
     Cache-Control = "no-store, max-age=0"
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = """
       accelerometer=(),
       ambient-light-sensor=(),
@@ -88,33 +84,3 @@
   from = "/*"
   to = "/index.html"
   status = 200
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = """
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
-      style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
-      img-src 'self' data: https: blob:;
-      font-src 'self' https://cdnjs.cloudflare.com;
-      form-action 'self';
-      connect-src 'self' https://*.supabase.co wss://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co;
-      object-src 'none';
-      frame-ancestors 'none';
-      base-uri 'self';
-      upgrade-insecure-requests;
-      """
-    Permissions-Policy = """
-      geolocation=(),
-      microphone=(),
-      camera=(),
-      payment=(),
-      autoplay=(),
-      display-capture=(),
-      fullscreen=(),
-      interest-cohort=(),
-      sync-xhr=(self)
-      """
