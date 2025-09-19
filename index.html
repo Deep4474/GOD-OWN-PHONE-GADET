@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <!-- Google Sign-In code removed -->
-    <!-- Removed meta CSP tag to avoid conflict with Netlify _headers CSP -->
+    <!-- Added meta CSP tag for local testing. Remove if using Netlify _headers in production. -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://accounts.google.com https://accounts.google.com/gsi/client;">
     <meta charset="UTF-8">
     <link rel="stylesheet" href="styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
