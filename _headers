@@ -1,2 +1,5 @@
+
+# Netlify headers file
+# Only valid Content-Security-Policy is set below. Remove unrecognized directives from other sources.
 /*
   Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://accounts.google.com;
