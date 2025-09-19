@@ -1,3 +1,13 @@
+/* Email success message (hidden by default) */
+.email-success {
+    display: none;
+}
+/* Supabase Auth error message */
+.auth-error {
+    color: red;
+    margin-top: 8px;
+    font-size: 0.98em;
+}
 /* Google Sign-In Popup Styles */
 .google-signin-popup {
     display: none;
