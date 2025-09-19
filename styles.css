@@ -1,3 +1,38 @@
+/* Welcome Email Form Styles */
+.welcome-email-form-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #23243a;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    color: #fff;
+}
+.welcome-email-form h2 {
+    margin-bottom: 1rem;
+}
+.welcome-email-input {
+    width: 100%;
+    padding: 0.7rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    border: none;
+}
+.welcome-email-btn {
+    padding: 0.7rem 1.5rem;
+    border-radius: 6px;
+    background: #60a5fa;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+.welcome-email-btn:hover {
+    background: #2563eb;
+}
+.welcome-email-msg {
+    margin-top: 1rem;
+}
 /* Email success message (hidden by default) */
 .email-success {
     display: none;

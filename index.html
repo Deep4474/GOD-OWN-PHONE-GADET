@@ -598,6 +598,37 @@
     </style>
 </head>
 <body>
+    <!-- Email Welcome Form -->
+    <div class="welcome-email-form-container">
+        <h2>Get a Welcome Email</h2>
+        <form id="welcomeEmailForm" class="welcome-email-form">
+            <input type="email" id="welcomeEmailInput" class="welcome-email-input" placeholder="Enter your email" required>
+            <button type="submit" class="welcome-email-btn">Send Welcome Email</button>
+        </form>
+        <div id="welcomeEmailMsg" class="welcome-email-msg"></div>
+    </div>
+    <script>
+    document.getElementById('welcomeEmailForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const email = document.getElementById('welcomeEmailInput').value;
+        const msgDiv = document.getElementById('welcomeEmailMsg');
+        msgDiv.textContent = 'Sending...';
+        try {
+            const res = await fetch('/.netlify/functions/send-welcome', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            if (res.ok) {
+                msgDiv.textContent = 'Welcome email sent!';
+            } else {
+                msgDiv.textContent = 'Error: ' + (await res.text());
+            }
+        } catch (err) {
+            msgDiv.textContent = 'Error: ' + err.message;
+        }
+    };
+    </script>
     <!-- Google Sign-In button removed -->
     <nav class="navbar">
         <div class="navbar-logo">LAMAR<span class="blue">GADGET</span></div>
