@@ -1,0 +1,53 @@
+/* Utility class for flex column center */
+.flex-column-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#google-user-email.google-user-email-hidden {
+  display: none;
+  margin-top: 1rem;
+  font-weight: 500;
+  color: #222;
+}
+/* Google Account Modal - Button Style */
+.google-account-btn {
+  width: 100%;
+  padding: 0.7rem 0;
+  margin-bottom: 1rem;
+  background: #f3f4f6;
+  color: #23243a;
+  border: 2px solid #23243a;
+  border-radius: 10px;
+  font-size: 1.08rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.google-account-btn:last-child {
+  margin-bottom: 0;
+}
+.google-account-btn:hover {
+  background: #e5e7eb;
+  color: #181926;
+}
+#google-account-modal .modal-content {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  min-width: 340px;
+  padding: 2rem 2rem 1rem 2rem;
+  max-width: 90vw;
+}
+#google-account-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#google-account-modal h3 {
+  color: #23243a;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+}

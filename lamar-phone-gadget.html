@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google Sign-In code removed -->
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAMAR Phone Gadget</title>
+    <style>
+    .hidden { display: none; }
+    .user-dropdown-email {
+        padding: 0.7rem 1.2rem;
+        cursor: pointer;
+        border-radius: 8px;
+        background: #181926;
+    color: #60a5fa;
+        margin-top: 0.5rem;
+        font-weight: 600;
+        transition: background 0.18s;
+    }
+    .user-dropdown-email:hover {
+        background: #3b3c4a;
+        color: #fff;
+    }
+    /* Menu dropdown styles */
+    .menu-dropdown {
+        display: none;
+        position: absolute;
+        top: 60px;
+        right: 60px;
+        z-index: 1000;
+        background: #23243a;
+        color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+        min-width: 220px;
+        padding: 1rem 0;
+    }
+    .menu-dropdown.show {
+        display: block;
+    }
+    .menu-dropdown-item {
+        padding: 0.7rem 1.5rem;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: background 0.18s;
+        font-size: 1.08rem;
+    }
+    .menu-dropdown-item:hover {
+        background: #3b3c4a;
+    }
+    .user-icon {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        margin-right: 1rem;
+    }
+    /* User dropdown styles */
+    .user-dropdown {
+        display: none;
+        position: absolute;
+        top: 60px;
+        right: 120px;
+        z-index: 1000;
+        background: #23243a;
+        color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+        min-width: 200px;
+        padding: 1rem;
+    }
+    .user-dropdown.show {
+        display: block;
+    }
+    .user-dropdown-item {
+        padding: 0.7rem 1.2rem;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: background 0.18s;
+    }
+    .user-dropdown-item:hover {
+        background: #3b3c4a;
+    }
+    /* About, contact, and footer modern styles */
+    .about-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        background: radial-gradient(circle at 20% 20%, #23243a 70%, #181926 100%);
+        color: #fff;
+        border-radius: 18px;
+        margin: 2rem auto 0 auto;
+        padding: 2.5rem 2rem;
+        max-width: 1200px;
+        gap: 2.5rem;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    }
+    .about-main h2 {
+        margin-top: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #60a5fa;
+    }
+    .about-main p {
+        font-size: 1.15rem;
+        color: #d1d5db;
+    }
+    .about-features {
+        flex: 3;
+        display: flex;
+        gap: 1.5rem;
+        justify-content: flex-end;
+    }
+    .about-feature {
+        background: #181926;
+        border: 1px solid #23243a;
+        border-radius: 16px;
+        padding: 1.5rem 1.2rem;
+        min-width: 180px;
+        font-size: 1.1rem;
+        color: #e5e7eb;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .about-feature b {
+        font-size: 1.15rem;
+        color: #fff;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    @media (max-width: 900px) {
+        .about-section { flex-direction: column; gap: 1.5rem; }
+        .about-features { flex-direction: column; gap: 1rem; }
+    }
+    .contact-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        background: radial-gradient(circle at 20% 20%, #23243a 70%, #181926 100%);
+        color: #fff;
+        border-radius: 18px;
+        margin: 2rem auto 0 auto;
+        padding: 2.5rem 2rem;
+        max-width: 1200px;
+        gap: 2.5rem;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    }
+    .contact-details h2 {
+        margin-top: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #60a5fa;
+    }
+    .contact-details p, .contact-details a {
+        font-size: 1.1rem;
+        color: #d1d5db;
+    }
+    .contact-details a { color: #60a5fa; text-decoration: underline; }
+    .contact-form-box {
+        flex: 3;
+        background: #181926;
+        border-radius: 16px;
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        min-width: 320px;
+        max-width: 400px;
+    }
+    .contact-form-box label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #fff;
+    }
+    .contact-form-box input, .contact-form-box textarea {
+        width: 100%;
+        padding: 0.7rem;
+        margin-bottom: 1.2rem;
+        border-radius: 6px;
+        border: none;
+        background: #10111a;
+        color: #fff;
+        font-size: 1rem;
+        resize: none;
+    }
+    .contact-form-box textarea { min-height: 90px; }
+    .contact-form-box button {
+        width: 100%;
+        background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%);
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        padding: 0.8rem 0;
+        cursor: pointer;
+        margin-top: 0.5rem;
+        transition: background 0.2s;
+    }
+    .contact-form-box button:hover {
+        background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
+    }
+    .footer {
+        background: #11131a;
+        color: #bfc7d5;
+        text-align: left;
+        padding: 1.2rem 2rem 1.2rem 2rem;
+        font-size: 1rem;
+        margin-top: 2rem;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    /* Modern modal and dropdown styles */
+    .profile-dropdown-menu,
+    .cart-dropdown-menu,
+    .change-password-modal,
+    .orders-modal {
+        box-shadow: 0 8px 32px rgba(59,130,246,0.13), 0 2px 8px rgba(0,0,0,0.08);
+        border-radius: 14px;
+        background: #23243a;
+        color: #fff;
+        padding: 1rem 0;
+    }
+    .profile-dropdown-menu,
+    .cart-dropdown-menu {
+        min-width: 180px;
+        padding: 0.5rem 0;
+        border: 1px solid #3b82f6;
+    }
+    .profile-dropdown-menu li,
+    .cart-dropdown-menu li {
+        padding: 0.7rem 1.2rem;
+        cursor: pointer;
+        border-radius: 8px;
+        margin: 0 0.2rem;
+        transition: background 0.18s;
+    }
+    .profile-dropdown-menu li:hover,
+    .cart-dropdown-menu li:hover {
+        background: #3b3c4a;
+    }
+    .change-password-modal .change-password-content,
+    .orders-modal .orders-content {
+        background: #23243a;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(59,130,246,0.13), 0 2px 8px rgba(0,0,0,0.08);
+        padding: 2rem 1.5rem;
+        max-width: 400px;
+        width: 95%;
+        margin: auto;
+        color: #fff;
+        position: relative;
+    }
+    .change-password-modal[style*="display: flex"],
+    .orders-modal[style*="display: flex"] {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+    /* Product grid and card styles */
+    .container {
+        max-width: 1100px;
+        margin: 2rem auto;
+        background: linear-gradient(135deg, #e0e7ff 0%, #f4f4f4 100%);
+        padding: 2rem;
+        border-radius: 18px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    }
+    .products {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 1.5rem;
+    }
+    .product {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 1.5rem 1rem 1.2rem 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        text-align: center;
+        transition: box-shadow 0.2s, transform 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .product:hover {
+        box-shadow: 0 6px 24px rgba(59,130,246,0.13);
+        transform: translateY(-4px) scale(1.03);
+    }
+    .product img {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+        background: #f3f4f6;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .product h3 {
+        margin: 0.5rem 0 0.2rem 0;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #23243a;
+    }
+    .product p {
+        color: #3b82f6;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.7rem;
+    }
+    .product button {
+        background: #3b82f6;
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1.2rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: background 0.2s;
+        margin-top: auto;
+    }
+    .product button:hover {
+        background: #2563eb;
+    }
+    @media (max-width: 700px) {
+        .container { padding: 1rem; }
+        .products { gap: 1rem; }
+        .product { padding: 1rem 0.5rem; }
+    }
+    /* Hero section modern style */
+    .hero-section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: radial-gradient(circle at 20% 20%, #23243a 70%, #181926 100%);
+        color: #fff;
+        padding: 3rem 2rem 3rem 2rem;
+        border-radius: 0 0 24px 24px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+        margin-bottom: 2rem;
+        max-width: 100vw;
+        position: relative;
+        overflow: hidden;
+        animation: heroSlideIn 1s ease;
+    }
+    @keyframes heroSlideIn {
+        from { top: -100px; opacity: 0; }
+        to { top: 0; opacity: 1; }
+    }
+    .hero-section.hide {
+        animation: heroSlideOut 1s forwards;
+    }
+    @keyframes heroSlideOut {
+        from { top: 0; opacity: 1; }
+        to { top: -100px; opacity: 0; }
+    }
+    .hero-content {
+        max-width: 50%;
+    }
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1.2rem;
+        line-height: 1.1;
+        color: #fff;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .hero-desc {
+        font-size: 1.15rem;
+        color: #bfc7d5;
+        margin-bottom: 2rem;
+    }
+    .hero-btn {
+        background: #1ed760;
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        padding: 0.8rem 2.2rem;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(30,215,96,0.15);
+        transition: background 0.2s;
+    }
+    .hero-btn:hover {
+        background: #169c46;
+    }
+    .hero-img {
+        width: 240px;
+        height: 240px;
+        object-fit: contain;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        background: #fff;
+        padding: 1.2rem;
+        margin-left: 2rem;
+        display: block;
+        border: 3px solid #3b82f6;
+    }
+    @media (max-width: 900px) {
+        .hero-section { flex-direction: column; text-align: center; }
+        .hero-content, .hero-img { max-width: 100%; margin: 0 auto; }
+        .hero-img { margin-top: 2rem; margin-left: 0; }
+    }
+    /* Navbar modern redesign */
+    .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #181926;
+        color: #fff;
+        padding: 1rem 2.5rem;
+        font-size: 1.1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border-radius: 0 0 18px 18px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    .navbar-logo {
+        font-weight: 800;
+        font-size: 1.5rem;
+        letter-spacing: 1px;
+        color: #3b82f6;
+        margin-right: 2rem;
+    }
+    .navbar-logo .blue {
+        color: #60a5fa;
+    }
+    .navbar-links {
+        display: flex;
+        gap: 2.5rem;
+        flex: 1;
+        justify-content: center;
+    }
+    .navbar-links a {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.3rem 0.7rem;
+        border-radius: 6px;
+        transition: background 0.2s, color 0.2s;
+    }
+    .navbar-links a:hover {
+        background: #23243a;
+        color: #3b82f6;
+    }
+    .navbar-icons {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    .cart-icon {
+        position: relative;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #fff;
+        transition: color 0.2s;
+    }
+    .cart-icon:hover {
+        color: #3b82f6;
+    }
+    .cart-badge {
+        position: absolute;
+        top: -8px;
+        right: -10px;
+        background: #ef4444;
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 50%;
+        padding: 2px 7px;
+        min-width: 20px;
+        text-align: center;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+    .menu-icon {
+        font-size: 1.7rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        transition: color 0.2s;
+    }
+    .menu-icon:hover {
+        color: #3b82f6;
+    }
+    @media (max-width: 900px) {
+        .navbar {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1rem 1rem;
+        }
+        .navbar-links {
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+    }
+    @media (max-width: 600px) {
+        .navbar {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 0.7rem 0.5rem;
+        }
+        .navbar-links {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        .navbar-logo {
+            margin-bottom: 0.5rem;
+        }
+    }
+    /* Contact section styles */
+    .contact-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        background: radial-gradient(circle at 20% 20%, #23243a 70%, #181926 100%);
+        color: #fff;
+        border-radius: 18px;
+        margin: 2rem auto 0 auto;
+        padding: 2.5rem 2rem;
+        max-width: 1200px;
+        gap: 2.5rem;
+    }
+    .contact-details { flex: 2; }
+    .contact-details h2 { margin-top: 0; font-size: 2rem; font-weight: 700; }
+    .contact-details p, .contact-details a { font-size: 1.1rem; color: #d1d5db; }
+    .contact-details a { color: #60a5fa; text-decoration: underline; }
+    .contact-form-box { flex: 3; background: #181926; border-radius: 16px; padding: 2rem 1.5rem 1.5rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); min-width: 320px; max-width: 400px; }
+    .contact-form-box label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #fff; }
+    .contact-form-box input, .contact-form-box textarea { width: 100%; padding: 0.7rem; margin-bottom: 1.2rem; border-radius: 6px; border: none; background: #10111a; color: #fff; font-size: 1rem; resize: none; }
+    .contact-form-box textarea { min-height: 90px; }
+    .contact-form-box button { width: 100%; background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%); color: #fff; font-size: 1.1rem; font-weight: 600; border: none; border-radius: 8px; padding: 0.8rem 0; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s; }
+    .contact-form-box button:hover { background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%); }
+    .footer { background: #11131a; color: #bfc7d5; text-align: left; padding: 1.2rem 2rem 1.2rem 2rem; font-size: 1rem; margin-top: 2rem; border-radius: 0 0 12px 12px; }
+    @media (max-width: 900px) { .contact-section { flex-direction: column; gap: 1.5rem; } .contact-form-box { max-width: 100%; } }
+
+    /* Profile and button styles */
+    .continue-with-email-btn { background: #3b82f6; color: #fff; border: none; padding: 0.5rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    .profile-dropdown { position: relative; display: flex; align-items: center; gap: 0.7rem; cursor: pointer; }
+    .profile-avatar { width: 40px; height: 40px; border-radius: 50%; background: #eee; }
+    .profile-info { display: flex; flex-direction: column; align-items: flex-start; }
+    .profile-name { font-weight: 700; }
+    .profile-email { font-size: 0.97em; color: #bfc7d5; }
+    .profile-id { font-size: 0.85em; color: #aaa; }
+    .profile-caret { font-size: 1.2em; margin-left: 0.3em; }
+    .profile-dropdown-menu { display: none; position: absolute; top: 48px; right: 0; background: #23243a; color: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.18); min-width: 170px; z-index: 1000; padding: 0.5rem 0; }
+    .profile-dropdown-menu ul { list-style: none; margin: 0; padding: 0; }
+    .profile-dropdown-menu li { padding: 0.7rem 1.2rem; cursor: pointer; }
+    .profile-dropdown-menu li:hover { background: #3b3c4a; }
+    .profile-logout { color: #ef4444; }
+
+    /* Cart dropdown styles */
+    .cart-dropdown-menu { position: absolute; top: 38px; right: 0; background: #23243a; color: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.18); min-width: 170px; z-index: 1000; padding: 0.5rem 0; display: none; }
+    .cart-dropdown-menu.show { display: block; }
+    .cart-dropdown-menu ul { list-style: none; margin: 0; padding: 0; }
+    .cart-dropdown-menu li { padding: 0.7rem 1.2rem; cursor: pointer; transition: background 0.18s; }
+    .cart-dropdown-menu li:hover { background: #3b3c4a; }
+
+    /* Dark mode styles */
+    body.dark-mode { background: #181926 !important; color: #fff !important; }
+    body.dark-mode .navbar, body.dark-mode .footer, body.dark-mode .about-section, body.dark-mode .contact-section { background: #181926 !important; color: #fff !important; }
+    body.dark-mode .container { background: #23243a !important; color: #fff !important; }
+
+    /* Change password modal styles */
+    .change-password-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 2000; align-items: center; justify-content: center; }
+    .change-password-modal[style*="display: flex"] { display: flex !important; }
+    .change-password-content { background: #23243a; padding: 2rem 1.5rem; border-radius: 12px; max-width: 350px; width: 90%; margin: auto; box-shadow: 0 4px 24px rgba(0,0,0,0.18); color: #fff; position: relative; }
+    .change-password-content h3 { margin-top: 0; }
+    .change-password-input { width: 100%; margin-bottom: 1rem; padding: 0.5rem; border-radius: 6px; border: none; background: #181926; color: #fff; }
+    .change-password-btn { width: 100%; background: #3b82f6; color: #fff; padding: 0.7rem 0; border: none; border-radius: 6px; font-weight: 600; }
+    .close-password-modal { position: absolute; top: 10px; right: 12px; background: none; border: none; color: #fff; font-size: 1.3rem; cursor: pointer; }
+
+    /* Orders modal styles */
+    .orders-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 2000; align-items: center; justify-content: center; }
+    .orders-modal[style*="display: flex"] { display: flex !important; }
+    .orders-content { background: #23243a; padding: 2rem 1.5rem; border-radius: 12px; max-width: 400px; width: 95%; margin: auto; box-shadow: 0 4px 24px rgba(0,0,0,0.18); color: #fff; position: relative; }
+    .orders-content h3 { margin-top: 0; }
+    .close-orders-modal { position: absolute; top: 10px; right: 12px; background: none; border: none; color: #fff; font-size: 1.3rem; cursor: pointer; }
+    .order-row { border-bottom: 1px solid #444; padding: 0.7rem 0; font-size: 1rem; }
+    .order-row:last-child { border-bottom: none; }
+
+    /* About section styles */
+    .about-section { display: flex; justify-content: space-between; align-items: flex-start; background: radial-gradient(circle at 20% 20%, #23243a 70%, #181926 100%); color: #fff; border-radius: 18px; margin: 2rem auto 0 auto; padding: 2.5rem 2rem; max-width: 1200px; gap: 2.5rem; }
+    .about-main { flex: 2; }
+    .about-main h2 { margin-top: 0; font-size: 2rem; font-weight: 700; }
+    .about-main p { font-size: 1.15rem; color: #d1d5db; }
+    .about-features { flex: 3; display: flex; gap: 1.5rem; justify-content: flex-end; }
+    .about-feature { background: #181926; border: 1px solid #23243a; border-radius: 16px; padding: 1.5rem 1.2rem; min-width: 180px; font-size: 1.1rem; color: #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .about-feature b { font-size: 1.15rem; color: #fff; display: block; margin-bottom: 0.5rem; }
+    @media (max-width: 900px) { .about-section { flex-direction: column; gap: 1.5rem; } .about-features { flex-direction: column; gap: 1rem; } }
+    .cart-section { background: #f6f8fc; border-radius: 12px; padding: 1.5rem 1.2rem; margin-top: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    #cart-items-list { font-size: 1.1rem; color: #222; margin-bottom: 1rem; }
+    #cart-total-line { font-weight: bold; font-size: 1.15rem; color: #222; }
+    </style>
+</head>
+<body>
+    <!-- Google Sign-In button removed -->
+    <nav class="navbar">
+        <div class="navbar-logo">LAMAR<span class="blue">GADGET</span></div>
+        <div class="navbar-links">
+            <a href="#">Home</a>
+            <a href="#product-list">Products</a>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+        </div>
+        <div class="navbar-icons">
+            <!-- User icon removed -->
+                <!-- Google-style Account Selection Dropdown removed -->
+            <span class="cart-icon">
+                <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M7 18c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zm10 0c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zm-12.293-2.707l1.414 1.414c.195.195.451.293.707.293h12c.256 0 .512-.098.707-.293l1.414-1.414c.391-.391.391-1.023 0-1.414l-1.414-1.414c-.195-.195-.451-.293-.707-.293h-12c-.256 0-.512.098-.707.293l-1.414 1.414c-.391.391-.391-1.023 0-1.414zm15.293-7.293v-2c0-1.104-.896-2-2-2h-2v-2c0-1.104-.896-2-2-2s-2 .896-2 2v2h-2c-1.104 0-2 .896-2 2v2h12zm-2-2h-8v-2c0-.552.448-1 1-1s1 .448 1 1v2h4v-2c0-.552.448-1 1-1s1 .448 1 1v2z"/></svg>
+                <span class="cart-badge" id="cart-badge">0</span>
+            </span>
+            <span class="menu-icon" id="menu-icon-menu">
+                <svg width="26" height="26" fill="currentColor" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <div id="menu-dropdown" class="menu-dropdown">
+                 <div class="menu-dropdown-item" id="menu-account">Account</div>
+                <div class="menu-dropdown-item" id="edit-profile">Edit Profile</div>
+                <div class="menu-dropdown-item" id="menu-settings">Settings</div>
+                <div class="menu-dropdown-item" id="menu-orders">My Order</div>
+                <div class="menu-dropdown-item" id="menu-notification">Notification</div>
+                <!-- Logout menu item removed -->
+            </div>
+            <div id="user-dropdown" class="user-dropdown">
+                <div id="continue-email" class="user-dropdown-item">Continue with your email</div>
+                <div id="browser-email" class="user-dropdown-email hidden"></div>
+            </div>
+        </div>
+    </nav>
+    <!-- ...existing HTML content... -->
+        <!-- Google Sign-In Popup -->
+        <div id="g_id_onload"
+            data-client_id="1076361266860-2vq0depuu5ilirdoicofbi04093f7gpo.apps.googleusercontent.com"
+            data-callback="handleCredentialResponse"
+            class="hidden">
+        </div>
+        <div id="google-signin-btn" class="google-signin-popup hidden">
+            <div id="g_id_signin"></div>
+            <button class="google-signin-cancel" onclick="closeGoogleSignin()">Cancel</button>
+        </div>
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+    // Google login code removed
+        // Account menu click: show Google Sign-In
+        document.getElementById('menu-account').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('google-signin-btn').style.display = 'block';
+            google.accounts.id.initialize({
+                client_id: '1076361266860-2vq0depuu5ilirdoicofbi04093f7gpo.apps.googleusercontent.com',
+                callback: handleCredentialResponse
+            });
+            google.accounts.id.renderButton(
+                document.getElementById('g_id_signin'),
+                { theme: 'outline', size: 'large' }
+            );
+        });
+        function closeGoogleSignin() {
+            document.getElementById('google-signin-btn').style.display = 'none';
+        }
+        // Handle Google Sign-In response
+        function handleCredentialResponse(response) {
+            console.log('Google Sign-In response:', response);
+            if (response.error === 'popup_closed_by_user' || response.error === 'idpiframe_initialization_failed') {
+                console.error('Google Sign-In popup closed or initialization failed:', response.error);
+                fetch('http://localhost:5000/api/log-error', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ error: 'Google Sign-In popup closed or initialization failed', details: response })
+                });
+                return;
+            }
+            try {
+                if (!response.credential) {
+                    alert('Google Sign-In failed: No credential received.');
+                    console.error('No credential received:', response);
+                    // Send error to backend for terminal logging
+                    fetch('http://localhost:5000/api/log-error', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ error: 'No credential received', details: response })
+                    });
+                    return;
+                }
+                let payload = response.credential.split('.')[1];
+                if (!payload) {
+                    alert('Google Sign-In failed: No payload in credential.');
+                    console.error('No payload in credential:', response.credential);
+                    fetch('http://localhost:5000/api/log-error', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ error: 'No payload in credential', details: response.credential })
+                    });
+                    return;
+                }
+                const data = JSON.parse(atob(payload));
+                console.log('Decoded JWT payload:', data);
+                const userEmail = data.email;
+                if (!userEmail) {
+                    alert('Google Sign-In failed: No email found in credential.');
+                    console.error('No email in decoded payload:', data);
+                    fetch('http://localhost:5000/api/log-error', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ error: 'No email in decoded payload', details: data })
+                    });
+                    return;
+                }
+                alert('Signed in as: ' + userEmail);
+                // Here you would send an email to userEmail using your backend or EmailJS
+                // Example: sendEmailToUser(userEmail);
+                closeGoogleSignin();
+            } catch (err) {
+                alert('Google Sign-In error: ' + err.message);
+                console.error('Google Sign-In error:', err);
+                fetch('http://localhost:5000/api/log-error', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ error: err.message, details: err })
+                });
+            }
+        }
+        // Listen for FedCM errors (for debugging AbortError)
+        if (window.FederatedCredential) {
+            window.addEventListener('unhandledrejection', function(event) {
+                if (event.reason && event.reason.name === 'AbortError') {
+                    console.error('FedCM AbortError:', event.reason);
+                    fetch('http://localhost:5000/api/log-error', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ error: 'FedCM AbortError', details: event.reason })
+                    });
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', async function() {
+            var email = localStorage.getItem('user_email');
+            if (email) {
+                // Send to Supabase only if not already sent (avoid duplicates)
+                if (!localStorage.getItem('user_email_sent')) {
+                    try {
+                        const response = await fetch('http://localhost:5000/api/user-details', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: email, userAgent: navigator.userAgent })
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            localStorage.setItem('user_email_sent', 'true');
+                        }
+                    } catch (err) {
+                        // Optionally show error
+                    }
+                }
+            }
+        });
+
+    // Google profile code removed
+        document.addEventListener('DOMContentLoaded', function() {
+        // Account menu click: send welcome email and open Gmail
+        var accountMenu = document.getElementById('menu-account');
+    // Account menu click handler removed
+            var profilePic = document.getElementById('profile-pic');
+            var defaultIcon = document.getElementById('default-user-icon');
+            var params = new URLSearchParams(window.location.search);
+            var picUrl = params.get('profile_pic');
+            if (picUrl) {
+                profilePic.src = picUrl;
+                profilePic.style.display = 'inline-block';
+                defaultIcon.style.display = 'none';
+                localStorage.setItem('profile_pic', picUrl);
+            } else {
+                // Try from localStorage
+                var storedPic = localStorage.getItem('profile_pic');
+                if (storedPic) {
+                    profilePic.src = storedPic;
+                    profilePic.style.display = 'inline-block';
+                    defaultIcon.style.display = 'none';
+                }
+            }
+        });
+        // On page load, check for user_email in query string and save to localStorage
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var userEmail = params.get('user_email');
+            if (userEmail) {
+                localStorage.setItem('user_email', userEmail);
+            }
+        })();
+    // Menu dropdown logic
+    document.addEventListener('DOMContentLoaded', function() {
+        var menuIcon = document.getElementById('menu-icon-menu');
+        var menuDropdown = document.getElementById('menu-dropdown');
+        if (menuIcon && menuDropdown) {
+            menuIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                menuDropdown.classList.toggle('show');
+            });
+            document.addEventListener('click', function() {
+                menuDropdown.classList.remove('show');
+            });
+        }
+        // Demo click handlers for menu items
+        var editProfile = document.getElementById('edit-profile');
+        var menuSettings = document.getElementById('menu-settings');
+        var menuOrders = document.getElementById('menu-orders');
+        var menuNotification = document.getElementById('menu-notification');
+        var menuLogout = document.getElementById('menu-logout');
+        if (editProfile) editProfile.onclick = function() { alert('Edit Profile (Demo only)'); };
+        if (menuSettings) menuSettings.onclick = function() { alert('Settings (Demo only)'); };
+        if (menuOrders) menuOrders.onclick = function() { alert('My Order (Demo only)'); };
+        if (menuNotification) menuNotification.onclick = function() { alert('Notification (Demo only)'); };
+        if (menuLogout) menuLogout.onclick = function() { alert('Logout (Demo only)'); };
+    });
+    // User icon dropdown logic
+    document.addEventListener('DOMContentLoaded', function() {
+        var userIcon = document.getElementById('user-icon');
+        var userDropdown = document.getElementById('user-dropdown');
+        var continueEmail = document.getElementById('continue-email');
+        var browserEmailDiv = document.getElementById('browser-email');
+        function getBrowserEmail() {
+            return localStorage.getItem('user_email') || '';
+        }
+        if (userIcon && userDropdown && browserEmailDiv) {
+            userIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+                // Always show email from localStorage
+                var email = localStorage.getItem('user_email');
+                if (email) {
+                    browserEmailDiv.textContent = email;
+                    browserEmailDiv.classList.remove('hidden');
+                } else {
+                    browserEmailDiv.textContent = 'No email found.';
+                    browserEmailDiv.classList.remove('hidden');
+                }
+            });
+            document.addEventListener('click', function() {
+                userDropdown.classList.remove('show');
+                browserEmailDiv.style.display = 'none';
+            });
+        }
+        if (continueEmail && browserEmailDiv) {
+            continueEmail.addEventListener('click', async function() {
+                // Fetch user details from backend
+                try {
+                    const response = await fetch('http://localhost:5000/api/user-details');
+                    const data = await response.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        // Show the most recent email
+                        browserEmailDiv.textContent = data[0].email;
+                        browserEmailDiv.classList.remove('hidden');
+                    } else {
+                        browserEmailDiv.textContent = 'No email found.';
+                        browserEmailDiv.classList.remove('hidden');
+                    }
+                } catch (err) {
+                    browserEmailDiv.textContent = 'Error fetching email.';
+                    browserEmailDiv.classList.remove('hidden');
+                }
+            });
+            browserEmailDiv.addEventListener('click', async function() {
+                var email = getBrowserEmail();
+                if (!email) return;
+                var details = {
+                    email: email,
+                    userAgent: navigator.userAgent
+                };
+                try {
+                    const response = await fetch('http://localhost:5000/api/user-details', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(details)
+                    });
+                    const result = await response.json();
+                    if (result.error) {
+                        alert('Error sending details to server: ' + result.error);
+                    } else {
+                        alert('Details sent to server!');
+                        localStorage.setItem('user_email', email); // Save email after registration
+                        browserEmailDiv.textContent = email; // Show email immediately
+                        browserEmailDiv.classList.remove('hidden');
+                        userDropdown.classList.remove('show');
+                    }
+                } catch (err) {
+                    alert('Error: ' + err.message);
+                }
+            });
+        }
+    });
+    </script>
+                        <!-- Menu list removed from here -->
+                        <script>
+                        document.getElementById('menu-icon-menu').onclick = function() {
+                            var menuList = document.getElementById('menuList');
+                            if (menuList) {
+                                menuList.classList.toggle('show-menu');
+                            }
+                        };
+                        </script>
+        <!-- Change Password Modal -->
+            <div id="change-password-modal" class="change-password-modal">
+                <div class="change-password-content">
+                    <h3>Change Password</h3>
+                    <form id="change-password-form">
+                        <label for="current-password">Current Password</label>
+                        <input type="password" id="current-password" name="current-password" class="change-password-input">
+                        <label for="new-password">New Password</label>
+                        <input type="password" id="new-password" name="new-password" class="change-password-input">
+                        <button type="submit" class="change-password-btn">Change Password</button>
+                    </form>
+                    <button id="close-password-modal" class="close-password-modal">&times;</button>
+                </div>
+            </div>
+        <style>
+        #menuList {
+            display: none;
+            margin-top: 10px;
+        }
+        #menuList.show-menu {
+            display: block;
+        }
+        .change-password-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.4);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .change-password-modal[style*="display: flex"] {
+            display: flex !important;
+        }
+        .change-password-content {
+            background: #23243a;
+            padding: 2rem 1.5rem;
+            border-radius: 12px;
+            max-width: 350px;
+            width: 90%;
+            margin: auto;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            color: #fff;
+            position: relative;
+        }
+        .change-password-content h3 {
+            margin-top: 0;
+        }
+        .change-password-input {
+            width: 100%;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: none;
+            background: #181926;
+            color: #fff;
+        }
+        .change-password-btn {
+            width: 100%;
+            background: #3b82f6;
+            color: #fff;
+            padding: 0.7rem 0;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        .close-password-modal {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+        /* Google-style Account Dropdown CSS */
+        .google-account-dropdown {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            z-index: 2000;
+            display: block;
+        }
+        .google-account-dropdown.hidden { display: none; }
+        .google-account-dropdown-content {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 24px rgba(0,0,0,0.18);
+            min-width: 340px;
+            max-width: 95vw;
+            padding: 1.5rem 2rem 1.2rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .google-modal-header {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+        .google-modal-logo {
+            width: 38px;
+            margin-bottom: 0.7rem;
+        }
+        .google-modal-title {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 0.2rem;
+        }
+        .google-modal-subtitle {
+            font-size: 1.05rem;
+            color: #555;
+        }
+        .google-modal-accounts {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .google-modal-account {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.18s;
+            border: 1px solid transparent;
+        }
+        .google-modal-account:hover {
+            background: #f1f3f4;
+            border-color: #d2e3fc;
+        }
+        .google-modal-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            margin-right: 1rem;
+        }
+        .google-modal-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .google-modal-name {
+            font-weight: 500;
+            color: #222;
+        }
+        .google-modal-email {
+            font-size: 0.98rem;
+            color: #555;
+        }
+        .google-modal-account.use-another {
+            border: 1px solid #4285f4;
+            color: #4285f4;
+            justify-content: flex-start;
+            font-weight: 500;
+            gap: 0.7rem;
+        }
+        .google-modal-account.use-another:hover {
+            background: #e8f0fe;
+        }
+        .google-modal-add-icon {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        </style>
+        <script>
+            // Google-style Account Modal logic
+            document.addEventListener('DOMContentLoaded', function() {
+                var userIcon = document.getElementById('user-icon');
+                var googleDropdown = document.getElementById('google-account-modal');
+                if (userIcon && googleDropdown) {
+                    userIcon.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        // Position dropdown below user icon
+                        var rect = userIcon.getBoundingClientRect();
+                        googleDropdown.style.top = (userIcon.offsetHeight + 10) + 'px';
+                        googleDropdown.classList.toggle('hidden');
+                    });
+                    // Hide dropdown when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (!googleDropdown.contains(e.target) && e.target !== userIcon) {
+                            googleDropdown.classList.add('hidden');
+                        }
+                    });
+                    // Optionally, close dropdown on ESC
+                    document.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') googleDropdown.classList.add('hidden');
+                    });
+                }
+                // Optionally, handle account selection
+                var accounts = document.querySelectorAll('.google-modal-account');
+                accounts.forEach(function(acc) {
+                    acc.addEventListener('click', function() {
+                        googleDropdown.classList.add('hidden');
+                        // Here you can add logic for account selection
+                    });
+                });
+            });
+        // Settings menu: open change password modal
+        document.addEventListener('DOMContentLoaded', function() {
+            var settingsItem = document.getElementById('settings-menu-item');
+            var modal = document.getElementById('change-password-modal');
+            var closeBtn = document.getElementById('close-password-modal');
+            var form = document.getElementById('change-password-form');
+            if(settingsItem && modal && closeBtn && form) {
+                settingsItem.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    modal.style.display = 'flex';
+                });
+                closeBtn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                });
+                modal.addEventListener('click', function(e) {
+                    if(e.target === modal) modal.style.display = 'none';
+                });
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('Password changed! (Demo only)');
+                    modal.style.display = 'none';
+                    form.reset();
+                });
+            }
+        });
+        </script>
+                        <!-- Removed unwanted visible menu list -->
+        <!-- Orders Modal -->
+        <div id="orders-modal" class="orders-modal">
+            <div class="orders-content">
+                <h3>Your Orders</h3>
+                <div id="orders-list">Loading...</div>
+                <button id="close-orders-modal" class="close-orders-modal">&times;</button>
+            </div>
+        </div>
+        <style>
+        .orders-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.4);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .orders-modal[style*="display: flex"] {
+            display: flex !important;
+        }
+        .orders-content {
+            background: #23243a;
+            padding: 2rem 1.5rem;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 95%;
+            margin: auto;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            color: #fff;
+            position: relative;
+        }
+        .orders-content h3 {
+            margin-top: 0;
+        }
+        .close-orders-modal {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+        .order-row {
+            border-bottom: 1px solid #444;
+            padding: 0.7rem 0;
+            font-size: 1rem;
+        }
+        .order-row:last-child { border-bottom: none; }
+        </style>
+        <script>
+        // Orders menu: open orders modal and fetch orders from Supabase
+        document.addEventListener('DOMContentLoaded', function() {
+            var ordersItem = document.getElementById('orders-menu-item');
+            var ordersModal = document.getElementById('orders-modal');
+            var closeOrdersBtn = document.getElementById('close-orders-modal');
+            var ordersList = document.getElementById('orders-list');
+            if(ordersItem && ordersModal && closeOrdersBtn && ordersList) {
+                ordersItem.addEventListener('click', async function(e) {
+                    e.stopPropagation();
+                    ordersModal.style.display = 'flex';
+                    ordersList.innerHTML = 'Loading...';
+                    try {
+                        const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+                        if (error) throw error;
+                        if (!data || data.length === 0) {
+                            ordersList.innerHTML = '<div style="color:#aaa">No orders found.</div>';
+                        } else {
+                            ordersList.innerHTML = data.map(order => `
+                                <div class="order-row">
+                                    <b>Order #${order.id}</b><br>
+                                    Product ID: ${order.product_id}<br>
+                                    Quantity: ${order.quantity}<br>
+                                    Total: $${order.total_amount}<br>
+                                    Status: ${order.status}<br>
+                                    Delivery: ${order.delivery_option}<br>
+                                    <span style="font-size:0.95em;color:#aaa">${order.created_at ? new Date(order.created_at).toLocaleString() : ''}</span>
+                                </div>
+                            `).join('');
+                        }
+                    } catch (err) {
+                        ordersList.innerHTML = '<div style="color:#f66">Error loading orders.</div>';
+                    }
+                });
+                closeOrdersBtn.addEventListener('click', function() {
+                    ordersModal.style.display = 'none';
+                });
+                ordersModal.addEventListener('click', function(e) {
+                    if(e.target === ordersModal) ordersModal.style.display = 'none';
+                });
+            }
+        });
+        </script>
+                        <!-- Removed unwanted visible menu list -->
+                    </ul>
+                </div>
+            </span>
+    <script>
+    // Dropdown menu toggle for hamburger menu
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuIcon = document.getElementById('menu-icon-menu');
+        const dropdown = document.getElementById('menu-dropdown-menu');
+        if (menuIcon && dropdown) {
+            menuIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('show');
+            });
+            document.addEventListener('click', function() {
+                dropdown.classList.remove('show');
+            });
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+        // Dark mode toggle (simple demo)
+        const darkModeToggle = document.getElementById('toggle-dark-mode');
+        if (darkModeToggle) {
+            darkModeToggle.onclick = function() {
+                document.body.classList.toggle('dark-mode');
+            };
+        }
+    });
+    </script>
+        </div>
+    </nav>
+    <section class="hero-section" id="hero-advert">
+        <div class="hero-content">
+            <div class="hero-title" id="hero-title">Premium Phones &amp; Gadgets</div>
+            <div class="hero-desc" id="hero-desc">Shop the latest smartphones, audio gear, and must-have accessories from trusted brands.</div>
+            <button class="hero-btn" onclick="document.getElementById('product-list').scrollIntoView({behavior: 'smooth'});">Shop Now</button>
+        </div>
+        <img class="hero-img" id="hero-img" src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80" alt="Phone and Gadget">
+    </section>
+    <div class="container">
+        <h2>Our Products</h2>
+        <div class="products" id="product-list">
+            <!-- Products will be rendered here by JavaScript -->
+        </div>
+        <!-- Shopping Cart section removed -->
+    </div>
+
+    <!-- About Section -->
+    <section class="about-section">
+        <div class="about-main">
+            <h2>About LAMAR Phone Gadget</h2>
+            <p>We bring top-tier devices and accessories to your fingertips with fast delivery, genuine warranties, and friendly support. Your next upgrade starts here.</p>
+        </div>
+        <div class="about-features">
+            <div class="about-feature"><b>100% Genuine</b><br>Direct from authorized distributors with official warranties.</div>
+            <div class="about-feature"><b>Fast Shipping</b><br>Nationwide delivery with real-time order updates.</div>
+            <div class="about-feature"><b>Great Support</b><br>Quick help via chat, phone, and email.</div>
+        </div>
+    </section>
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="contact-details">
+            <h2>Contact Us</h2>
+            <p>Have questions about a device or your order? We're here to help.</p>
+            <p>Email: <a href="mailto:support@lamargadget.com">support@lamargadget.com</a></p>
+            <p>Phone: <a href="tel:+2348000000000">+234 800 000 0000</a></p>
+            <p>Instagram: <a href="https://instagram.com/lamar.gadget" target="_blank" rel="noopener">@lamar.gadget</a></p>
+        </div>
+        <form class="contact-form-box" onsubmit="event.preventDefault(); alert('Message sent! (Demo only)'); this.reset();">
+            <label for="contact-name">Name</label>
+            <input type="text" id="contact-name" name="name" placeholder="Your name" required>
+            <label for="contact-email">Email</label>
+            <input type="email" id="contact-email" name="email" placeholder="you@example.com" required>
+            <label for="contact-message">Message</label>
+            <textarea id="contact-message" name="message" placeholder="How can we help?" required></textarea>
+            <button type="submit">Send Message</button>
+        </form>
+
+    </section>
+    <footer class="footer">
+        &copy; LAMAR Phone Gadget. All rights reserved.
+    </footer>
+    <style>
+    .about-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        background: radial-gradient(circle at 20% 20%, #23243a 70%, #181926 100%);
+        color: #fff;
+        border-radius: 18px;
+        margin: 2rem auto 0 auto;
+        padding: 2.5rem 2rem;
+        max-width: 1200px;
+        gap: 2.5rem;
+    }
+    .about-main {
+        flex: 2;
+    }
+    .about-main h2 {
+        margin-top: 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    .about-main p {
+        font-size: 1.15rem;
+        color: #d1d5db;
+    }
+    .about-features {
+        flex: 3;
+        display: flex;
+        gap: 1.5rem;
+        justify-content: flex-end;
+    }
+    .about-feature {
+        background: #181926;
+        border: 1px solid #23243a;
+        border-radius: 16px;
+        padding: 1.5rem 1.2rem;
+        min-width: 180px;
+        font-size: 1.1rem;
+        color: #e5e7eb;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .about-feature b {
+        font-size: 1.15rem;
+        color: #fff;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    @media (max-width: 900px) {
+        .about-section { flex-direction: column; gap: 1.5rem; }
+        .about-features { flex-direction: column; gap: 1rem; }
+    }
+    .cart-section {
+        background: #f6f8fc;
+        border-radius: 12px;
+        padding: 1.5rem 1.2rem;
+        margin-top: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    #cart-items-list {
+        font-size: 1.1rem;
+        color: #222;
+        margin-bottom: 1rem;
+    }
+    #cart-total-line {
+        font-weight: bold;
+        font-size: 1.15rem;
+        color: #222;
+    }
+    </style>
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+    <script>
+        // Supabase credentials
+        const SUPABASE_URL = 'https://jlwxkykznyjmstpjcgks.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let products = [];
+        const cart = [];
+
+        async function fetchProducts() {
+            // Fetch from Supabase REST API
+            try {
+                const response = await fetch('https://jlwxkykznyjmstpjcgks.supabase.co/rest/v1/products?select=*', {
+                    headers: {
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ'
+                    }
+                });
+                if (!response.ok) {
+                    console.error('Error fetching products:', response.statusText);
+                    return [];
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                return [];
+            }
+        }
+
+        function renderProducts() {
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
+            products.forEach(product => {
+                const div = document.createElement('div');
+                div.className = 'product';
+                div.innerHTML = `
+                    <img src="${product.image_url || 'https://via.placeholder.com/120?text=No+Image'}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p>$${product.price}</p>
+                    <button onclick="addToCart(${product.id})">Add to Cart</button>
+                `;
+                productList.appendChild(div);
+            });
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const cartItem = cart.find(item => item.id === productId);
+            if (cartItem) {
+                cartItem.qty += 1;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+            renderCart();
+        }
+
+        function renderCart() {
+            const cartItemsList = document.getElementById('cart-items-list');
+            const cartTotalLine = document.getElementById('cart-total-line');
+            // If cart section is removed, skip rendering
+            if (!cartItemsList || !cartTotalLine) {
+                // Still update cart badge if present
+                const badge = document.getElementById('cart-badge');
+                let itemCount = 0;
+                cart.forEach(item => { itemCount += item.qty; });
+                if (badge) badge.textContent = itemCount;
+                return;
+            }
+            let total = 0;
+            let itemCount = 0;
+            let html = '';
+            cart.forEach(item => {
+                total += item.price * item.qty;
+                itemCount += item.qty;
+                html += `${item.name} x${item.qty} - $${(item.price * item.qty).toFixed(2)}<br>`;
+            });
+            cartItemsList.innerHTML = html || '<span style="color:#888">Your cart is empty.</span>';
+            cartTotalLine.textContent = cart.length ? `Total: $${total.toFixed(2)}` : '';
+            // Update cart badge
+            const badge = document.getElementById('cart-badge');
+            if (badge) badge.textContent = itemCount;
+        }
+
+        // Expose addToCart globally
+        window.addToCart = addToCart;
+
+        // Hero section cycles through products as a live advert
+        const heroTitle = document.getElementById('hero-title');
+        const heroDesc = document.getElementById('hero-desc');
+        const heroImg = document.getElementById('hero-img');
+        let heroIndex = 0;
+        function showHeroProduct(idx) {
+            if (!products.length) return;
+            const product = products[idx];
+            heroTitle.textContent = product.name;
+            heroDesc.innerHTML = `Check out our <b>${product.name}</b>! ${product.description || ''}`;
+            heroImg.src = product.image_url || 'https://via.placeholder.com/220?text=No+Image';
+            heroImg.alt = product.name;
+            heroImg.onerror = function() {
+                heroImg.src = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80';
+            };
+        }
+        function startHeroCycle() {
+            showHeroProduct(0);
+            setInterval(() => {
+                heroIndex = (heroIndex + 1) % products.length;
+                showHeroProduct(heroIndex);
+            }, 3500);
+        }
+
+        // Expose addToCart globally
+        window.addToCart = addToCart;
+
+        // Fetch products from Supabase and initialize
+        (async function init() {
+            products = await fetchProducts();
+            renderProducts();
+            renderCart();
+            if (products.length) startHeroCycle();
+        })();
+    </script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</body>
+        <!-- Google Sign-In script removed -->
+        </script>
+        <!-- Removed alert for current origin -->
+</html>

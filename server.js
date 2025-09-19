@@ -1,270 +1,200 @@
-
-// Express app and CORS setup
-
-
-// --- Express and CORS setup (must be first!) ---
+// ...existing code...
+// ...existing code...
+// ...existing code...
+// ...existing code...
+// ...existing code...
 const express = require('express');
-const cors = require('cors');
 const app = express();
+// ...existing code...
+// Basic Express server to handle user email and send details to Supabase
+// Basic Express server to handle user email and send details to Supabase
+// Endpoint to log errors from frontend to terminal
+app.post('/api/log-error', (req, res) => {
+    console.error('Frontend error:', req.body);
+    res.json({ success: true });
+});
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const session = require('express-session');
+const nodemailer = require('nodemailer');
+// Serve static files from the project directory
+app.use(express.static(__dirname));
+app.use(session({ secret: 'lamar-secret', resave: false, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Test endpoint to simulate POST /api/user-details
+app.get('/test-post-user', async (req, res) => {
+    const testData = {
+        email: 'testuser@example.com',
+        userAgent: 'test-agent'
+    };
+    try {
+        console.log('Simulating POST /api/user-details with:', testData);
+        const { error } = await supabase.from('user_details').insert([
+            {
+                email: testData.email,
+                userAgent: testData.userAgent,
+                timestamp: new Date().toISOString()
+            }
+        ]);
+        if (error) {
+            console.error('Supabase insertion error:', error);
+            return res.status(500).json({ error: error.message });
+        }
+        sendWelcomeEmail(testData.email);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Server error during test POST:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ...existing code...
+
+// Configure Google OAuth
+passport.use(new GoogleStrategy({
+    clientID: '1076361266860-2vq0depuu5ilirdoicofbi04093f7gpo.apps.googleusercontent.com',
+    clientSecret: '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',
+    callbackURL: '/auth/google/callback'
+}, async (accessToken, refreshToken, profile, done) => {
+    // Save user email to Supabase
+    const email = profile.emails[0].value;
+    await supabase.from('user_details').insert([
+        {
+            email,
+            userAgent: profile._json['sub'],
+            timestamp: new Date().toISOString()
+        }
+    ]);
+    // Send welcome email
+    sendWelcomeEmail(email);
+    return done(null, profile);
+}));
+
+passport.serializeUser((user, done) => {
+    done(null, user);
+});
+passport.deserializeUser((obj, done) => {
+    done(null, obj);
+});
+
+// Nodemailer setup
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'ayomideoluniyi@gmail.com',
+        pass: 'taqo ynzu ybmv lhuc' // Gmail App Password
+    }
+});
+
+function sendWelcomeEmail(email) {
+    const mailOptions = {
+        from: 'ayomideoluniyi@gmail.com',
+        to: email,
+        subject: 'Welcome to Lamar Phone and Gadget',
+        text: 'Welcome to Lamar Phone and Gadget! Thank you for signing up.'
+    };
+    console.log('Attempting to send welcome email to:', email);
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error('Error sending email:', error);
+            if (error.response) {
+                console.error('SMTP response:', error.response);
+            }
+        } else {
+            console.log('Welcome email sent:', info.response);
+        }
+    });
+}
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const { createClient } = require('@supabase/supabase-js');
+
+// Allow only frontend origins for CORS
+const allowedOrigins = ['http://127.0.0.1:5501', 'http://localhost:5501'];
 app.use(cors({
-    origin: ['https://glittery-torrone-d1184e.netlify.app', 'http://localhost:3000'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps, curl, etc.)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            return callback(null, true);
+        } else {
+            return callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
-app.use(express.json());
+app.use(bodyParser.json());
 
-const { createClient } = require('@supabase/supabase-js');
+// Supabase connection
 const SUPABASE_URL = 'https://jlwxkykznyjmstpjcgks.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Email verification code store (in-memory)
-// ...existing code...
-
-// Email sending setup (Nodemailer, Gmail)
-const nodemailer = require('nodemailer');
-const verificationCodes = {};
-const transporter = nodemailer.createTransport({
-	service: 'gmail',
-	auth: {
-		user: 'ayomideoluniyi49@gmail.com',
-		pass: 'qpfa qypc nfbb rgaf'
-	}
-});
-const PORT = process.env.PORT || 3000;
-// ...existing code...
-
-// Serve favicon.ico and other static files from root
-// ...existing code...
-app.use(express.static(__dirname));
-
-
-
-// Registration endpoint using Supabase Auth and insert into users table
-app.post('/api/register', async (req, res) => {
-	const { name, email, password } = req.body;
-	console.log('Register request:', { name, email });
-	if (!name || !email || !password) {
-		console.log('Missing fields:', { name, email, password });
-		return res.status(400).json({ error: 'Name, email, and password are required.' });
-	}
-	try {
-		const { data, error } = await supabase.auth.signUp({
-			email,
-			password,
-			options: { data: { name } }
-		});
-		console.log('Supabase signUp result:', { data, error });
-		if (error) {
-			if (error.message && error.message.includes('already registered')) {
-				console.log('Email already registered:', email);
-				return res.status(400).json({ error: 'Email is already registered.' });
-			}
-			console.log('Registration error:', error);
-			return res.status(400).json({ error: error.message || 'Registration failed.' });
-		}
-		// Insert user info into public.users table only if not already present
-		if (data && data.user) {
-			const { data: existingUser, error: existingError } = await supabase.from('users').select('id').eq('Email', data.user.email).single();
-			if (!existingUser) {
-				const insertRes = await supabase.from('users').insert([
-					{
-						id: data.user.id,
-						Email: data.user.email,
-						Name: name,
-						verified: false
-					}
-				]);
-				console.log('Insert response from supabase.from(users).insert:', insertRes);
-				if (insertRes.error) {
-					console.log('Error inserting user into users table:', insertRes.error);
-				}
-				if (insertRes.data) {
-					console.log('Inserted user data:', insertRes.data);
-				}
-			} else {
-				console.log('User already exists in users table:', data.user.email);
-			}
-			// Generate verification code and send email
-			const code = Math.floor(100000 + Math.random() * 900000).toString();
-			verificationCodes[email] = code;
-			const mailOptions = {
-				from: 'GODSOWN PHONE GADGET <ayomideoluniyi49@gmail.com>',
-				to: email,
-				subject: "GODSOWN PHONE GADGET Email Verification Code",
-				text: `Welcome to GODSOWN PHONE GADGET! Your verification code is: ${code}`
-			};
-			transporter.sendMail(mailOptions, (err, info) => {
-				if (err) {
-					console.log('Error sending verification email:', err);
-				} else {
-					console.log('Verification email sent:', info.response);
-				}
-			});
-		} else {
-			console.log('No user data returned from signUp.');
-		}
-		res.json({ message: 'Registration successful! Please check your email for the verification code.' });
-	} catch (err) {
-		console.log('Registration catch error:', err);
-		res.status(500).json({ error: 'Registration failed.' });
-	}
+app.post('/api/user-details', async (req, res) => {
+    console.log('POST /api/user-details endpoint hit');
+    const { email, userAgent } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+    try {
+        console.log('Attempting to insert user details into Supabase:', { email, userAgent });
+        const { error } = await supabase.from('user_details').insert([
+            {
+                email,
+                userAgent,
+                timestamp: new Date().toISOString()
+            }
+        ]);
+        if (error) {
+            console.error('Supabase insertion error:', error);
+            return res.status(500).json({ error: error.message });
+        }
+        console.log('User details inserted successfully into Supabase');
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Server error during Supabase insertion:', err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// Verification endpoint
-app.post('/api/verify', (req, res) => {
-	const { email, code } = req.body;
-	if (!email || !code) {
-		return res.status(400).json({ error: 'Email and code are required.' });
-	}
-	if (verificationCodes[email] && verificationCodes[email] === code) {
-		delete verificationCodes[email];
-		// Mark user as verified in Supabase users table
-		supabase.from('users').update({ verified: true }).eq('Email', email)
-			.then(() => {
-				res.json({ message: 'Email verified! You can now log in.' });
-			})
-			.catch((err) => {
-				res.status(500).json({ error: 'Verification succeeded, but failed to update user status.' });
-			});
-	} else {
-		res.status(400).json({ error: 'Invalid code or email.' });
-	}
+// GET endpoint to get all user details
+app.get('/api/user-details', async (req, res) => {
+    console.log('GET /api/user-details endpoint hit');
+    try {
+        const { data, error } = await supabase.from('user_details').select('*').order('timestamp', { ascending: false });
+        if (error) {
+            console.error('Supabase error:', error);
+            return res.status(500).json({ error: error.message });
+        }
+        res.json(data);
+    } catch (err) {
+        console.error('Server error:', err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
+// Google OAuth routes
+app.get('/auth/google', (req, res, next) => {
+    console.log('GET /auth/google endpoint hit');
+    next();
+}, passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    prompt: 'select_account'
+}));
 
-// Login endpoint using Supabase Auth
-app.post('/api/login', async (req, res) => {
-	const { email, password } = req.body;
-	if (!email || !password) {
-		return res.status(400).json({ error: 'Email and password are required.' });
-	}
-	try {
-		// Check if user is verified in users table
-		const { data: userRows, error: userError } = await supabase.from('users').select('verified').eq('Email', email).single();
-		if (userError || !userRows) {
-			return res.status(400).json({ error: 'User not found.' });
-		}
-		if (!userRows.verified) {
-			return res.status(400).json({ error: 'Please verify your email before logging in.' });
-		}
-		const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-		if (error) {
-			return res.status(400).json({ error: error.message || 'Login failed.' });
-		}
-		// Return session info to frontend
-		res.json({ message: 'Login successful!', session: data.session, user: data.user });
-	} catch (err) {
-		res.status(500).json({ error: 'Login failed.' });
-	}
+app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
+    // Successful authentication
+    console.log('Google OAuth callback hit. User:', req.user);
+        // Redirect to homepage with user_email in query string
+        const userEmail = req.user && req.user.emails && req.user.emails[0] ? req.user.emails[0].value : '';
+        res.redirect('/?user_email=' + encodeURIComponent(userEmail));
 });
 
-// Supabase client setup
-// ...existing code...
-
-// Homepage route
-app.get('/', (req, res) => {
-	res.send("Welcome to GOD'S OWN PHONE GADGET API!");
-});
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-	res.json({ status: 'ok' });
-});
-
-// Products endpoint (fetch from Supabase)
-app.get('/api/products', async (req, res) => {
-	const { data, error } = await supabase.from('products').select('*');
-	console.log('Supabase products data:', data);
-	if (error) {
-		console.error('Supabase products error:', error);
-		return res.status(500).json({ error: 'Failed to fetch products from Supabase.' });
-	}
-	res.json(data);
-});
-
-// Order endpoint (save order to Supabase)
-// User profile endpoint
-app.get('/api/user/:id', async (req, res) => {
-	const { id } = req.params;
-	if (!id) {
-		return res.status(400).json({ error: 'User ID is required.' });
-	}
-	try {
-		console.log('Fetching user with ID:', id);
-		const { data, error } = await supabase.from('users').select('*').eq('id', id).single();
-		console.log('Supabase response:', { data, error });
-		
-		if (error) {
-			console.error('Supabase error:', error);
-			return res.status(500).json({ error: error.message });
-		}
-		if (!data) {
-			return res.status(404).json({ error: 'User not found.' });
-		}
-		res.json(data);
-	} catch (err) {
-		console.error('Server error:', err);
-		res.status(500).json({ error: 'Failed to fetch user profile.' });
-	}
-});
-app.post('/api/order', async (req, res) => {
-	const {
-		email,
-		product_name,
-		quantity,
-		phone,
-		delivery_method,
-		address,
-		payment_method,
-		location
-	} = req.body;
-
-	console.log('Received order:', req.body);
-
-	// Only require product_name and quantity
-	if (!product_name || !quantity) {
-		console.log('Order validation failed:', req.body);
-		return res.status(400).json({ error: 'Product name and quantity are required.' });
-	}
-
-	const order = {
-		email,
-		product_name,
-		quantity,
-		phone,
-		delivery_method,
-		address: delivery_method === 'Delivery' ? address : null,
-		payment_method,
-		location
-	};
-
-	const { data, error } = await supabase.from('orders').insert([order]);
-	if (error) {
-		console.error('Supabase order insert error:', error);
-		return res.status(500).json({ error: 'Failed to save order to Supabase.' });
-	}
-	console.log('Order saved to Supabase:', data);
-	res.json({ success: true, data });
-});
-
-// Global error handler middleware (should be after all routes)
-app.use((err, req, res, next) => {
-	console.error('Global error:', err);
-	res.status(500).json({ error: 'Internal server error', details: err.message });
-});
-
-// Catch unhandled promise rejections and uncaught exceptions
-process.on('unhandledRejection', (reason, promise) => {
-	console.error('Unhandled Rejection:', reason);
-});
-process.on('uncaughtException', (err) => {
-	console.error('Uncaught Exception:', err);
-	process.exit(1);
-});
-
-// Start the server
-// ...existing code...
-app.listen(PORT, () => {
-	console.log(`Server is running on port ${PORT}`);
-});
+const PORT = process.env.PORT || 5000;
+try {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+} catch (err) {
+    console.error('Server failed to start:', err);
+}

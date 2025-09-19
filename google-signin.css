@@ -1,0 +1,4 @@
+/* External style for hiding Google Sign-In button */
+#g_id_signin {
+  display: none;
+}
