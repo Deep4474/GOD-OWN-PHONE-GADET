@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <!-- Supabase Auth (email/password) enabled. Google Sign-In removed. -->
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://accounts.google.com;">
     <meta charset="UTF-8">
     <link rel="stylesheet" href="styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,28 +14,10 @@
         cursor: pointer;
         border-radius: 8px;
         background: #181926;
-    color: #60a5fa;
+        color: #60a5fa;
         margin-top: 0.5rem;
         font-weight: 600;
         transition: background 0.18s;
-    }
-    .user-dropdown-email:hover {
-        background: #3b3c4a;
-        color: #fff;
-    }
-    /* Menu dropdown styles */
-    .menu-dropdown {
-        display: none;
-        position: absolute;
-        top: 60px;
-        right: 60px;
-        z-index: 1000;
-        background: #23243a;
-        color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.18);
-        min-width: 220px;
-        padding: 1rem 0;
     }
     .menu-dropdown.show {
         display: block;
@@ -598,39 +580,38 @@
     </style>
 </head>
 <body>
-    <!-- Email Welcome Form -->
-    <div class="welcome-email-form-container">
-        <h2>Get a Welcome Email</h2>
-        <form id="welcomeEmailForm" class="welcome-email-form">
-            <input type="email" id="welcomeEmailInput" class="welcome-email-input" placeholder="Enter your email" required>
-            <button type="submit" class="welcome-email-btn">Send Welcome Email</button>
-        </form>
-        <div id="welcomeEmailMsg" class="welcome-email-msg"></div>
-    </div>
+
+
+    <!-- Advert message display -->
+    <!-- Account Email Chooser Modal -->
+    <!-- Login Modal removed as requested -->
+    <!-- Header User Email/Name Display and Input -->
     <script>
-    document.getElementById('welcomeEmailForm').onsubmit = async function(e) {
-        e.preventDefault();
-        const email = document.getElementById('welcomeEmailInput').value;
-        const msgDiv = document.getElementById('welcomeEmailMsg');
-        msgDiv.textContent = 'Sending...';
-        try {
-            const res = await fetch('/.netlify/functions/send-welcome', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            if (res.ok) {
-                msgDiv.textContent = 'Welcome email sent!';
-            } else {
-                msgDiv.textContent = 'Error: ' + (await res.text());
-            }
-        } catch (err) {
-            msgDiv.textContent = 'Error: ' + err.message;
-        }
-    };
+// On page load, update menu icon and account info if user is registered
+document.addEventListener('DOMContentLoaded', function() {
+    const userPic = localStorage.getItem('profile_pic');
+    const userEmail = localStorage.getItem('user_email');
+    const phoneNumber = localStorage.getItem('phone_number');
+    if (userPic || userEmail) {
+        const details = {
+            picture: userPic || '',
+            email: userEmail || '',
+            number: phoneNumber || ''
+        };
+        showMenuUserIcon(details);
+        showHeaderAccountInfo(details);
+        updateMenuAccount(details);
+    }
+});
+    // Show user info if already stored
+    // Removed userHeaderForm and userHeaderInfo code (form not present in HTML)
     </script>
     <!-- Google Sign-In button removed -->
     <nav class="navbar">
+    <div id="header-account-info" class="header-account-info"></div>
+
+        <!-- Advert message display -->
+        <div id="advert-message"></div>
         <div class="navbar-logo">LAMAR<span class="blue">GADGET</span></div>
         <div class="navbar-links">
             <a href="#">Home</a>
@@ -639,21 +620,44 @@
             <a href="#">Contact</a>
         </div>
         <div class="navbar-icons">
-            <!-- User icon removed -->
-                <!-- Google-style Account Selection Dropdown removed -->
-            <span class="cart-icon">
-                <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M7 18c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zm10 0c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zm-12.293-2.707l1.414 1.414c.195.195.451.293.707.293h12c.256 0 .512-.098.707-.293l1.414-1.414c.391-.391.391-1.023 0-1.414l-1.414-1.414c-.195-.195-.451-.293-.707-.293h-12c-.256 0-.512.098-.707.293l-1.414 1.414c-.391.391-.391-1.023 0-1.414zm15.293-7.293v-2c0-1.104-.896-2-2-2h-2v-2c0-1.104-.896-2-2-2s-2 .896-2 2v2h-2c-1.104 0-2 .896-2 2v2h12zm-2-2h-8v-2c0-.552.448-1 1-1s1 .448 1 1v2h4v-2c0-.552.448-1 1-1s1 .448 1 1v2z"/></svg>
-                <span class="cart-badge" id="cart-badge">0</span>
+            <!-- User icon for registration/login -->
+            <span id="user-icon" class="user-icon">
+                <img src="https://www.gstatic.com/images/branding/product/1x/avatar_square_blue_512dp.png" alt="User" class="user-icon-img" />
+                <div id="supabase-auth-modal" class="user-dropdown hidden">
+                    <h3 class="supabase-auth-title">Sign In / Register</h3>
+                    <input type="email" id="supabase-auth-email" class="user-dropdown-item supabase-auth-input" placeholder="Email" />
+                    <input type="password" id="supabase-auth-password" class="user-dropdown-item supabase-auth-input" placeholder="Password" />
+                    <button id="supabase-signin-btn" class="user-dropdown-item supabase-signin-btn">Sign In</button>
+                    <button id="supabase-signup-btn" class="user-dropdown-item supabase-signup-btn">Register</button>
+                    <button id="supabase-google-btn" class="user-dropdown-item supabase-google-btn">Continue with Google</button>
+                    <div id="supabase-auth-error" class="supabase-auth-error"></div>
+                </div>
             </span>
-            <span class="menu-icon" id="menu-icon-menu">
-                <svg width="26" height="26" fill="currentColor" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
-            </span>
+<!-- menu icon markup only, no JS code here -->
+<script>
+// Change menu icon to user avatar after registration
+function showMenuUserIcon(details) {
+    const hamburgerIcon = document.getElementById('menu-hamburger-icon');
+    const userIcon = document.getElementById('menu-user-icon');
+    if (hamburgerIcon && userIcon) {
+        hamburgerIcon.style.display = 'none';
+        userIcon.src = details.picture || 'https://www.gstatic.com/images/branding/product/1x/avatar_square_blue_512dp.png';
+        userIcon.classList.remove('hidden');
+    }
+}
+</script>
             <div id="menu-dropdown" class="menu-dropdown">
-                 <div class="menu-dropdown-item" id="menu-account">Account</div>
-                <div class="menu-dropdown-item" id="edit-profile">Edit Profile</div>
-                <div class="menu-dropdown-item" id="menu-settings">Settings</div>
-                <div class="menu-dropdown-item" id="menu-orders">My Order</div>
-                <div class="menu-dropdown-item" id="menu-notification">Notification</div>
+<script>
+// Update Account menu after registration
+function updateMenuAccount(details) {
+    const avatarSpan = document.getElementById('menu-account-avatar');
+    const emailSpan = document.getElementById('menu-account-email');
+    if (avatarSpan && emailSpan) {
+        avatarSpan.innerHTML = `<img src="${details.picture || 'https://www.gstatic.com/images/branding/product/1x/avatar_square_blue_512dp.png'}" alt="avatar" class="menu-account-avatar">`;
+        emailSpan.textContent = details.email;
+    }
+}
+</script>
                 <!-- Logout menu item removed -->
             </div>
             <div id="user-dropdown" class="user-dropdown">
@@ -669,63 +673,94 @@
     // Supabase client will be initialized after the CDN script is loaded (see bottom of file)
 
 
-    // Show browser email on Account click
+    // Show account email chooser modal on Account click
     const menuAccount = document.getElementById('menu-account');
-    const userDropdown = document.getElementById('user-dropdown');
-    const browserEmailDiv = document.getElementById('browser-email');
-    const continueWithEmailBtn = document.getElementById('continue-with-email');
-    const emailSuccessDiv = document.getElementById('email-success');
+    const accountEmailModal = document.getElementById('accountEmailModal');
+    const accountEmailList = document.getElementById('accountEmailList');
+    const closeAccountEmailModal = document.getElementById('closeAccountEmailModal');
 
-    menuAccount.addEventListener('click', function(e) {
-        e.preventDefault();
-        // Get email from localStorage or prompt
-        let email = localStorage.getItem('user_email');
-        if (!email) {
-            email = prompt('Enter your email:');
-            if (email) localStorage.setItem('user_email', email);
-        }
-        if (email) {
-            browserEmailDiv.textContent = email;
-            browserEmailDiv.classList.remove('hidden');
-            continueWithEmailBtn.classList.remove('hidden');
-            emailSuccessDiv.style.display = 'none';
-        } else {
-            browserEmailDiv.textContent = 'No email found.';
-            browserEmailDiv.classList.remove('hidden');
-            continueWithEmailBtn.classList.add('hidden');
-        }
-        userDropdown.classList.add('show');
-    });
-
-    // Hide dropdown on click outside
-    document.addEventListener('click', function(e) {
-        if (!userDropdown.contains(e.target) && e.target !== menuAccount) {
-            userDropdown.classList.remove('show');
-        }
-    });
-
-    // Continue button: store email in Supabase and send welcome email
-    continueWithEmailBtn.onclick = async function() {
-        const email = localStorage.getItem('user_email');
-        if (!email) return;
-        // Store in Supabase (replace 'emails' with your table name)
+    // Helper: get all emails from localStorage (simulate multiple logins)
+    function getAllStoredEmails() {
+        // For demo, store emails in localStorage under 'user_emails' as array
+        let emails = [];
         try {
-            const { data, error } = await supabase.from('emails').insert([{ email }]);
-            if (error) throw error;
-            // Send welcome email using Netlify Function
-            await fetch('/.netlify/functions/send-welcome', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            emailSuccessDiv.textContent = 'Welcome email sent!';
-            emailSuccessDiv.style.display = 'block';
-            continueWithEmailBtn.classList.add('hidden');
-        } catch (err) {
-            emailSuccessDiv.textContent = 'Error: ' + (err.message || err);
-            emailSuccessDiv.style.display = 'block';
+            emails = JSON.parse(localStorage.getItem('user_emails')) || [];
+        } catch (e) {}
+        // Also add current 'user_email' if not present
+        const current = localStorage.getItem('user_email');
+        if (current && !emails.includes(current)) emails.push(current);
+        return emails.filter(Boolean);
+    }
+
+    // Render email list in modal
+    function renderAccountEmailList() {
+        const emails = getAllStoredEmails();
+        accountEmailList.innerHTML = '';
+        if (emails.length === 0) {
+            accountEmailList.innerHTML = '<div style="color:#888">No accounts found.</div>';
+            return;
         }
-    };
+        emails.forEach(email => {
+            const div = document.createElement('div');
+            div.onclick = async function() {
+                // Send email and browser details to backend
+                let address = '';
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        address = `Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}`;
+                        sendDetails();
+                    }, function() {
+                        sendDetails();
+                    });
+                } else {
+                    sendDetails();
+                }
+                function sendDetails() {
+                    const details = {
+                        email: email,
+                        userAgent: navigator.userAgent,
+                        language: navigator.language,
+                        platform: navigator.platform,
+                        time: new Date().toISOString(),
+                        address: address,
+                        number: localStorage.getItem('phone_number') || '',
+                        picture: localStorage.getItem('profile_pic') || ''
+                    };
+                    fetch('http://localhost:5000/api/user-details', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(details)
+                    }).then(() => {
+                        // Show account info in header
+                        showHeaderAccountInfo(details);
+                        updateMenuAccount(details);
+                        showMenuUserIcon(details);
+                        alert('Details sent to backend!');
+                    }).catch(err => {
+                        alert('Error sending details: ' + err.message);
+                    });
+                    accountEmailModal.classList.add('hidden');
+                }
+            };
+    // Show selected account info in header
+    function showHeaderAccountInfo(details) {
+        const header = document.getElementById('header-account-info');
+        if (!header) return;
+        header.innerHTML = `
+            <img src="${details.picture || 'https://www.gstatic.com/images/branding/product/1x/avatar_square_blue_512dp.png'}" alt="avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+            <span style="font-weight:600;">${details.email}</span>
+            <span style="color:#3b82f6;">${details.number ? details.number : ''}</span>
+        `;
+    }
+            accountEmailList.appendChild(div);
+        });
+    }
+
+
+    // Login modal code removed
+
+    // Hide dropdown on click outside (removed userDropdown logic, now handled by modal logic above)
+
     // Removed login/signup form handlers
 
     // Google profile code removed
@@ -788,80 +823,91 @@
     // User icon dropdown logic
     document.addEventListener('DOMContentLoaded', function() {
         var userIcon = document.getElementById('user-icon');
-        var userDropdown = document.getElementById('user-dropdown');
-        var continueEmail = document.getElementById('continue-email');
-        var browserEmailDiv = document.getElementById('browser-email');
-        function getBrowserEmail() {
-            return localStorage.getItem('user_email') || '';
-        }
-        if (userIcon && userDropdown && browserEmailDiv) {
+        var authModal = document.getElementById('supabase-auth-modal');
+        var signInBtn = document.getElementById('supabase-signin-btn');
+        var signUpBtn = document.getElementById('supabase-signup-btn');
+        var googleBtn = document.getElementById('supabase-google-btn');
+        var emailInput = document.getElementById('supabase-auth-email');
+        var passwordInput = document.getElementById('supabase-auth-password');
+        var errorDiv = document.getElementById('supabase-auth-error');
+        var headerAccountInfo = document.getElementById('header-account-info');
+
+        // Show modal when user icon is clicked
+        if (userIcon && authModal) {
             userIcon.addEventListener('click', function(e) {
                 e.stopPropagation();
-                userDropdown.classList.toggle('show');
-                // Always show email from localStorage
-                var email = localStorage.getItem('user_email');
-                if (email) {
-                    browserEmailDiv.textContent = email;
-                    browserEmailDiv.classList.remove('hidden');
-                } else {
-                    browserEmailDiv.textContent = 'No email found.';
-                    browserEmailDiv.classList.remove('hidden');
-                }
+                authModal.classList.toggle('show');
             });
             document.addEventListener('click', function() {
-                userDropdown.classList.remove('show');
-                browserEmailDiv.style.display = 'none';
+                authModal.classList.remove('show');
             });
         }
-        if (continueEmail && browserEmailDiv) {
-            continueEmail.addEventListener('click', async function() {
-                // Fetch user details from backend
-                try {
-                    const response = await fetch('http://localhost:5000/api/user-details');
-                    const data = await response.json();
-                    if (Array.isArray(data) && data.length > 0) {
-                        // Show the most recent email
-                        browserEmailDiv.textContent = data[0].email;
-                        browserEmailDiv.classList.remove('hidden');
-                    } else {
-                        browserEmailDiv.textContent = 'No email found.';
-                        browserEmailDiv.classList.remove('hidden');
-                    }
-                } catch (err) {
-                    browserEmailDiv.textContent = 'Error fetching email.';
-                    browserEmailDiv.classList.remove('hidden');
+
+        // Helper: show user email in navbar
+        function showUserEmail(email) {
+            if (headerAccountInfo) {
+                headerAccountInfo.textContent = email ? `Signed in as: ${email}` : '';
+            }
+        }
+
+        // Supabase email/password sign in
+        if (signInBtn) {
+            signInBtn.addEventListener('click', async function() {
+                errorDiv.textContent = '';
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+                if (!email || !password) {
+                    errorDiv.textContent = 'Please enter email and password.';
+                    return;
                 }
-            });
-            browserEmailDiv.addEventListener('click', async function() {
-                var email = getBrowserEmail();
-                if (!email) return;
-                var details = {
-                    email: email,
-                    userAgent: navigator.userAgent
-                };
-                try {
-                    const response = await fetch('http://localhost:5000/api/user-details', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(details)
-                    });
-                    const result = await response.json();
-                    if (result.error) {
-                        alert('Error sending details to server: ' + result.error);
-                    } else {
-                        alert('Details sent to server!');
-                        localStorage.setItem('user_email', email); // Save email after registration
-                        browserEmailDiv.textContent = email; // Show email immediately
-                        browserEmailDiv.classList.remove('hidden');
-                        userDropdown.classList.remove('show');
-                    }
-                } catch (err) {
-                    alert('Error: ' + err.message);
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) {
+                    errorDiv.textContent = error.message;
+                } else {
+                    errorDiv.textContent = 'Signed in!';
+                    localStorage.setItem('user_email', email);
+                    authModal.classList.remove('show');
+                    showUserEmail(email);
                 }
             });
         }
+        // Supabase email/password sign up
+        if (signUpBtn) {
+            signUpBtn.addEventListener('click', async function() {
+                errorDiv.textContent = '';
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+                if (!email || !password) {
+                    errorDiv.textContent = 'Please enter email and password.';
+                    return;
+                }
+                const { data, error } = await supabase.auth.signUp({ email, password });
+                if (error) {
+                    errorDiv.textContent = error.message;
+                } else {
+                    errorDiv.textContent = 'Registered! Check your email to confirm.';
+                    showUserEmail(email);
+                }
+            });
+        }
+        // Supabase Google sign in
+        if (googleBtn) {
+            googleBtn.addEventListener('click', async function() {
+                errorDiv.textContent = '';
+                const { data, error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+                if (error) {
+                    errorDiv.textContent = error.message;
+                }
+                // On redirect, Supabase will handle session and you can show email after login
+            });
+        }
+
+        // On page load, show email if already logged in
+        supabase.auth.getUser().then(({ data }) => {
+            if (data && data.user && data.user.email) {
+                showUserEmail(data.user.email);
+            }
+        });
     });
     // Menu icon toggle for mobile menu
     var menuIconMenu = document.getElementById('menu-icon-menu');
@@ -1431,7 +1477,14 @@
         cartTotalLine.textContent = cart.length ? `Total: $${total.toFixed(2)}` : '';
         // Update cart badge
         const badge = document.getElementById('cart-badge');
-        if (badge) badge.textContent = itemCount;
+        if (badge) {
+            if (itemCount > 0) {
+                badge.textContent = itemCount;
+                badge.style.display = '';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
     }
 
     // Expose addToCart globally
@@ -1477,3 +1530,5 @@
 </body>
 <!-- Removed alert for current origin -->
 </html>
+
+<script src="script.js"></script>

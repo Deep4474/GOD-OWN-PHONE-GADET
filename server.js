@@ -1,10 +1,23 @@
-// ...existing code...
-// ...existing code...
-// ...existing code...
-// ...existing code...
-// ...existing code...
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const app = express();
+const cors = require('cors');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const session = require('express-session');
+const nodemailer = require('nodemailer');
+// Allow only Netlify frontend
+app.use(cors({
+    origin: 'https://glittery-torrone-d1184e.netlify.app',
+    credentials: true
+}));
+app.use(express.static(__dirname));
+app.use(express.json());
+app.use(session({ secret: 'lamar-secret', resave: false, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
+
 // ...existing code...
 // Basic Express server to handle user email and send details to Supabase
 // Basic Express server to handle user email and send details to Supabase
@@ -13,17 +26,67 @@ app.post('/api/log-error', (req, res) => {
     console.error('Frontend error:', req.body);
     res.json({ success: true });
 });
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const session = require('express-session');
-const nodemailer = require('nodemailer');
-// Serve static files from the project directory
-app.use(express.static(__dirname));
-app.use(session({ secret: 'lamar-secret', resave: false, saveUninitialized: true }));
-app.use(passport.initialize());
-app.use(passport.session());
+// ...existing code...
 
 // Test endpoint to simulate POST /api/user-details
+// Endpoint to get all users
+app.get('/api/users', (req, res) => {
+    const filePath = path.join(__dirname, 'user.json');
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).json({ error: 'Could not read user.json' });
+        }
+        res.json(JSON.parse(data));
+    });
+});
+// Simple login endpoint
+app.post('/api/login', (req, res) => {
+    const { email, password } = req.body;
+    // For demo: read users from user.json and check credentials
+    const filePath = path.join(__dirname, 'user.json');
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).json({ error: 'Could not read user.json' });
+        }
+        const users = JSON.parse(data);
+        const user = users.find(u => u.email === email && u.password === password);
+        if (user) {
+            res.json({ success: true, user });
+        } else {
+            res.status(401).json({ success: false, message: 'Invalid credentials' });
+        }
+    });
+});
+
+// Endpoint to add a new user
+app.post('/api/users', (req, res) => {
+    const filePath = path.join(__dirname, 'user.json');
+    const { email, name } = req.body;
+    if (!email || !name) {
+        return res.status(400).json({ error: 'Email and name are required' });
+    }
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).json({ error: 'Could not read user.json' });
+        }
+        let users = [];
+        try {
+            users = JSON.parse(data);
+        } catch (e) {}
+        const newUser = {
+            id: String(Date.now()),
+            email,
+            name
+        };
+        users.push(newUser);
+        fs.writeFile(filePath, JSON.stringify(users, null, 2), err => {
+            if (err) {
+                return res.status(500).json({ error: 'Could not write user.json' });
+            }
+            res.json(newUser);
+        });
+    });
+});
 app.get('/test-post-user', async (req, res) => {
     const testData = {
         email: 'testuser@example.com',
@@ -49,8 +112,6 @@ app.get('/test-post-user', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-// ...existing code...
 
 // Configure Google OAuth
 passport.use(new GoogleStrategy({
@@ -107,25 +168,8 @@ function sendWelcomeEmail(email) {
         }
     });
 }
-const cors = require('cors');
 const bodyParser = require('body-parser');
 const { createClient } = require('@supabase/supabase-js');
-
-// Allow only frontend origins for CORS
-const allowedOrigins = ['http://127.0.0.1:5501', 'http://localhost:5501'];
-app.use(cors({
-    origin: function(origin, callback) {
-        // Allow requests with no origin (like mobile apps, curl, etc.)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            return callback(null, true);
-        } else {
-            return callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true
-}));
-app.use(bodyParser.json());
 
 // Supabase connection
 const SUPABASE_URL = 'https://jlwxkykznyjmstpjcgks.supabase.co';
@@ -134,27 +178,25 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 app.post('/api/user-details', async (req, res) => {
     console.log('POST /api/user-details endpoint hit');
-    const { email, userAgent } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email required' });
-    try {
-        console.log('Attempting to insert user details into Supabase:', { email, userAgent });
-        const { error } = await supabase.from('user_details').insert([
-            {
-                email,
-                userAgent,
-                timestamp: new Date().toISOString()
-            }
-        ]);
-        if (error) {
-            console.error('Supabase insertion error:', error);
-            return res.status(500).json({ error: error.message });
+    const details = req.body;
+    if (!details.email) return res.status(400).json({ error: 'Email required' });
+    const filePath = path.join(__dirname, 'user.json');
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        let users = [];
+        if (!err && data) {
+            try { users = JSON.parse(data); } catch (e) { users = []; }
         }
-        console.log('User details inserted successfully into Supabase');
-        res.json({ success: true });
-    } catch (err) {
-        console.error('Server error during Supabase insertion:', err);
-        res.status(500).json({ error: err.message });
-    }
+        users.push({
+            ...details,
+            timestamp: new Date().toISOString()
+        });
+        fs.writeFile(filePath, JSON.stringify(users, null, 2), err => {
+            if (err) {
+                return res.status(500).json({ error: 'Could not save user details' });
+            }
+            res.json({ success: true });
+        });
+    });
 });
 
 // GET endpoint to get all user details

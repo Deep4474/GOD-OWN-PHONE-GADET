@@ -1,3 +1,311 @@
+/* User icon should be relative for dropdown positioning */
+#user-icon.user-icon {
+    position: relative;
+}
+
+/* Auth modal dropdown should be absolutely positioned under user icon */
+#supabase-auth-modal.user-dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+}
+/* Supabase Auth Modal Styles */
+.supabase-auth-title {
+    margin-bottom: 1rem;
+}
+.supabase-auth-input {
+    margin-bottom: 0.7rem;
+}
+.supabase-signin-btn {
+    background: #3b82f6;
+    color: #fff;
+}
+.supabase-signup-btn {
+    background: #60a5fa;
+    color: #fff;
+}
+.supabase-google-btn {
+    background: #ea4335;
+    color: #fff;
+}
+.supabase-auth-error {
+    color: #ef4444;
+    margin-top: 0.7rem;
+}
+/* User icon image styles */
+.user-icon-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+/* Google Sign-In Modal Container Styles */
+#google-signin-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.4);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+/* Google Sign-In Modal Styles */
+.user-dropdown.google-signin-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.4);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+.google-signin-modal-content {
+    background: #23243a;
+    padding: 2rem 1.5rem;
+    border-radius: 12px;
+    max-width: 350px;
+    width: 90%;
+    margin: auto;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    color: #fff;
+    position: relative;
+    text-align: center;
+}
+.google-signin-modal-title {
+    margin-top: 0;
+}
+.google-signin-close {
+    margin-top: 1.2rem;
+    background: #ef4444;
+    color: #fff;
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+/* Sign-in Modal Styles */
+.signin-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.4);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+.signin-modal-content {
+    background: #23243a;
+    padding: 2rem 1.5rem;
+    border-radius: 12px;
+    max-width: 350px;
+    width: 90%;
+    margin: auto;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    color: #fff;
+    position: relative;
+}
+.signin-modal-title {
+    margin-top: 0;
+}
+.signin-input {
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: none;
+    background: #181926;
+    color: #fff;
+}
+.signin-btn {
+    width: 100%;
+    background: #3b82f6;
+    color: #fff;
+    padding: 0.7rem 0;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+}
+.signin-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+.signin-error {
+    color: #ef4444;
+    margin-top: 1rem;
+}
+/* Hide Google Sign-In button by default */
+.hidden-google-signin {
+    display: none;
+}
+.menu-user-icon {
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+.menu-account-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+}
+#header-account-info {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-left: auto;
+}
+/* User Info Setup Form Styles */
+#user-info-setup {
+    padding: 1rem;
+    max-width: 400px;
+    margin: 2rem auto;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+#advert-message {
+    margin: 1rem auto;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+.setup-input {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+.setup-btn {
+    padding: 0.5rem 1rem;
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+}
+.setup-success {
+    color: green;
+    display: none;
+    margin-top: 1rem;
+}
+.login-modal-relative {
+    position: relative;
+}
+.login-msg {
+    color: #e74c3c;
+    font-size: 1rem;
+}
+.login-modal-bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.login-modal {
+    background: #f7f7fa;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    padding: 2rem 2.5rem;
+    min-width: 320px;
+    max-width: 90vw;
+}
+.login-modal h2 {
+    margin-bottom: 1.2rem;
+    color: #333;
+    font-size: 1.3rem;
+}
+.login-modal label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #222;
+    font-weight: 500;
+}
+.login-modal input[type="email"],
+.login-modal input[type="password"] {
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+.login-modal .login-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+.login-modal .login-btn {
+    padding: 0.6rem 1.5rem;
+    border-radius: 6px;
+    background: #60a5fa;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+.login-modal .login-btn:hover {
+    background: #2563eb;
+}
+.login-modal .close-btn {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.2rem;
+    cursor: pointer;
+    position: absolute;
+    top: 18px;
+    right: 24px;
+}
+.user-header {
+    width: 100%;
+    background: #23243a;
+    padding: 1rem 0;
+    text-align: center;
+}
+.user-header-form {
+    display: inline-block;
+}
+.user-header-input {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+}
+.user-header-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background: #60a5fa;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+.user-header-info {
+    display: none;
+    font-size: 1.1rem;
+    color: #60a5fa;
+}
+.user-code-form-container {
+    margin-top: 2rem;
+}
 /* Welcome Email Form Styles */
 .welcome-email-form-container {
     max-width: 400px;
@@ -272,4 +580,80 @@ nav a:hover {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+#userHeaderForm {
+  display: none;
+}
+/* Google-style Account Review Card */
+.account-review-card {
+  max-width: 400px;
+  margin: 60px auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  padding: 2rem 2rem 1.5rem 2rem;
+  text-align: center;
+}
+.account-review-card h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+}
+.account-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #e0e0e0 url('https://www.gstatic.com/images/branding/product/1x/avatar_square_blue_512dp.png') center/cover no-repeat;
+  margin-right: 1rem;
+}
+.details {
+  text-align: left;
+}
+.name {
+  display: block;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+.email {
+  display: block;
+  color: #555;
+  font-size: 0.95rem;
+}
+.desc {
+  color: #666;
+  font-size: 0.98rem;
+  margin-bottom: 1.5rem;
+}
+.next-btn {
+  background: #4285f4;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 0.7rem 2.2rem;
+  font-size: 1.05rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(66,133,244,0.12);
+  transition: background 0.2s;
+}
+.next-btn:hover {
+  background: #3367d6;
+}
+.account-email-modal-footer {
+    margin-top: 1.2rem;
+    text-align: right;
+}
+.account-email-modal-close-btn {
+    background: #3b82f6;
+    color: #fff;
+    padding: 0.5rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
 }
