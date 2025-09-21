@@ -3,8 +3,15 @@
 const BACKEND_HOST = 'https://glittery-torrone-d1184e.netlify.app'; // Change to your backend URL if different
 
 // Example: Fetch users from backend
-function fetchUsers() {
-    fetch(`${BACKEND_HOST}/api/users`)
+// Example: Fetch users from backend with Supabase auth token
+async function fetchUsers() {
+    // Get Supabase session (replace with your actual Supabase client usage)
+    // const { data: { session } } = await supabase.auth.getSession();
+    // const token = session?.access_token;
+    const token = localStorage.getItem('supabase_token'); // Example: get token from localStorage
+    fetch(`${BACKEND_HOST}/api/users`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+    })
         .then(res => res.json())
         .then(data => {
             console.log('Users:', data);
@@ -31,15 +38,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 let advertIndex = 0;
 const adverts = [
-   
+    "Welcome to Lamar Phone & Gadget!",
+    "Check out our latest deals!",
+    "Sign up for exclusive offers!"
 ];
 function showAdvert() {
     const advertMessage = document.getElementById('advert-message');
-    advertMessage.textContent = adverts[advertIndex];
-    advertIndex = (advertIndex + 1) % adverts.length;
+    advertMessage.textContent = adverts[0]; // Show only first advert, no auto-rotation
 }
-
-setInterval(showAdvert, 3000);
 window.onload = showAdvert;
 
 // Placeholder for showHeaderAccountInfo to prevent ReferenceError
