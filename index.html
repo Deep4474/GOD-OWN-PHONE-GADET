@@ -866,6 +866,10 @@ function updateMenuAccount(details) {
                 } else {
                     errorDiv.textContent = 'Signed in!';
                     localStorage.setItem('user_email', email);
+                    // Store Supabase access token for API requests
+                    if (data && data.session && data.session.access_token) {
+                        localStorage.setItem('supabase_token', data.session.access_token);
+                    }
                     authModal.classList.remove('show');
                     showUserEmail(email);
                 }
