@@ -25,6 +25,8 @@ app.get('/', (req, res) => {
 
 // You can add your /register and other API routes here
 
+// Do NOT require or import any browser JS files here (like admin.js, supabase-init.js, etc.)
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
