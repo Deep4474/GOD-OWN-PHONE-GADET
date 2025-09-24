@@ -1,83 +1,100 @@
-// Toggle auth modal on user icon click
-// Backend host for API requests
-const BACKEND_HOST = 'https://glittery-torrone-d1184e.netlify.app'; // Change to your backend URL if different
 
-// Example: Fetch users from backend
-// Example: Fetch users from backend with Supabase auth token
-async function fetchUsers() {
-    // Get Supabase session (replace with your actual Supabase client usage)
-    // const { data: { session } } = await supabase.auth.getSession();
-    // const token = session?.access_token;
-    const token = localStorage.getItem('supabase_token'); // Example: get token from localStorage
-    fetch(`${BACKEND_HOST}/api/users`, {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-    })
-        .then(res => res.json())
-        .then(data => {
-            console.log('Users:', data);
-        })
-        .catch(err => console.error('API error:', err));
+let products = [];
+let advertIndex = 0;
+
+async function fetchProducts() {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/products?select=*`, {
+        headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+        },
+    });
+    if (!res.ok) return [];
+    return await res.json();
 }
-document.addEventListener('DOMContentLoaded', function() {
-    var userIcon = document.getElementById('user-icon');
-    var authModal = document.getElementById('supabase-auth-modal');
-    if (userIcon && authModal) {
-        userIcon.addEventListener('click', function(e) {
-            e.stopPropagation();
-            authModal.classList.toggle('hidden');
-        });
-        // Hide modal if clicking outside
-        document.addEventListener('click', function(e) {
-            if (!userIcon.contains(e.target)) {
-                authModal.classList.add('hidden');
+
+function showAdvert(idx) {
+    if (!products.length) return;
+    const product = products[idx];
+    document.getElementById('advert-img').src = product.image_url || 'https://via.placeholder.com/150';
+    document.getElementById('advert-img').alt = product.name;
+    document.getElementById('advert-title').textContent = product.name;
+    document.getElementById('advert-price').textContent = `$${Number(product.price).toFixed(2)}`;
+    document.getElementById('advert-desc').textContent = product.description;
+}
+
+function startAdvertCycle() {
+    showAdvert(0);
+    setInterval(() => {
+        advertIndex = (advertIndex + 1) % products.length;
+        showAdvert(advertIndex);
+    }, 3500);
+}
+
+function renderProducts() {
+    const list = document.getElementById('products-list');
+    list.innerHTML = '';
+    products.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+            <img class="product-img" src="${product.image_url || 'https://via.placeholder.com/160'}" alt="${product.name}">
+            <div class="product-name">${product.name}</div>
+            <div class="product-price">$${Number(product.price).toFixed(2)}</div>
+            <button class="buy-btn">Buy Now</button>
+        `;
+        list.appendChild(card);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    products = await fetchProducts();
+    renderProducts();
+    startAdvertCycle();
+    // Auth modal logic
+    const registerModal = document.getElementById('register-modal');
+    const loginModal = document.getElementById('login-modal');
+    const registerBtn = document.getElementById('register-btn');
+    const loginBtn = document.getElementById('login-btn');
+    const closeRegister = document.getElementById('close-register');
+    const closeLogin = document.getElementById('close-login');
+        // Registration form logic
+        const registerForm = document.getElementById('register-form');
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email,
+                    password
+                });
+                if (error) {
+                    alert('Registration failed: ' + error.message);
+                } else {
+                    alert('Registration successful! Please check your email to confirm your account.');
+                    registerForm.reset();
+                    registerModal.style.display = 'none';
+                }
+            } catch (err) {
+                alert('Registration error: ' + err.message);
             }
         });
-    }
+
+    registerBtn.addEventListener('click', () => {
+        registerModal.style.display = 'flex';
+    });
+    loginBtn.addEventListener('click', () => {
+        loginModal.style.display = 'flex';
+    });
+    closeRegister.addEventListener('click', () => {
+        registerModal.style.display = 'none';
+    });
+    closeLogin.addEventListener('click', () => {
+        loginModal.style.display = 'none';
+    });
+    window.addEventListener('click', (e) => {
+        if (e.target === registerModal) registerModal.style.display = 'none';
+        if (e.target === loginModal) loginModal.style.display = 'none';
+    });
 });
-
-
-let advertIndex = 0;
-const adverts = [
-    "Welcome to Lamar Phone & Gadget!",
-    "Check out our latest deals!",
-    "Sign up for exclusive offers!"
-];
-function showAdvert() {
-    const advertMessage = document.getElementById('advert-message');
-    advertMessage.textContent = adverts[0]; // Show only first advert, no auto-rotation
-}
-window.onload = showAdvert;
-
-// Placeholder for showHeaderAccountInfo to prevent ReferenceError
-function showHeaderAccountInfo() {
-    // TODO: Implement account info display logic
-    console.log('showHeaderAccountInfo called');
-}
-
-// Show Google Sign-In button when user icon is clicked
-document.addEventListener('DOMContentLoaded', function() {
-    var userIcon = document.getElementById('menu-user-icon');
-    var googleSignin = document.getElementById('user-google-signin');
-    if (userIcon && googleSignin) {
-        userIcon.addEventListener('click', function() {
-            googleSignin.style.display = (googleSignin.style.display === 'none') ? 'block' : 'none';
-        });
-    }
-});
-
-// Google Sign-In callback
-function handleGoogleSignIn(response) {
-    // Decode credential (JWT) to get user info
-    const data = parseJwt(response.credential);
-    alert('Signed in as: ' + data.email);
-}
-
-// Helper to decode JWT
-function parseJwt(token) {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    return JSON.parse(jsonPayload);
-}
