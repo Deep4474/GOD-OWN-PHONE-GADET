@@ -1,1 +1,1 @@
-All browser JS and CSS files should be placed in this folder. Do not require them in server.js.
+// This file is intentionally left blank. Place your frontend files (index.html, script.js, styles.css, etc.) here for static serving by Express.

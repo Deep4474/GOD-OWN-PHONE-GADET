@@ -5,9 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lamar Phone and Gadget</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+    <script src="supabase-init.js"></script>
 </head>
 <body>
-    <h1>Welcome to Lamar Phone and Gadget</h1>
+    <nav class="navbar">
+        <div class="nav-logo">Lamar Phone & Gadget</div>
+        <ul class="nav-links">
+            <li><a href="#top">Home</a></li>
+            <li><a href="#product-showcase">Products</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="nav-auth">
+            <button id="register-btn" class="auth-btn">Register</button>
+            <button id="login-btn" class="auth-btn">Login</button>
+        </div>
+    </nav>
+    <div class="main-wrapper">
+    <!-- Auth Modals -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-register">&times;</span>
+            <h2>Register</h2>
+            <form id="register-form">
+                <input type="email" id="register-email" placeholder="Email" required><br>
+                <input type="password" id="register-password" placeholder="Password" required><br>
+                <button type="submit" class="auth-btn">Register</button>
+            </form>
+        </div>
+    </div>
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-login">&times;</span>
+            <h2>Login</h2>
+            <form id="login-form">
+                <input type="email" id="login-email" placeholder="Email" required><br>
+                <input type="password" id="login-password" placeholder="Password" required><br>
+                <button type="submit" class="auth-btn">Login</button>
+            </form>
+        </div>
+    </div>
+        <main class="main-content">
+            <!-- Live advert section -->
+            <section id="live-advert">
+                <div class="hero-advert">
+                    <div class="hero-content">
+                        <h2 class="hero-title" id="advert-title">iPhone 15 Pro Max</h2>
+                        <p class="hero-desc" id="advert-desc">
+                            Check out our <span class="advert-highlight">iPhone 15 Pro Max</span>! Latest iPhone with <span class="advert-chip">A17 Pro chip</span> and advanced camera system
+                        </p>
+                        <div class="advert-price-row">
+                            <span class="advert-price-label">Price:</span>
+                            <span class="advert-price" id="advert-price">$1499.00</span>
+                        </div>
+                        <button class="hero-btn" id="shop-now-btn">Shop Now</button>
+                    </div>
+                    <div class="hero-img-wrap advert-img-border">
+                        <img id="advert-img" class="advert-img-size" src="https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-max-1.jpg" alt="iPhone 15 Pro Max">
+                    </div>
+                </div>
+            </section>
+            <!-- Product showcase section -->
+            <section id="product-showcase">
+                <h2>Products</h2>
+                <div id="products-list" class="products-grid"></div>
+            </section>
+        </main>
+        <footer class="site-footer" id="contact">
+            &copy; 2025 Lamar Phone and Gadget. All rights reserved.<br>
+            Contact: info@lamarphonegadget.com
+        </footer>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
