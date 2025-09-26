@@ -7,8 +7,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'ayomideoluniyi49@gmail.com', // correct Gmail address
-  pass: 'errd gxwu ecct bxqk'           // Gmail app password with no spaces
+    user: 'ayomideoluniyi49@gmail.com',
+    pass: 'xjde uqgu tcqg avag'
   }
 });
 
@@ -16,10 +16,10 @@ const app = express();
 // Friendly root route for API
 // Set security headers to fix Permissions-Policy and CSP errors
 app.use((req, res, next) => {
-  // Use only recognized features in Permissions-Policy
-    res.setHeader('Permissions-Policy', 'geolocation=()');
-    // Allow Netlify frontend in CSP
-    res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://glittery-torrone-d1184e.netlify.app https://phone-2cv4.onrender.com;");
+  // Set only supported Permissions-Policy features
+  res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
+  // Set only supported Content-Security-Policy directives
+  res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://glittery-torrone-d1184e.netlify.app https://phone-2cv4.onrender.com;");
   next();
 });
 
@@ -100,11 +100,17 @@ app.post('/api/send-code', async (req, res) => {
 
 // Register user
 app.post('/api/register', (req, res) => {
-  const { username, email, password, code } = req.body;
+  let { username, email, password, code } = req.body;
+  // Trim email and code to avoid space issues
+  email = email ? email.trim() : '';
+  code = code ? code.trim() : '';
+  console.log('Register endpoint called with:', { username, email, password, code });
   if (!username || !email || !password || !code) {
+    console.log('Missing fields:', { username, email, password, code });
     return res.json({ success: false, message: 'All fields required.' });
   }
   if (codes[email] !== code) {
+    console.log('Invalid code for email:', email, 'Expected:', codes[email], 'Received:', code);
     return res.json({ success: false, message: 'Invalid verification code.' });
   }
   // Generate UUID for user
@@ -117,17 +123,34 @@ app.post('/api/register', (req, res) => {
   const id = generateUUID();
   users[email] = { id, username, email, password };
   delete codes[email];
-  // Save user to user.json
+  // Save user to user.json, prevent duplicate registration
   fs.readFile('user.json', 'utf8', (err, data) => {
     let userList = [];
+    if (err && err.code !== 'ENOENT') {
+      console.log('Error reading user.json:', err);
+      return res.json({ success: false, message: 'Server error reading users.' });
+    }
     if (!err && data) {
       try {
         const parsed = JSON.parse(data);
         userList = Array.isArray(parsed) ? parsed : [];
-      } catch (e) {}
+      } catch (e) {
+        console.log('Error parsing user.json:', e);
+        return res.json({ success: false, message: 'Corrupt user data.' });
+      }
+    }
+    // Check for duplicate email
+    if (userList.some(u => u.email === email)) {
+      console.log('Duplicate registration attempt for email:', email);
+      return res.json({ success: false, message: 'User already registered with this email.' });
     }
     userList.push({ id, username, email });
-    fs.writeFile('user.json', JSON.stringify(userList, null, 2), () => {
+    fs.writeFile('user.json', JSON.stringify(userList, null, 2), (writeErr) => {
+      if (writeErr) {
+        console.log('Error writing to user.json:', writeErr);
+        return res.json({ success: false, message: 'Failed to save user.' });
+      }
+      console.log('User saved to user.json:', { id, username, email });
       res.json({ success: true, username, id });
     });
   });

@@ -29,6 +29,8 @@
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
+  cursor: pointer;
+  pointer-events: auto;
 }
 /* Buy modal form styles */
 .buy-user-name {

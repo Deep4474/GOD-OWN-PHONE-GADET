@@ -1,125 +1,168 @@
-// Utility: Clear localStorage and reload for fresh registration
-function clearUserStorageAndReload() {
-  localStorage.removeItem('lamar_user_id');
-  localStorage.removeItem('lamar_username');
-  localStorage.removeItem('lamar_email');
-  window.location.reload();
-}
-// Uncomment the next line to run this automatically once:
-// clearUserStorageAndReload();
-// Supabase product fetch
-const SUPABASE_URL = 'https://jlwxkykznyjmstpjcgks.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ';
+// Example script: Display a welcome message and current date
+// --- Supabase credentials (for demo/dev only; do not expose in production) ---
+const supabaseUrl = 'https://jlwxkykznyjmstpjcgks.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ';
 
-async function fetchProducts() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/products`, {
-    headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
-    },
-  });
-  if (!res.ok) return [];
-  return await res.json();
-}
+// Import Supabase client
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-function renderProducts(products) {
-  const productList = document.getElementById('productList');
-  if (!productList) return;
-  productList.innerHTML = '';
-  products.forEach(product => {
-    const div = document.createElement('div');
-    div.className = 'product';
-    div.innerHTML = `
-      <img src="${product.image_url || 'https://via.placeholder.com/120'}" alt="${product.name}">
-      <h3>${product.name}</h3>
-      <p>${product.description || ''}</p>
-      <div class="price">$${Number(product.price).toFixed(2)}</div>
-      <button class="buy-btn">Buy Now</button>
-    `;
-    div.querySelector('.buy-btn').onclick = () => {
-      // Show buy modal and set product info
-      showBuyModal(product);
-    };
-// Show buy modal and handle order submission
-function showBuyModal(product) {
-  // Helper to estimate if address is far
-  function isFarAddress(address) {
-    // Simple logic: if address contains 'Ibadan', treat as local, else far
-    if (!address) return false;
-    return !address.toLowerCase().includes('ibadan');
-  }
-  // Calculate and show total amount
-  function updateTotalAmount() {
-    const quantity = Number(document.getElementById('buyQuantity').value) || 1;
-    const deliveryOption = document.getElementById('buyDeliveryOption').value;
-    const address = document.getElementById('buyAddress').value;
-    let total = Number(product.price) * quantity;
-    if (deliveryOption === 'pickup') {
-      total *= 1.4;
-    } else if (deliveryOption === 'delivery') {
-      total *= isFarAddress(address) ? 2.5 : 2;
-    }
-    document.getElementById('buyTotalAmount').textContent =
-      deliveryOption ? `Total Amount: $${total.toFixed(2)}` : '';
-  }
-  // Add event listeners for live calculation
-  document.getElementById('buyQuantity').addEventListener('input', updateTotalAmount);
-  document.getElementById('buyDeliveryOption').addEventListener('change', updateTotalAmount);
-  document.getElementById('buyAddress').addEventListener('input', updateTotalAmount);
-  updateTotalAmount();
-  // Ensure user_id in localStorage is a valid UUID
-  function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
+document.addEventListener('DOMContentLoaded', function() {
+  // ...existing code...
+
+  // Registration logic
+  const registerForm = document.getElementById('registerForm');
+  const regUsername = document.getElementById('regUsername');
+  const regEmail = document.getElementById('regEmail');
+  const regPassword = document.getElementById('regPassword');
+  const regCode = document.getElementById('regCode');
+  const registerMsg = document.getElementById('registerMsg');
+  const sendCodeBtn = document.getElementById('sendCodeBtn');
+
+  // Send verification code
+  if (sendCodeBtn) {
+    sendCodeBtn.addEventListener('click', async function() {
+      if (!regEmail.value) {
+        registerMsg.style.color = 'red';
+        registerMsg.textContent = 'Please enter your email first.';
+        return;
+      }
+      sendCodeBtn.disabled = true;
+      registerMsg.style.color = 'black';
+      registerMsg.textContent = 'Sending code...';
+      try {
+  const response = await fetch('https://phone-2cv4.onrender.com/api/send-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: regEmail.value })
+        });
+        const result = await response.json();
+        if (result.success) {
+          registerMsg.style.color = 'green';
+          registerMsg.textContent = 'Verification code sent! Check your email.';
+        } else {
+          registerMsg.style.color = 'red';
+          registerMsg.textContent = 'Failed to send code: ' + (result.message || 'Unknown error');
+        }
+      } catch (err) {
+        registerMsg.style.color = 'red';
+        registerMsg.textContent = 'Failed to send code: ' + err.message;
+      }
+      sendCodeBtn.disabled = false;
     });
   }
-  let userIdFromStorage = localStorage.getItem('lamar_user_id');
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!userIdFromStorage || !uuidRegex.test(userIdFromStorage)) {
-    userIdFromStorage = generateUUID();
-    localStorage.setItem('lamar_user_id', userIdFromStorage);
+
+  // Register user and save to user.json via localhost
+  if (registerForm) {
+    registerForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      registerMsg.textContent = '';
+      if (!regUsername.value || !regEmail.value || !regPassword.value || !regCode.value) {
+        registerMsg.style.color = 'red';
+        registerMsg.textContent = 'Please fill all fields and enter the code.';
+        return;
+      }
+      try {
+  const response = await fetch('https://phone-2cv4.onrender.com/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: regUsername.value,
+            email: regEmail.value.trim(),
+            password: regPassword.value,
+            code: regCode.value.trim()
+          })
+        });
+        const result = await response.json();
+        if (result.success) {
+          // Save user to user.json via local endpoint
+          await fetch('https://phone-2cv4.onrender.com/api/save-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: regUsername.value,
+              email: regEmail.value,
+              id: result.user && result.user.id ? result.user.id : undefined
+            })
+          });
+          registerMsg.style.color = 'green';
+          registerMsg.textContent = 'Registration successful!';
+          registerForm.reset();
+          // Hide user icon and show username after registration
+          if (userIcon && userName) {
+            userIcon.style.display = 'none';
+            userName.textContent = regUsername.value;
+            userName.style.display = '';
+          }
+        } else {
+          registerMsg.style.color = 'red';
+          registerMsg.textContent = 'Registration failed: ' + (result.message || 'Unknown error');
+        }
+      } catch (err) {
+        registerMsg.style.color = 'red';
+        registerMsg.textContent = 'Registration failed: ' + err.message;
+      }
+    });
   }
-  const buyModal = document.getElementById('buyModal');
-  const buyUserName = document.getElementById('buyUserName');
+
+  // Global variable to hold the selected product
+  window.selectedProduct = null;
+
+  // Function to open the buy modal for a specific product
+  window.openBuyModal = function(product) {
+    window.selectedProduct = product;
+    const buyModal = document.getElementById('buyModal');
+    const buyUserName = document.getElementById('buyUserName');
+    const buyForm = document.getElementById('buyForm');
+    const buyMsg = document.getElementById('buyMsg');
+    buyUserName.textContent = `Product: ${product.name}`;
+    buyMsg.textContent = '';
+    buyForm.reset();
+    // Always set user-id hidden input from localStorage (force overwrite)
+    const userIdFromStorage = localStorage.getItem('lamar_user_id') || '';
+    document.getElementById('buyUserId').value = userIdFromStorage;
+    buyModal.style.display = 'block';
+  };
+
+  // Attach event handler for buy form submission
   const buyForm = document.getElementById('buyForm');
-  const buyMsg = document.getElementById('buyMsg');
-  buyUserName.textContent = `Product: ${product.name}`;
-  buyMsg.textContent = '';
-  buyForm.reset();
-  // Always set user-id hidden input from localStorage (force overwrite)
-  document.getElementById('buyUserId').value = userIdFromStorage;
-  buyModal.style.display = 'block';
-  buyForm.onsubmit = async function(e) {
-    e.preventDefault();
-    const user_name = document.getElementById('buyUserNameInput').value;
-    const email = document.getElementById('buyEmail').value;
-    const phone = document.getElementById('buyPhone').value;
-    const address = document.getElementById('buyAddress').value;
-    const quantity = document.getElementById('buyQuantity').value;
-    const deliveryOption = document.getElementById('buyDeliveryOption').value;
-  // Always get user_id from hidden input (which is set from localStorage)
-  let user_id = document.getElementById('buyUserId').value;
-    // Validate UUID (simple regex)
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!user_name || !email || !phone || !address || !quantity || !deliveryOption) {
-      buyMsg.style.color = 'red';
-      buyMsg.textContent = 'Please fill all fields.';
-      return;
-    }
-    if (!user_id || !uuidRegex.test(user_id)) {
-      buyMsg.style.color = 'red';
-      buyMsg.textContent = 'User ID missing or invalid. Please log in.';
-      return;
-    }
-    if (!uuidRegex.test(product.id)) {
-      buyMsg.style.color = 'red';
-      buyMsg.textContent = 'Product ID is invalid. Please contact support.';
-      return;
-    }
-    buyMsg.style.color = 'black';
-    buyMsg.textContent = 'Placing order...';
-    // Prepare order data for Supabase
+  if (buyForm) {
+    buyForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const product = window.selectedProduct;
+      const buyMsg = document.getElementById('buyMsg');
+      if (!product) {
+        alert('No product selected.');
+        return;
+      }
+      const user_name = document.getElementById('buyUserNameInput').value;
+      const email = document.getElementById('buyEmail').value;
+      const phone = document.getElementById('buyPhone').value;
+      const address = document.getElementById('buyAddress').value;
+      const quantity = document.getElementById('buyQuantity').value;
+      const deliveryOption = document.getElementById('buyDeliveryOption').value;
+      // Always get user_id from hidden input (which is set from localStorage)
+      let user_id = document.getElementById('buyUserId').value;
+      // Validate UUID (simple regex)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!user_name || !email || !phone || !address || !quantity || !deliveryOption) {
+        buyMsg.style.color = 'red';
+        buyMsg.textContent = 'Please fill all fields.';
+        return;
+      }
+      if (!user_id || !uuidRegex.test(user_id)) {
+        buyMsg.style.color = 'red';
+        buyMsg.textContent = 'User ID missing or invalid. Please log in.';
+        return;
+      }
+      if (!uuidRegex.test(product.id)) {
+        buyMsg.style.color = 'red';
+        buyMsg.textContent = 'Product ID is invalid. Please contact support.';
+        return;
+      }
+      buyMsg.style.color = 'black';
+      buyMsg.textContent = 'Placing order...';
+      // Prepare order data for Supabase
       const orderData = {
         product_id: product.id,
         user_id,
@@ -138,73 +181,125 @@ function showBuyModal(product) {
             total *= isFarAddress(address) ? 2.5 : 2;
           }
           // Add 5% fee
-          total += total * 0.05;
-          return Number(total.toFixed(2));
+          total *= 1.05;
+          return total;
         })(),
-        status: 'pending',
-        pick_option: deliveryOption,
-        created_at: new Date().toISOString()
+  delivery_option: deliveryOption,
+  pick_option: deliveryOption,
+  status: 'pending'
       };
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
-        method: 'POST',
-        headers: {
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
-          'Content-Type': 'application/json',
-          Prefer: 'return=representation'
-        },
-        body: JSON.stringify(orderData)
-      });
-      const data = await res.json();
-      if (res.ok) {
-        buyMsg.style.color = 'green';
-        buyMsg.textContent = 'Order placed successfully!';
-        setTimeout(() => { buyModal.style.display = 'none'; }, 1200);
-      } else {
+      try {
+        // Insert order using Supabase client
+        const { data, error } = await supabase
+          .from('orders')
+          .insert([orderData])
+          .select();
+        if (error) {
+          buyMsg.style.color = 'red';
+          buyMsg.textContent = 'Failed to place order: ' + (error.message || 'Unknown error');
+          console.error('Supabase error:', error);
+        } else {
+          buyMsg.style.color = 'green';
+          buyMsg.textContent = 'Order placed successfully!';
+          buyForm.reset();
+          // Hide the buy modal after successful order
+          const buyModal = document.getElementById('buyModal');
+          if (buyModal) {
+            setTimeout(() => {
+              buyModal.style.display = 'none';
+            }, 1000);
+          }
+        }
+      } catch (err) {
         buyMsg.style.color = 'red';
-        buyMsg.textContent = 'Failed to place order.';
-        console.error('Supabase error:', data);
+        buyMsg.textContent = 'Error placing order.';
+        console.error('Network or JS error:', err);
       }
-    } catch (err) {
-      buyMsg.style.color = 'red';
-      buyMsg.textContent = 'Error placing order.';
-      console.error('Network or JS error:', err);
-    }
-  };
-}
-    productList.appendChild(div);
-  });
-}
-
-fetchProducts().then(renderProducts);
-// Live featured product card that rotates through Supabase products
-const liveFeatured = document.getElementById('liveFeatured');
-let liveProducts = [];
-let featuredIndex = 0;
-function showNextFeaturedProduct() {
-  if (liveProducts.length > 0 && liveFeatured) {
-    const product = liveProducts[featuredIndex];
-    liveFeatured.innerHTML = `
-      <div class="featured-info">
-        <h1>${product.name}</h1>
-        <p>${product.description || ''}</p>
-        <p class="price">Price: <span>$${Number(product.price).toFixed(2)}</span></p>
-        <a href="#" class="shop-btn">Shop Now</a>
-      </div>
-      <div class="featured-img">
-        <img src="${product.image_url || 'https://via.placeholder.com/220'}" alt="${product.name}">
-      </div>
-    `;
-    featuredIndex = (featuredIndex + 1) % liveProducts.length;
+    };
   }
-}
-fetchProducts().then(products => {
-  liveProducts = products.length ? products : [{name: 'No products available', price: '', description: '', image_url: ''}];
-  showNextFeaturedProduct();
-  setInterval(showNextFeaturedProduct, 3500);
+
+  // Featured products logic
+  let liveProducts = [];
+  let featuredIndex = 0;
+  const liveFeatured = document.getElementById('liveFeatured');
+  function showNextFeaturedProduct() {
+    if (liveProducts.length > 0 && liveFeatured) {
+      const product = liveProducts[featuredIndex];
+      liveFeatured.innerHTML = `
+        <div class="featured-info">
+          <h1>${product.name}</h1>
+          <p>${product.description || ''}</p>
+          <p class="price">Price: <span>$${Number(product.price).toFixed(2)}</span></p>
+          <a href="#" class="shop-btn">Shop Now</a>
+        </div>
+        <div class="featured-img">
+          <img src="${product.image_url || 'https://placehold.co/220x220'}" alt="${product.name}">
+        </div>
+      `;
+      featuredIndex = (featuredIndex + 1) % liveProducts.length;
+    }
+  }
+  async function fetchProducts() {
+    // Fetch products using Supabase client
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*');
+      if (error) return [];
+      return data;
+    } catch (err) {
+      return [];
+    }
+  }
+  fetchProducts().then(products => {
+    console.log('Fetched products:', products);
+    const productList = document.getElementById('productList');
+    if (!products || !Array.isArray(products) || products.length === 0) {
+      liveProducts = [{name: 'No products available', price: '', description: '', image_url: ''}];
+      if (liveFeatured) {
+        liveFeatured.innerHTML = '<div style="padding:2em;text-align:center;">No products available</div>';
+      }
+      if (productList) {
+        productList.innerHTML = '<div style="padding:2em;text-align:center;">No products available</div>';
+      }
+    } else {
+      liveProducts = products;
+      showNextFeaturedProduct();
+      setInterval(showNextFeaturedProduct, 3500);
+      // Render products in the #productList section
+      if (productList) {
+        productList.innerHTML = products.map(product => `
+          <div class="product-card">
+            <img src="${product.image_url || 'https://placehold.co/180x180'}" alt="${product.name}" class="product-img">
+            <h3>${product.name}</h3>
+            <p>${product.description || ''}</p>
+            <p class="price">$${Number(product.price).toFixed(2)}</p>
+            <button onclick='openBuyModal(${JSON.stringify(product)})' class="buy-btn">Buy Now</button>
+          </div>
+        `).join('');
+      }
+    }
   });
-document.addEventListener('DOMContentLoaded', function() {
+
+    // Fetch orders using Supabase client
+    async function fetchOrders() {
+      try {
+        const { data, error } = await supabase
+          .from('orders')
+          .select('*');
+        if (error) return [];
+        return data;
+      } catch (err) {
+        return [];
+      }
+    }
+
+    // Example usage of fetchOrders
+    fetchOrders().then(orders => {
+      console.log('Fetched orders:', orders);
+    });
+
+  // Order modal logic
   const buyNowBtn = document.getElementById('buyNowBtn');
   const orderModal = document.getElementById('orderModal');
   const closeModalBtn = document.getElementById('closeModalBtn');
@@ -247,11 +342,11 @@ document.addEventListener('DOMContentLoaded', function() {
         created_at: new Date().toISOString()
       };
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+        const res = await fetch(`${supabaseUrl}/rest/v1/orders`, {
           method: 'POST',
           headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
             'Content-Type': 'application/json',
             Prefer: 'return=representation'
           },
@@ -272,33 +367,32 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     };
   }
-});
-// User authentication simulation (replace with real logic)
-function isLoggedIn() {
-  return localStorage.getItem('user') !== null;
-}
 
-function getUser() {
-  return JSON.parse(localStorage.getItem('user')) || { name: 'Guest', image: 'https://cdn-icons-png.flaticon.com/512/149/149071.png' };
-}
+  // User authentication simulation (replace with real logic)
+  function isLoggedIn() {
+    return localStorage.getItem('user') !== null;
+  }
 
-function updateUserUI() {
-  const user = getUser();
-  document.getElementById('userName').textContent = user.name || 'Guest';
-  document.getElementById('userIcon').src = user.image || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-}
+  function getUser() {
+    return JSON.parse(localStorage.getItem('user')) || { name: 'Guest', image: 'https://cdn-icons-png.flaticon.com/512/149/149071.png' };
+  }
 
-document.addEventListener('DOMContentLoaded', function() {
+  function updateUserUI() {
+    const user = getUser();
+    document.getElementById('userName').textContent = user.name || 'Guest';
+    document.getElementById('userIcon').src = user.image || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+  }
+
+  // User icon and registration check (local only)
   const userIcon = document.getElementById('userIcon');
   const userName = document.getElementById('userName');
   // Get email from localStorage (or prompt user)
   let email = localStorage.getItem('lamar_email');
   if (!email) {
-    // Optionally prompt for email or use a default for demo
     email = prompt('Enter your email to check registration:');
     if (email) localStorage.setItem('lamar_email', email);
   }
-  // Check registration status from Netlify backend
+  // Check registration status from local user.json via localhost endpoint
   async function checkRegistration() {
     if (!email) {
       userIcon.style.display = 'block';
@@ -306,14 +400,13 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     try {
-      const res = await fetch(`https://glittery-torrone-d1184e.netlify.app/api/user?email=${encodeURIComponent(email)}`);
+  const res = await fetch(`https://phone-2cv4.onrender.com/api/user?email=${encodeURIComponent(email)}`);
       const data = await res.json();
       if (data.success && data.user) {
         // Registered: show name, hide icon
         userName.textContent = data.user.username;
         userIcon.style.display = 'none';
-        userName.style.display = 'flex';
-        // Save user UUID to localStorage for order submission
+        userName.style.display = '';
         if (data.user.id) {
           localStorage.setItem('lamar_user_id', data.user.id);
         }
@@ -330,14 +423,7 @@ document.addEventListener('DOMContentLoaded', function() {
       userName.style.display = 'none';
     }
   }
+
   checkRegistration();
 });
-// Simple form handler for demonstration
-const contactForm = document.getElementById('contactForm');
-if (contactForm) {
-  contactForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    alert('Thank you for contacting Lamar Phone and Gadget!');
-    contactForm.reset();
-  });
-}
+
