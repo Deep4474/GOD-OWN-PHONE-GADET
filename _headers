@@ -1,3 +1,2 @@
-/*
 	Permissions-Policy: geolocation=(), camera=()
 	Content-Security-Policy: default-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co https://glittery-torrone-d1184e.netlify.app;
