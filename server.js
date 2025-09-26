@@ -16,9 +16,9 @@ const app = express();
 // Friendly root route for API
 // Set security headers to fix Permissions-Policy and CSP errors
 app.use((req, res, next) => {
-  // Only use recognized features in Permissions-Policy
+  // Use only recognized features in Permissions-Policy
   res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
-  // Update CSP to allow Render API domain in connect-src
+  // Remove invalid CSP directives and allow Render API domain in connect-src
   res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co https://phone-2cv4.onrender.com;");
   next();
 });
