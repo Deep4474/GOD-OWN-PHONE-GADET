@@ -18,7 +18,7 @@ const app = express();
 app.use((req, res, next) => {
   // Only use recognized features in Permissions-Policy
   res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
-  // Remove invalid CSP directives and add Render domain to connect-src
+  // Update CSP to allow Render API domain in connect-src
   res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co https://phone-2cv4.onrender.com;");
   next();
 });
