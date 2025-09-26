@@ -17,9 +17,9 @@ const app = express();
 // Set security headers to fix Permissions-Policy and CSP errors
 app.use((req, res, next) => {
   // Use only recognized features in Permissions-Policy
-  res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
-  // Remove invalid CSP directives and allow Render API domain in connect-src
-  res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co https://glittery-torrone-d1184e.netlify.app;");
+    res.setHeader('Permissions-Policy', 'geolocation=()');
+    // Allow Netlify frontend in CSP
+    res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://glittery-torrone-d1184e.netlify.app;");
   next();
 });
 
@@ -30,12 +30,12 @@ const PORT = 3000;
 
 app.use(cors({
   origin: [
-    'http://localhost:3000',
-    'https://glittery-torrone-d1184e.netlify.app',
-    'http://127.0.0.1:5500'
-  ],
-  credentials: true
-}));
+      'https://glittery-torrone-d1184e.netlify.app',
+      'http://localhost:3000',
+      'http://127.0.0.1:5500'
+    ],
+    credentials: true
+  }));
 app.use(bodyParser.json());
 
 // In-memory store for demo (replace with DB in production)
