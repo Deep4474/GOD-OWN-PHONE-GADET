@@ -14,6 +14,13 @@ const transporter = nodemailer.createTransport({
 
 const app = express();
 // Friendly root route for API
+// Set security headers to fix Permissions-Policy and CSP errors
+app.use((req, res, next) => {
+  res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
+  res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co https://phone-2cv4.onrender.com;");
+  next();
+});
+
 app.get('/', (req, res) => {
   res.send('<h2>Welcome to Lamar Phone and Gadget API!</h2><p>This is the backend server. Use the API endpoints for data access.</p>');
 });
