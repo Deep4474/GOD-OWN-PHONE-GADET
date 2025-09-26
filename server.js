@@ -19,7 +19,7 @@ app.use((req, res, next) => {
   // Use only recognized features in Permissions-Policy
     res.setHeader('Permissions-Policy', 'geolocation=()');
     // Allow Netlify frontend in CSP
-    res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://glittery-torrone-d1184e.netlify.app;");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://glittery-torrone-d1184e.netlify.app https://phone-2cv4.onrender.com;");
   next();
 });
 

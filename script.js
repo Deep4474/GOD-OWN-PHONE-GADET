@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
     email = prompt('Enter your email to check registration:');
     if (email) localStorage.setItem('lamar_email', email);
   }
-  // Check registration status from server
+  // Check registration status from Netlify backend
   async function checkRegistration() {
     if (!email) {
       userIcon.style.display = 'block';
@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     try {
-  const res = await fetch(`https://phone-2cv4.onrender.com/api/user?email=${encodeURIComponent(email)}`);
+      const res = await fetch(`https://glittery-torrone-d1184e.netlify.app/api/user?email=${encodeURIComponent(email)}`);
       const data = await res.json();
       if (data.success && data.user) {
         // Registered: show name, hide icon
