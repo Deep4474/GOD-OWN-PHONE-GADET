@@ -1,4 +1,4 @@
-	/*
-		Content-Security-Policy: default-src 'self'; connect-src 'self' https://phone-2cv4.onrender.com https://jlwxkykznyjmstpjcgks.supabase.co;
-		Permissions-Policy: geolocation=(), camera=()
-	*/
+/*
+  Content-Security-Policy: default-src 'self'; connect-src 'self' https://phone-2cv4.onrender.com https://jlwxkykznyjmstpjcgks.supabase.co;
+  Permissions-Policy: geolocation=(), camera=()
+*/
