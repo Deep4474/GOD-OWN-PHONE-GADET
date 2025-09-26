@@ -1,81 +1,310 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lamar Phone and Gadget</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
-    <script src="supabase-init.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lamar Phone and Gadget</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-logo">Lamar Phone & Gadget</div>
-        <ul class="nav-links">
-            <li><a href="#top">Home</a></li>
-            <li><a href="#product-showcase">Products</a></li>
-            <li><a href="#contact">Contact</a></li>
+  <header>
+    <div class="header-container nav-gradient">
+      <div class="logo">
+        <img src="https://cdn-icons-png.flaticon.com/512/724/724664.png" alt="Phone Logo" class="logo-phone-img">
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#products">Products</a></li>
+          <li><a href="#contact">Contact</a></li>
         </ul>
-        <div class="nav-auth">
-            <button id="register-btn" class="auth-btn">Register</button>
-            <button id="login-btn" class="auth-btn">Login</button>
+      </nav>
+      <div class="user-display">
+  <span id="userName" class="user-fullname">Lamar</span>
+        <img id="userIcon" class="user-profile-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="User">
+      </div>
+    </div>
+  </header>
+  <section class="featured-product" id="liveFeatured"></section>
+  <!-- Buy Modal -->
+  <div id="buyModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeBuy">&times;</span>
+      <h2>Buy Product</h2>
+      <form id="buyForm">
+        <div id="buyUserName" class="buy-user-name"></div>
+        <input type="text" id="buyUserNameInput" placeholder="Your Name" required>
+        <input type="email" id="buyEmail" placeholder="Your Email" required>
+        <input type="tel" id="buyPhone" placeholder="Your Phone Number" required>
+        <input type="text" id="buyAddress" placeholder="Your Address" required>
+        <input type="number" id="buyQuantity" placeholder="Quantity" min="1" required>
+        <label for="buyDeliveryOption" class="buy-label">Delivery Option</label>
+        <select id="buyDeliveryOption" required>
+          <option value="">Select Delivery Option</option>
+          <option value="pickup">Pickup</option>
+  ?>        <option value="delivery">Delivery</option>
+ ]\ 
+        </select>
+        <input type="hidden" id="buyUserId" value="">
+  <div id="buyTotalAmount"></div>
+        <button type="submit">Place Order</button>
+      </form>
+      <div id="buyMsg"></div>
+    </div>
+  </div>
+    <!-- Order Form Modal -->
+  <div id="orderModal" class="modal-overlay">
+  <div class="modal-box">
+        <h2>Place Your Order</h2>
+        <form id="orderForm">
+          <label>Name:<br><input type="text" name="name" required></label><br>
+          <label>Phone Number:<br><input type="tel" name="phone" required></label><br>
+          <label>Address:<br><input type="text" name="address" required></label><br>
+          <label>Product ID:<br><input type="text" name="product_id" required></label><br>
+          <label>Quantity:<br><input type="number" name="quantity" min="1" required></label><br>
+          <label>Delivery Option:<br>
+            <select name="delivery_option" required>
+              <option value="pickup">Pickup</option>
+              <option value="delivery">Delivery</option>
+            </select>
+          </label><br>
+          <button type="submit">Submit Order</button>
+          <button type="button" id="closeModalBtn">Cancel</button>
+        </form>
+      </div>
+    </div>
+  <main>
+    <section id="home">
+      <h2>Welcome to Lamar Phone and Gadget</h2>
+      <p>Your one-stop shop for the latest phones and gadgets.</p>
+    </section>
+    <section id="products">
+      <h2>Our Products</h2>
+      <div class="product-list" id="productList"></div>
+    </section>
+    <section id="about">
+      <h2>About Us</h2>
+      <p>Lamar Phone and Gadget is dedicated to bringing you the best in mobile technology and accessories.</p>
+    </section>
+    <!-- Profile Navigation (hidden by default) -->
+    <nav id="profileNav" class="profile-nav">
+      <div class="profile-nav-inner">
+        <img id="profileImg" src="" alt="Profile" class="profile-img">
+        <div id="profileDropdown" class="profile-dropdown">
+          <div id="profileName" class="profile-dropdown-name"></div>
+          <a href="#" id="settings" class="profile-dropdown-link">Settings</a>
+          <a href="#" id="orders" class="profile-dropdown-link">Order List</a>
+          <a href="#" id="logout" class="profile-dropdown-link">Logout</a>
         </div>
+      </div>
     </nav>
-    <div class="main-wrapper">
-    <!-- Auth Modals -->
-    <div id="register-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="close-register">&times;</span>
-            <h2>Register</h2>
-            <form id="register-form">
-                <input type="email" id="register-email" placeholder="Email" required><br>
-                <input type="password" id="register-password" placeholder="Password" required><br>
-                <button type="submit" class="auth-btn">Register</button>
-            </form>
+  <!-- Register Modal -->
+  <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeRegister">&times;</span>
+      <h2>Register</h2>
+      <form id="registerForm">
+        <input type="text" id="regUsername" placeholder="Username" required>
+        <input type="email" id="regEmail" placeholder="Email" required>
+        <input type="password" id="regPassword" placeholder="Password" required>
+        <button type="button" id="sendCodeBtn">Send Verification Code</button>
+  <div id="verificationSection">
+          <input type="text" id="verificationCode" placeholder="Enter Verification Code" required>
+          <button type="button" id="verifyCodeBtn">Verify & Register</button>
         </div>
+      </form>
+  <div id="registerMsg"></div>
     </div>
-    <div id="login-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="close-login">&times;</span>
-            <h2>Login</h2>
-            <form id="login-form">
-                <input type="email" id="login-email" placeholder="Email" required><br>
-                <input type="password" id="login-password" placeholder="Password" required><br>
-                <button type="submit" class="auth-btn">Login</button>
-            </form>
-        </div>
-    </div>
-        <main class="main-content">
-            <!-- Live advert section -->
-            <section id="live-advert">
-                <div class="hero-advert">
-                    <div class="hero-content">
-                        <h2 class="hero-title" id="advert-title">iPhone 15 Pro Max</h2>
-                        <p class="hero-desc" id="advert-desc">
-                            Check out our <span class="advert-highlight">iPhone 15 Pro Max</span>! Latest iPhone with <span class="advert-chip">A17 Pro chip</span> and advanced camera system
-                        </p>
-                        <div class="advert-price-row">
-                            <span class="advert-price-label">Price:</span>
-                            <span class="advert-price" id="advert-price">$1499.00</span>
-                        </div>
-                        <button class="hero-btn" id="shop-now-btn">Shop Now</button>
-                    </div>
-                    <div class="hero-img-wrap advert-img-border">
-                        <img id="advert-img" class="advert-img-size" src="https://fdn2.gsmarena.com/vv/pics/apple/apple-iphone-15-pro-max-1.jpg" alt="iPhone 15 Pro Max">
-                    </div>
-                </div>
-            </section>
-            <!-- Product showcase section -->
-            <section id="product-showcase">
-                <h2>Products</h2>
-                <div id="products-list" class="products-grid"></div>
-            </section>
-        </main>
-        <footer class="site-footer" id="contact">
-            &copy; 2025 Lamar Phone and Gadget. All rights reserved.<br>
-            Contact: info@lamarphonegadget.com
-        </footer>
-    </div>
-    <script src="script.js"></script>
+  </div>
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeLogin">&times;</span>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          // Modal logic for Register and Login
+          const registerModal = document.getElementById('registerModal');
+          const loginModal = document.getElementById('loginModal');
+          const closeRegister = document.getElementById('closeRegister');
+          const closeLogin = document.getElementById('closeLogin');
+          const sendCodeBtn = document.getElementById('sendCodeBtn');
+          const verifyCodeBtn = document.getElementById('verifyCodeBtn');
+          const verificationSection = document.getElementById('verificationSection');
+          const registerMsg = document.getElementById('registerMsg');
+          const regUsername = document.getElementById('regUsername');
+          const regEmail = document.getElementById('regEmail');
+          const regPassword = document.getElementById('regPassword');
+          const verificationCode = document.getElementById('verificationCode');
+          // Profile nav
+          const registerNav = document.getElementById('registerNav');
+          const profileNav = document.getElementById('profileNav');
+          const profileImg = document.getElementById('profileImg');
+          const profileDropdown = document.getElementById('profileDropdown');
+
+          document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+              if (this.id === 'userIconNavBtn') return; // handled separately
+              e.preventDefault();
+              registerModal.style.display = 'none';
+              if (this.getAttribute('href') === '#register') {
+                registerModal.style.display = 'block';
+              }
+            });
+          });
+
+          closeRegister.onclick = function() {
+            registerModal.style.display = 'none';
+          }
+          closeLogin.onclick = function() {
+            loginModal.style.display = 'none';
+          }
+          window.onclick = function(event) {
+            if (event.target == registerModal) {
+              registerModal.style.display = 'none';
+            }
+            if (event.target == loginModal) {
+              loginModal.style.display = 'none';
+            }
+          }
+
+          // Registration logic
+          sendCodeBtn.onclick = async function() {
+            if (!regUsername.value || !regEmail.value || !regPassword.value) {
+              registerMsg.style.color = 'red';
+              registerMsg.textContent = 'Please fill all fields.';
+              return;
+            }
+            registerMsg.style.color = 'black';
+            registerMsg.textContent = 'Sending verification code...';
+            // Send code to backend
+            try {
+              const res = await fetch('http://localhost:3000/api/send-code', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email: regEmail.value })
+              });
+              const data = await res.json();
+              if (data.success) {
+                verificationSection.style.display = 'block';
+                registerMsg.style.color = 'green';
+                registerMsg.textContent = 'Verification code sent to your email.';
+              } else {
+                registerMsg.style.color = 'red';
+                registerMsg.textContent = data.message || 'Failed to send code.';
+              }
+            } catch (err) {
+              registerMsg.style.color = 'red';
+              registerMsg.textContent = 'Error sending code.';
+            }
+          };
+          verifyCodeBtn.onclick = async function() {
+            if (!verificationCode.value) {
+              registerMsg.style.color = 'red';
+              registerMsg.textContent = 'Enter the verification code.';
+              return;
+            }
+            registerMsg.style.color = 'black';
+            registerMsg.textContent = 'Verifying...';
+            // Send registration + code to backend
+            try {
+              const res = await fetch('http://localhost:3000/api/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                  username: regUsername.value,
+                  email: regEmail.value,
+                  password: regPassword.value,
+                  code: verificationCode.value
+                })
+              });
+              const data = await res.json();
+              if (data.success) {
+                registerMsg.style.color = 'green';
+                registerMsg.textContent = 'Registration successful!';
+                setTimeout(() => {
+                  registerModal.style.display = 'none';
+                  showProfile(data.profileImageUrl || null, data.username || regUsername.value);
+                }, 1000);
+              } else {
+                registerMsg.style.color = 'red';
+                registerMsg.textContent = data.message || 'Verification failed.';
+              }
+            } catch (err) {
+              registerMsg.style.color = 'red';
+              registerMsg.textContent = 'Error verifying code.';
+            }
+          };
+
+          // Profile logic
+          function showProfile(imgUrl, username) {
+            // Change user icon and set dropdown name
+            document.getElementById('userIconNavImg').src = imgUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}`;
+            setUserDropdownName(username);
+            profileNav.style.display = 'block';
+            profileImg.src = imgUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}`;
+            document.getElementById('profileName').textContent = username;
+          }
+
+          // On page load, show username in dropdown if available
+          const savedName = localStorage.getItem('lamar_username');
+          if (savedName) setUserDropdownName(savedName);
+          profileImg.onclick = function() {
+            profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+          };
+          window.addEventListener('click', function(e) {
+            if (!profileNav.contains(e.target) && profileDropdown.style.display === 'block') {
+              profileDropdown.style.display = 'none';
+            }
+          });
+          // Event delegation for profile dropdown actions
+          profileDropdown.addEventListener('click', function(e) {
+            if (e.target.id === 'logout') {
+              profileNav.style.display = 'none';
+              registerNav.style.display = 'block';
+              loginNav.style.display = 'block';
+              profileDropdown.style.display = 'none';
+              e.preventDefault();
+            } else if (e.target.id === 'settings') {
+              alert('Settings clicked!');
+              profileDropdown.style.display = 'none';
+              e.preventDefault();
+            } else if (e.target.id === 'orders') {
+              alert('Order list clicked!');
+              profileDropdown.style.display = 'none';
+              e.preventDefault();
+            }
+          });
+        });
+      </script>
+      });
+      closeRegister.onclick = function() {
+        registerModal.style.display = 'none';
+      }
+      closeLogin.onclick = function() {
+        loginModal.style.display = 'none';
+      }
+      window.onclick = function(event) {
+        if (event.target == registerModal) {
+          registerModal.style.display = 'none';
+        }
+        if (event.target == loginModal) {
+          loginModal.style.display = 'none';
+        }
+      }
+    </script>
+    <section id="contact">
+      <h2>Contact Us</h2>
+      <form>
+        <input type="text" placeholder="Your Name" required>
+        <input type="email" placeholder="Your Email" required>
+        <textarea placeholder="Your Message" required></textarea>
+        <button type="submit">Send</button>
+      </form>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Lamar Phone and Gadget. All rights reserved.</p>
+  </footer>
+  <script src="script.js"></script>
 </body>
 </html>
