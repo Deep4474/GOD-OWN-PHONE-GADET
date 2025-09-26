@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:3000/api/user?email=${encodeURIComponent(email)}`);
+  const res = await fetch(`https://phone-2cv4.onrender.com/api/user?email=${encodeURIComponent(email)}`);
       const data = await res.json();
       if (data.success && data.user) {
         // Registered: show name, hide icon
