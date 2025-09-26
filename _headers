@@ -2,3 +2,7 @@
   Permissions-Policy: geolocation=(), camera=()
   Content-Security-Policy: default-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co https://phone-2cv4.onrender.com;
 */
+/*
+  Permissions-Policy: geolocation=(), camera=()
+  Content-Security-Policy: default-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co https://phone-2cv4.onrender.com;
+*/
