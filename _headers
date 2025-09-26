@@ -1,7 +1,19 @@
 
-/*
-  Example Netlify _headers file:
-  /
-    Content-Security-Policy: default-src 'self'; connect-src 'self' https://phone-2cv4.onrender.com https://jlwxkykznyjmstpjcgks.supabase.co https://glittery-torrone-d1184e.netlify.app;
-    Permissions-Policy: geolocation=(), camera=()
-*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Content-Security-Policy and Permissions-Policy
+Content-Security-Policy: default-src 'self'; connect-src 'self' https://phone-2cv4.onrender.com https://jlwxkykznyjmstpjcgks.supabase.co https://glittery-torrone-d1184e.netlify.app;
+Permissions-Policy: geolocation=(), camera=()
+
