@@ -1,5 +1,5 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://phone-2cv4.onrender.com https://jlwxkykznyjmstpjcgks.supabase.co https://glittery-torrone-d1184e.netlify.app"
+    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://phone-2cv4.onrender.com https://jlwxkykznyjmstpjcgks.supabase.co https://glittery-torrone-d1184e.netlify.app; img-src 'self' https://cdn-icons-png.flaticon.com; script-src 'self' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm 'unsafe-inline';"
     Permissions-Policy = "geolocation=(), camera=(), microphone=()"
