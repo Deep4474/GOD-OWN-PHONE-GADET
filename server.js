@@ -19,7 +19,7 @@ app.use((req, res, next) => {
   // Use only recognized features in Permissions-Policy
   res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
   // Remove invalid CSP directives and allow Render API domain in connect-src
-  res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co https://phone-2cv4.onrender.com;");
+  res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co https://glittery-torrone-d1184e.netlify.app;");
   next();
 });
 
