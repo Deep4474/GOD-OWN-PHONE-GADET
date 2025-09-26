@@ -16,7 +16,9 @@ const app = express();
 // Friendly root route for API
 // Set security headers to fix Permissions-Policy and CSP errors
 app.use((req, res, next) => {
+  // Only use recognized features in Permissions-Policy
   res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
+  // Remove invalid CSP directives and add Render domain to connect-src
   res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://jlwxkykznyjmstpjcgks.supabase.co https://phone-2cv4.onrender.com;");
   next();
 });
@@ -29,7 +31,8 @@ const PORT = 3000;
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://glittery-torrone-d1184e.netlify.app'
+    'https://glittery-torrone-d1184e.netlify.app',
+    'http://127.0.0.1:5500'
   ],
   credentials: true
 }));
