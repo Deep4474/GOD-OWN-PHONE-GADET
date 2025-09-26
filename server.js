@@ -13,12 +13,20 @@ const transporter = nodemailer.createTransport({
 });
 
 const app = express();
-// Friendly root route for API
-// Set security headers to fix Permissions-Policy and CSP errors
+
+// CORS middleware for Netlify and local dev
+app.use(cors({
+  origin: [
+    'https://glittery-torrone-d1184e.netlify.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:5500'
+  ],
+  credentials: true
+}));
+
+// Security headers
 app.use((req, res, next) => {
-  // Set only supported Permissions-Policy features
   res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
-  // Set only valid Content-Security-Policy directives (no prefetch-src, only valid connect-src)
   res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://glittery-torrone-d1184e.netlify.app https://phone-2cv4.onrender.com https://jlwxkykznyjmstpjcgks.supabase.co;");
   next();
 });
@@ -28,14 +36,7 @@ app.get('/', (req, res) => {
 });
 const PORT = 3000;
 
-app.use(cors({
-  origin: [
-      'https://glittery-torrone-d1184e.netlify.app',
-      'http://localhost:3000',
-      'http://127.0.0.1:5500'
-    ],
-    credentials: true
-  }));
+
 app.use(bodyParser.json());
 
 // In-memory store for demo (replace with DB in production)
