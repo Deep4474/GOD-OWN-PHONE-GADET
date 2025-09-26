@@ -10,94 +10,39 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 document.addEventListener('DOMContentLoaded', function() {
   // ...existing code...
 
-  // Registration logic
+  // Registration logic using Supabase Auth
   const registerForm = document.getElementById('registerForm');
   const regUsername = document.getElementById('regUsername');
   const regEmail = document.getElementById('regEmail');
   const regPassword = document.getElementById('regPassword');
-  const regCode = document.getElementById('regCode');
   const registerMsg = document.getElementById('registerMsg');
-  const sendCodeBtn = document.getElementById('sendCodeBtn');
 
-  // Send verification code
-  if (sendCodeBtn) {
-    sendCodeBtn.addEventListener('click', async function() {
-      if (!regEmail.value) {
-        registerMsg.style.color = 'red';
-        registerMsg.textContent = 'Please enter your email first.';
-        return;
-      }
-      sendCodeBtn.disabled = true;
-      registerMsg.style.color = 'black';
-      registerMsg.textContent = 'Sending code...';
-      try {
-  const response = await fetch('https://phone-2cv4.onrender.com/api/send-code', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: regEmail.value })
-        });
-        const result = await response.json();
-        if (result.success) {
-          registerMsg.style.color = 'green';
-          registerMsg.textContent = 'Verification code sent! Check your email.';
-        } else {
-          registerMsg.style.color = 'red';
-          registerMsg.textContent = 'Failed to send code: ' + (result.message || 'Unknown error');
-        }
-      } catch (err) {
-        registerMsg.style.color = 'red';
-        registerMsg.textContent = 'Failed to send code: ' + err.message;
-      }
-      sendCodeBtn.disabled = false;
-    });
-  }
-
-  // Register user and save to user.json via localhost
   if (registerForm) {
     registerForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       registerMsg.textContent = '';
-      if (!regUsername.value || !regEmail.value || !regPassword.value || !regCode.value) {
+      if (!regUsername.value || !regEmail.value || !regPassword.value) {
         registerMsg.style.color = 'red';
-        registerMsg.textContent = 'Please fill all fields and enter the code.';
+        registerMsg.textContent = 'Please fill all fields.';
         return;
       }
+      registerMsg.style.color = 'black';
+      registerMsg.textContent = 'Registering...';
       try {
-  const response = await fetch('https://phone-2cv4.onrender.com/api/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: regUsername.value,
-            email: regEmail.value.trim(),
-            password: regPassword.value,
-            code: regCode.value.trim()
-          })
-        });
-        const result = await response.json();
-        if (result.success) {
-          // Save user to user.json via local endpoint
-          await fetch('https://phone-2cv4.onrender.com/api/save-user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              username: regUsername.value,
-              email: regEmail.value,
-              id: result.user && result.user.id ? result.user.id : undefined
-            })
-          });
-          registerMsg.style.color = 'green';
-          registerMsg.textContent = 'Registration successful!';
-          registerForm.reset();
-          // Hide user icon and show username after registration
-          if (userIcon && userName) {
-            userIcon.style.display = 'none';
-            userName.textContent = regUsername.value;
-            userName.style.display = '';
+        const { data, error } = await supabase.auth.signUp({
+          email: regEmail.value.trim(),
+          password: regPassword.value,
+          options: {
+            data: { full_name: regUsername.value }
           }
-        } else {
-          registerMsg.style.color = 'red';
-          registerMsg.textContent = 'Registration failed: ' + (result.message || 'Unknown error');
-        }
+        });
+        if (error) throw error;
+        registerMsg.style.color = 'green';
+        registerMsg.textContent = 'Registration successful! Please check your email for verification.';
+        registerForm.reset();
+        setTimeout(() => {
+          document.getElementById('registerModal').style.display = 'none';
+        }, 1500);
       } catch (err) {
         registerMsg.style.color = 'red';
         registerMsg.textContent = 'Registration failed: ' + err.message;
