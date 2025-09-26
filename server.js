@@ -18,8 +18,8 @@ const app = express();
 app.use((req, res, next) => {
   // Set only supported Permissions-Policy features
   res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
-  // Set only supported Content-Security-Policy directives
-  res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://glittery-torrone-d1184e.netlify.app https://phone-2cv4.onrender.com;");
+  // Set only valid Content-Security-Policy directives (no prefetch-src, only valid connect-src)
+  res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://glittery-torrone-d1184e.netlify.app https://phone-2cv4.onrender.com https://jlwxkykznyjmstpjcgks.supabase.co;");
   next();
 });
 
