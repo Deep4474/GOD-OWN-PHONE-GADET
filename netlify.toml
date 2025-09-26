@@ -1,5 +1,5 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; connect-src *; img-src *; script-src 'self' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm 'unsafe-inline';"
+    Content-Security-Policy = "default-src 'self'; connect-src *; img-src * data:; script-src 'self' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm 'unsafe-inline';"
     Permissions-Policy = "geolocation=(), camera=(), microphone=()"
