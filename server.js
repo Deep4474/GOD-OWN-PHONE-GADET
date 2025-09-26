@@ -1,3 +1,7 @@
+// Friendly root route for API
+app.get('/', (req, res) => {
+  res.send('<h2>Welcome to Lamar Phone and Gadget API!</h2><p>This is the backend server. Use the API endpoints for data access.</p>');
+});
 // Simple Node.js/Express backend for registration and code verification
 const express = require('express');
 const cors = require('cors');
