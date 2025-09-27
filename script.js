@@ -8,61 +8,57 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 document.addEventListener('DOMContentLoaded', function() {
-  // ...existing code...
+  // Example: Trigger Supabase Google OAuth sign-in
+  window.supabaseGoogleSignIn = function() {
+    supabase.auth.signInWithOAuth({ provider: 'google' });
+  };
+  // User icon click: show email choice modal
+  const userIcon = document.getElementById('userIcon');
+  const emailChoiceModal = document.getElementById('emailChoiceModal');
+  const closeEmailChoice = document.getElementById('closeEmailChoice');
+  const emailListContainer = document.getElementById('emailListContainer');
+  const chooseEmailMsg = document.getElementById('chooseEmailMsg');
+  const googleBtn = document.getElementById('google-signin-btn');
 
-  // Registration logic using Supabase Auth
-  const registerForm = document.getElementById('registerForm');
-  const regUsername = document.getElementById('regUsername');
-  const regEmail = document.getElementById('regEmail');
-  const regPassword = document.getElementById('regPassword');
-  const registerMsg = document.getElementById('registerMsg');
+  // No need for custom confirmation or email storage logic for Google OAuth only
 
-  // Register user directly to users table
-  if (registerForm) {
-    registerForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      registerMsg.textContent = '';
-      if (!regUsername.value || !regEmail.value || !regPassword.value) {
-        registerMsg.style.color = 'red';
-        registerMsg.textContent = 'Please fill all fields.';
-        return;
-      }
-      registerMsg.style.color = 'black';
-      registerMsg.textContent = 'Registering...';
-      try {
-        const { data, error } = await supabase
-          .from('users')
-          .insert([
-            {
-              username: regUsername.value,
-              email: regEmail.value.trim(),
-              password: regPassword.value
-            }
-          ]);
-        if (error) throw error;
-
-        // Send welcome email via backend
-        await fetch('https://phone-2cv4.onrender.com/api/send-welcome', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: regEmail.value.trim(),
-            username: regUsername.value
-          })
-        });
-
-        registerMsg.style.color = 'green';
-        registerMsg.textContent = 'Registration successful!';
-        registerForm.reset();
-        setTimeout(() => {
-          document.getElementById('registerModal').style.display = 'none';
-        }, 1500);
-      } catch (err) {
-        registerMsg.style.color = 'red';
-        registerMsg.textContent = 'Registration failed: ' + err.message;
-      }
+  // Show modal for Google sign-in only
+  if (userIcon) {
+    userIcon.addEventListener('click', function() {
+      emailChoiceModal.style.display = 'block';
+      if (googleBtn) googleBtn.style.display = 'inline-block';
     });
   }
+
+  // When 'Continue with my email' is clicked, sign in with Google OAuth only
+  if (googleBtn) {
+    googleBtn.addEventListener('click', function() {
+      supabase.auth.signInWithOAuth({ provider: 'google' });
+    });
+  }
+
+  // Listen for Supabase auth state change to send login notification email
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session && session.user) {
+      const email = session.user.email;
+      // Call backend to send login notification email
+  fetch('https://phone-2cv4.onrender.com/api/send-welcome', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, username: email })
+      });
+    }
+  });
+
+  if (closeEmailChoice) {
+    closeEmailChoice.addEventListener('click', function() {
+      emailChoiceModal.style.display = 'none';
+      if (googleBtn) googleBtn.style.display = 'inline-block';
+      chooseEmailMsg.textContent = '';
+    });
+  }
+  // ...existing code...
+
 
   // Example: Fetch and log all users (for admin or UI)
   async function fetchUsers() {
@@ -351,13 +347,13 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function updateUserUI() {
-    const user = getUser();
-    document.getElementById('userName').textContent = user.name || 'Guest';
-    document.getElementById('userIcon').src = user.image || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+  const user = getUser();
+  document.getElementById('userName').textContent = user.name || 'Guest';
+  userIcon.src = user.image || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
   }
 
   // User icon and registration check (local only)
-  const userIcon = document.getElementById('userIcon');
+  // userIcon already declared above
   const userName = document.getElementById('userName');
   // Get email from localStorage (or prompt user)
   let email = localStorage.getItem('lamar_email');
@@ -387,16 +383,22 @@ document.addEventListener('DOMContentLoaded', function() {
         // Not registered: show icon, hide name
         userIcon.style.display = 'block';
         userName.style.display = 'none';
-        userIcon.onclick = function() {
-          document.getElementById('registerModal').style.display = 'block';
-        };
+        if (userIcon) {
+          userIcon.onclick = function() {
+            // Register modal was deleted, so do nothing
+          };
+        }
       }
     } catch (err) {
-      userIcon.style.display = 'block';
-      userName.style.display = 'none';
+  if (userIcon) userIcon.style.display = 'block';
+  if (userName) userName.style.display = 'none';
     }
   }
 
   checkRegistration();
+
+  // Removed duplicate googleBtn declaration and event listener
 });
+
+// Add Supabase client initialization
 

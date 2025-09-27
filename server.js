@@ -1,3 +1,36 @@
+// In-memory store for demo (replace with DB in production)
+const pendingConfirmations = {};
+
+// Endpoint to send confirmation email after Google OAuth
+app.post('/api/send-confirmation', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  const token = Math.random().toString(36).substr(2);
+  pendingConfirmations[token] = email;
+  const confirmUrl = `http://localhost:3000/api/confirm?token=${token}`;
+  const mailOptions = {
+    from: 'Lamar Phone and Gadget <ayomideoluniyi49@gmail.com>',
+    to: email,
+    subject: 'Confirm your registration',
+    html: `<p>Click <a href="${confirmUrl}">here</a> to confirm your registration.</p>`
+  };
+  try {
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint to confirm registration
+app.get('/api/confirm', (req, res) => {
+  const { token } = req.query;
+  const email = pendingConfirmations[token];
+  if (!email) return res.status(400).send('Invalid or expired token');
+  // Mark user as confirmed (update DB in production)
+  delete pendingConfirmations[token];
+  res.send('Email confirmed! You can now complete registration.');
+});
 // Send welcome email endpoint
 app.post('/api/send-welcome', async (req, res) => {
   const { email, username } = req.body;
@@ -165,14 +198,27 @@ app.post('/api/register', (req, res) => {
       return res.json({ success: false, message: 'User already registered with this email.' });
     }
     userList.push({ id, username, email });
-    fs.writeFile('user.json', JSON.stringify(userList, null, 2), (writeErr) => {
-      if (writeErr) {
-        console.log('Error writing to user.json:', writeErr);
-        return res.json({ success: false, message: 'Failed to save user.' });
-      }
-      console.log('User saved to user.json:', { id, username, email });
-      res.json({ success: true, username, id });
-    });
+      fs.writeFile('user.json', JSON.stringify(userList, null, 2), async (writeErr) => {
+        if (writeErr) {
+          console.log('Error writing to user.json:', writeErr);
+          return res.json({ success: false, message: 'Failed to save user.' });
+        }
+        console.log('User saved to user.json:', { id, username, email });
+        // Send welcome email after successful registration
+        try {
+          await transporter.sendMail({
+            from: 'Lamar Phone and Gadget <ayomideoluniyi49@gmail.com>',
+            to: email,
+            subject: 'Welcome to Lamar Phone and Gadget!',
+            text: `Hi ${username}, welcome to our platform!`,
+            html: `<h2>Hi ${username},</h2><p>Welcome to Lamar Phone and Gadget!</p>`
+          });
+          console.log('Welcome email sent to', email);
+        } catch (err) {
+          console.error('Failed to send welcome email:', err);
+        }
+        res.json({ success: true, username, id });
+      });
   });
 });
 
