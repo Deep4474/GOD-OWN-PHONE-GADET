@@ -1,4 +1,5 @@
 // Function to send welcome email using EmailJS
+// Always send welcome email (no localStorage check)
 function sendWelcomeEmail(userEmail, userName) {
   console.log('[DEBUG] sendWelcomeEmail called with:', { userEmail, userName });
   if (userEmail && typeof userEmail === 'string' && userEmail.includes('@')) {
