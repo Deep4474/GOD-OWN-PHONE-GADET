@@ -1,3 +1,29 @@
+// Function to send welcome email using EmailJS
+function sendWelcomeEmail(userEmail, userName) {
+  console.log('[DEBUG] sendWelcomeEmail called with:', { userEmail, userName });
+  if (userEmail && typeof userEmail === 'string' && userEmail.includes('@')) {
+    if (typeof emailjs === 'undefined') {
+      console.error('[DEBUG] EmailJS library is not loaded.');
+      alert('EmailJS is not loaded. Please check your script includes.');
+      return;
+    }
+    const emailParams = {
+      user_email: userEmail,
+      user_name: userName
+    };
+    console.log('[DEBUG] Sending welcome email to:', userEmail);
+    emailjs.send('service_xuzka4m', 'template_7wubyku', emailParams)
+      .then(function(response) {
+        console.log('[DEBUG] EmailJS SUCCESS!', response.status, response.text);
+        alert('Welcome email sent successfully!');
+      }, function(error) {
+        console.error('[DEBUG] EmailJS FAILED...', error);
+        alert('Failed to send welcome email. Check console for details.');
+      });
+  } else {
+    console.warn('[DEBUG] No valid user email found, not sending welcome email. userEmail:', userEmail);
+  }
+}
 // Example script: Display a welcome message and current date
 // --- Supabase credentials (for demo/dev only; do not expose in production) ---
 const supabaseUrl = 'https://jlwxkykznyjmstpjcgks.supabase.co';
@@ -8,6 +34,29 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 document.addEventListener('DOMContentLoaded', function() {
+  // On page load, show user details from localStorage if available
+  const storedName = localStorage.getItem('lamar_name');
+  const storedEmail = localStorage.getItem('lamar_email');
+  const userNameSpan = document.getElementById('userName');
+  const userEmailSpan = document.getElementById('userEmail');
+  const userIconImg = document.getElementById('userIcon');
+  if (storedName && storedEmail) {
+    if (userNameSpan) {
+      userNameSpan.textContent = storedName;
+      userNameSpan.style.display = 'inline';
+    }
+    if (userEmailSpan) {
+      userEmailSpan.textContent = storedEmail;
+      userEmailSpan.style.display = 'inline';
+    }
+    if (userIconImg) {
+      userIconImg.style.display = 'none';
+    }
+  } else {
+    if (userNameSpan) userNameSpan.style.display = 'none';
+    if (userEmailSpan) userEmailSpan.style.display = 'none';
+    if (userIconImg) userIconImg.style.display = 'inline';
+  }
   // Example: Trigger Supabase Google OAuth sign-in
   window.supabaseGoogleSignIn = function() {
     supabase.auth.signInWithOAuth({ provider: 'google' });
@@ -23,7 +72,10 @@ document.addEventListener('DOMContentLoaded', function() {
   if (userIcon) {
     userIcon.style.pointerEvents = 'auto';
     userIcon.addEventListener('click', function() {
-      emailChoiceModal.style.display = 'block';
+      if (emailChoiceModal) {
+        emailChoiceModal.classList.remove('hidden');
+        emailChoiceModal.style.display = 'block';
+      }
       if (googleBtn) googleBtn.style.display = 'inline-block';
     });
   }
@@ -40,28 +92,80 @@ document.addEventListener('DOMContentLoaded', function() {
     if (event === 'SIGNED_IN' && session && session.user) {
       const userEmail = session.user.email;
       const userName = session.user.user_metadata && session.user.user_metadata.full_name ? session.user.user_metadata.full_name : userEmail;
-      if (userEmail) {
-        // Send welcome email using EmailJS
-        emailjs.send('service_g7pmgw8', 'template_7wubyku', {
-          user_email: userEmail,
-          user_name: userName
-        })
-        .then(function(response) {
-           console.log('EmailJS SUCCESS!', response.status, response.text);
-        }, function(error) {
-           console.log('EmailJS FAILED...', error);
-        });
+      // Save to localStorage for persistence
+      localStorage.setItem('lamar_email', userEmail);
+      localStorage.setItem('lamar_name', userName);
+      // Update UI: always show name and email in userIcon title and span
+      if (userNameSpan) {
+        userNameSpan.textContent = userName;
+        userNameSpan.style.display = 'inline';
+      }
+      if (userEmailSpan) {
+        userEmailSpan.textContent = userEmail;
+        userEmailSpan.style.display = 'inline';
+      }
+      if (userIconImg) {
+        userIconImg.style.display = 'none';
+      }
+      // Optionally close the modal
+      if (emailChoiceModal) {
+        emailChoiceModal.classList.add('hidden');
+        emailChoiceModal.style.display = 'none';
+      }
+      // Always send welcome email on sign in
+      // Only send welcome email if not already sent for this user
+      const welcomeEmailKey = 'lamar_welcome_email_sent_' + userEmail;
+      if (!localStorage.getItem(welcomeEmailKey)) {
+        console.log('[DEBUG] Attempting to send welcome email:', { userEmail, userName });
+        if (userEmail && typeof userEmail === 'string' && userEmail.includes('@')) {
+          // Check if EmailJS is loaded
+          if (typeof emailjs === 'undefined') {
+            console.error('[DEBUG] EmailJS library is not loaded.');
+            alert('EmailJS is not loaded. Please check your script includes.');
+            return;
+          }
+          // Log the service and template IDs
+          console.log('[DEBUG] EmailJS service ID:', 'service_xuzka4m');
+          console.log('[DEBUG] EmailJS template ID:', 'template_7wubyku');
+          // Log the parameters being sent
+          const emailParams = {
+            user_email: userEmail,
+            user_name: userName
+          };
+          console.log('[DEBUG] EmailJS parameters:', emailParams);
+          // Extra debug: log recipient email and all params
+          console.log('[DEBUG] Sending email to:', userEmail);
+          console.log('[DEBUG] Full EmailJS send call:', {
+            service: 'service_xuzka4m',
+            template: 'template_7wubyku',
+            params: emailParams
+          });
+          emailjs.send('service_xuzka4m', 'template_7wubyku', emailParams)
+          .then(function(response) {
+             console.log('[DEBUG] EmailJS SUCCESS!', response.status, response.text);
+             alert('Welcome email sent successfully!');
+             localStorage.setItem(welcomeEmailKey, 'true');
+          }, function(error) {
+             console.error('[DEBUG] EmailJS FAILED...', error);
+             alert('Failed to send welcome email. Check console for details.');
+          });
+        } else {
+          console.warn('[DEBUG] No valid user email found, not sending welcome email. userEmail:', userEmail);
+        }
       } else {
-        console.log('No user email found, not sending welcome email.');
+        console.log('[DEBUG] Welcome email already sent for this user:', userEmail);
       }
     }
   });
 
   if (closeEmailChoice) {
     closeEmailChoice.addEventListener('click', function() {
-      emailChoiceModal.style.display = 'none';
+      if (emailChoiceModal) {
+        emailChoiceModal.classList.add('hidden');
+        emailChoiceModal.style.display = 'none';
+      }
       if (googleBtn) googleBtn.style.display = 'inline-block';
-      chooseEmailMsg.textContent = '';
+      if (typeof chooseEmailMsg !== 'undefined') chooseEmailMsg.textContent = '';
     });
   }
   // ...existing code...
@@ -185,6 +289,9 @@ document.addEventListener('DOMContentLoaded', function() {
               buyModal.style.display = 'none';
             }, 1000);
           }
+          // Send welcome email after successful registration/order
+          console.log('[DEBUG] About to call sendWelcomeEmail after order:', { email, user_name });
+          sendWelcomeEmail(email, user_name);
         }
       } catch (err) {
         buyMsg.style.color = 'red';
@@ -361,48 +468,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // User icon and registration check (local only)
   // userIcon already declared above
-  const userName = document.getElementById('userName');
-  // Get email from localStorage (or prompt user)
-  let email = localStorage.getItem('lamar_email');
-  if (!email) {
-    email = prompt('Enter your email to check registration:');
-    if (email) localStorage.setItem('lamar_email', email);
-  }
-  // Check registration status from local user.json via localhost endpoint
-  async function checkRegistration() {
-    if (!email) {
-      userIcon.style.display = 'block';
-      userName.style.display = 'none';
-      return;
-    }
-    try {
-  const res = await fetch(`https://phone-2cv4.onrender.com/api/user?email=${encodeURIComponent(email)}`);
-      const data = await res.json();
-      if (data.success && data.user) {
-        // Registered: show name, hide icon
-        userName.textContent = data.user.username;
-        userIcon.style.display = 'none';
-        userName.style.display = '';
-        if (data.user.id) {
-          localStorage.setItem('lamar_user_id', data.user.id);
-        }
-      } else {
-        // Not registered: show icon, hide name
-        userIcon.style.display = 'block';
-        userName.style.display = 'none';
-        if (userIcon) {
-          userIcon.onclick = function() {
-            // Register modal was deleted, so do nothing
-          };
-        }
-      }
-    } catch (err) {
-  if (userIcon) userIcon.style.display = 'block';
-  if (userName) userName.style.display = 'none';
-    }
-  }
-
-  checkRegistration();
+  // Optionally, you can still check registration, but always prefer localStorage for display
+  // ...existing code...
 
   // Removed duplicate googleBtn declaration and event listener
 });

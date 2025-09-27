@@ -4,6 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 // const fs = require('fs'); // Removed duplicate declaration
+const app = express();
 
 // Configure Nodemailer transporter (use your Gmail and app password)
 const transporter = nodemailer.createTransport({
@@ -16,10 +17,6 @@ const transporter = nodemailer.createTransport({
 
 // In-memory store for demo (replace with DB in production)
 const pendingConfirmations = {};
-
-
-
-
 // CORS middleware for Netlify and local dev
 app.use(cors({
   origin: [
@@ -89,8 +86,6 @@ app.post('/api/send-welcome', async (req, res) => {
     res.json({ success: false, message: 'Failed to send welcome email.' });
   }
 });
-
-const app = express();
 
 // CORS middleware for Netlify and local dev
 app.use(cors({
