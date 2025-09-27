@@ -1,3 +1,18 @@
+/* Hide elements by default */
+.hidden {
+  display: none !important;
+}
+
+/* Email list container spacing */
+.email-list-container {
+  margin-top: 15px;
+}
+
+/* Choose email message styling */
+.choose-email-msg {
+  margin-top: 10px;
+  color: #888;
+}
 /* Logo phone image styles */
 .logo-phone-img {
   height: 48px;
