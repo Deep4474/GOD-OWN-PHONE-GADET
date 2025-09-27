@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
-const fs = require('fs');
+// const fs = require('fs'); // Removed duplicate declaration
 
 // Configure Nodemailer transporter (use your Gmail and app password)
 const transporter = nodemailer.createTransport({
