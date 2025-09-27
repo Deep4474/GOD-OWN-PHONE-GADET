@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 // In-memory store for demo (replace with DB in production)
 const pendingConfirmations = {};
 
-// const app = express(); // Removed duplicate declaration
+const app = express();
 
 // CORS middleware for Netlify and local dev
 app.use(cors({
