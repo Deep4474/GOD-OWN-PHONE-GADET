@@ -40,6 +40,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
           ]);
         if (error) throw error;
+
+        // Send welcome email via backend
+        await fetch('https://phone-2cv4.onrender.com/api/send-welcome', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: regEmail.value.trim(),
+            username: regUsername.value
+          })
+        });
+
         registerMsg.style.color = 'green';
         registerMsg.textContent = 'Registration successful!';
         registerForm.reset();

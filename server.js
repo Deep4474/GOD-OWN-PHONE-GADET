@@ -1,3 +1,22 @@
+// Send welcome email endpoint
+app.post('/api/send-welcome', async (req, res) => {
+  const { email, username } = req.body;
+  if (!email || !username) {
+    return res.json({ success: false, message: 'Email and username required.' });
+  }
+  try {
+    await transporter.sendMail({
+      from: 'Lamar Phone and Gadget <ayomideoluniyi49@gmail.com>',
+      to: email,
+      subject: 'Welcome to Lamar Phone and Gadget!',
+      text: `Hi ${username}, welcome to our platform!`,
+      html: `<h2>Hi ${username},</h2><p>Welcome to Lamar Phone and Gadget!</p>`
+    });
+    res.json({ success: true });
+  } catch (error) {
+    res.json({ success: false, message: 'Failed to send welcome email.' });
+  }
+});
 // Simple Node.js/Express backend for registration and code verification
 const express = require('express');
 const cors = require('cors');
