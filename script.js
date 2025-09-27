@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const regPassword = document.getElementById('regPassword');
   const registerMsg = document.getElementById('registerMsg');
 
+  // Register user directly to users table
   if (registerForm) {
     registerForm.addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -29,16 +30,18 @@ document.addEventListener('DOMContentLoaded', function() {
       registerMsg.style.color = 'black';
       registerMsg.textContent = 'Registering...';
       try {
-        const { data, error } = await supabase.auth.signUp({
-          email: regEmail.value.trim(),
-          password: regPassword.value,
-          options: {
-            data: { full_name: regUsername.value }
-          }
-        });
+        const { data, error } = await supabase
+          .from('users')
+          .insert([
+            {
+              username: regUsername.value,
+              email: regEmail.value.trim(),
+              password: regPassword.value
+            }
+          ]);
         if (error) throw error;
         registerMsg.style.color = 'green';
-        registerMsg.textContent = 'Registration successful! Please check your email for verification.';
+        registerMsg.textContent = 'Registration successful!';
         registerForm.reset();
         setTimeout(() => {
           document.getElementById('registerModal').style.display = 'none';
@@ -49,6 +52,20 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+  // Example: Fetch and log all users (for admin or UI)
+  async function fetchUsers() {
+    const { data, error } = await supabase.from('users').select('*');
+    if (error) {
+      console.error('Error fetching users:', error);
+      return [];
+    }
+    return data;
+  }
+  // Example usage: log users to console
+  fetchUsers().then(users => {
+    console.log('All users:', users);
+  });
 
   // Global variable to hold the selected product
   window.selectedProduct = null;
