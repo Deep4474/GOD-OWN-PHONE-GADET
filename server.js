@@ -1,5 +1,42 @@
+// Simple Node.js/Express backend for registration and code verification
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const nodemailer = require('nodemailer');
+const fs = require('fs');
+
+// Configure Nodemailer transporter (use your Gmail and app password)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'ayomideoluniyi49@gmail.com',
+    pass: 'hkza knts ylut uymy'
+  }
+});
+
 // In-memory store for demo (replace with DB in production)
 const pendingConfirmations = {};
+
+// const app = express(); // Removed duplicate declaration
+
+// CORS middleware for Netlify and local dev
+app.use(cors({
+  origin: [
+    'https://glittery-torrone-d1184e.netlify.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:5500'
+  ],
+  credentials: true
+}));
+
+// Security headers
+app.use((req, res, next) => {
+  res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
+  res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://glittery-torrone-d1184e.netlify.app https://phone-2cv4.onrender.com https://jlwxkykznyjmstpjcgks.supabase.co;");
+  next();
+});
+
+app.use(bodyParser.json());
 
 // Endpoint to send confirmation email after Google OAuth
 app.post('/api/send-confirmation', async (req, res) => {
@@ -31,6 +68,7 @@ app.get('/api/confirm', (req, res) => {
   delete pendingConfirmations[token];
   res.send('Email confirmed! You can now complete registration.');
 });
+
 // Send welcome email endpoint
 app.post('/api/send-welcome', async (req, res) => {
   const { email, username } = req.body;
@@ -48,19 +86,6 @@ app.post('/api/send-welcome', async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     res.json({ success: false, message: 'Failed to send welcome email.' });
-  }
-});
-// Simple Node.js/Express backend for registration and code verification
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const nodemailer = require('nodemailer');
-// Configure Nodemailer transporter (use your Gmail and app password)
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'ayomideoluniyi49@gmail.com',
-    pass: 'hkza knts ylut uymy'
   }
 });
 
