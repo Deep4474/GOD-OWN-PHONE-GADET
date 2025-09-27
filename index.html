@@ -32,9 +32,7 @@
     <div class="modal-content">
       <span class="close" id="closeEmailChoice">&times;</span>
       <h2>Continue with your email</h2>
-  <button id="google-signin-btn">Continue with your email</button>
-  <div id="emailListContainer" class="email-list-container hidden"></div>
-  <div id="chooseEmailMsg" class="choose-email-msg"></div>
+      <button id="google-signin-btn">Continue with your email</button>
     </div>
   </div>
   <!-- Buy Modal -->
@@ -153,6 +151,13 @@
   <footer>
     <p>&copy; 2025 Lamar Phone and Gadget. All rights reserved.</p>
   </footer>
+  <!-- EmailJS integration (browser CDN v3) -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script type="text/javascript">
+    (function(){
+      emailjs.init('7m5xwMHVRwEO-ctv9');
+    })();
+  </script>
   <!-- Moved script.js import here to ensure all DOM elements are loaded before the script runs -->
   <script type="module" src="script.js"></script>
 </body>

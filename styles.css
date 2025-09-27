@@ -40,12 +40,17 @@
   font-size: 16px;
 }
 .user-profile-img {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  object-fit: cover;
-  cursor: pointer;
-  pointer-events: auto;
+  margin-left: 10px;
+  vertical-align: middle;
+  cursor: pointer; /* Make user icon look clickable */
+  transition: box-shadow 0.2s;
+}
+
+.user-profile-img:hover {
+  box-shadow: 0 0 0 2px #007bff44;
 }
 /* Buy modal form styles */
 .buy-user-name {

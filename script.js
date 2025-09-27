@@ -12,25 +12,23 @@ document.addEventListener('DOMContentLoaded', function() {
   window.supabaseGoogleSignIn = function() {
     supabase.auth.signInWithOAuth({ provider: 'google' });
   };
+
   // User icon click: show email choice modal
   const userIcon = document.getElementById('userIcon');
   const emailChoiceModal = document.getElementById('emailChoiceModal');
   const closeEmailChoice = document.getElementById('closeEmailChoice');
-  const emailListContainer = document.getElementById('emailListContainer');
-  const chooseEmailMsg = document.getElementById('chooseEmailMsg');
   const googleBtn = document.getElementById('google-signin-btn');
 
-  // No need for custom confirmation or email storage logic for Google OAuth only
-
-  // Show modal for Google sign-in only
+  // Make user icon always clickable to open the email choice modal
   if (userIcon) {
+    userIcon.style.pointerEvents = 'auto';
     userIcon.addEventListener('click', function() {
       emailChoiceModal.style.display = 'block';
       if (googleBtn) googleBtn.style.display = 'inline-block';
     });
   }
 
-  // When 'Continue with my email' is clicked, sign in with Google OAuth only
+  // When 'Continue with your email' is clicked, sign in with Google OAuth (redirects to callback)
   if (googleBtn) {
     googleBtn.addEventListener('click', function() {
       supabase.auth.signInWithOAuth({ provider: 'google' });
@@ -40,13 +38,22 @@ document.addEventListener('DOMContentLoaded', function() {
   // Listen for Supabase auth state change to send login notification email
   supabase.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session && session.user) {
-      const email = session.user.email;
-      // Call backend to send login notification email
-  fetch('https://phone-2cv4.onrender.com/api/send-welcome', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, username: email })
-      });
+      const userEmail = session.user.email;
+      const userName = session.user.user_metadata && session.user.user_metadata.full_name ? session.user.user_metadata.full_name : userEmail;
+      if (userEmail) {
+        // Send welcome email using EmailJS
+        emailjs.send('service_g7pmgw8', 'template_7wubyku', {
+          user_email: userEmail,
+          user_name: userName
+        })
+        .then(function(response) {
+           console.log('EmailJS SUCCESS!', response.status, response.text);
+        }, function(error) {
+           console.log('EmailJS FAILED...', error);
+        });
+      } else {
+        console.log('No user email found, not sending welcome email.');
+      }
     }
   });
 
