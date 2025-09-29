@@ -16,3 +16,23 @@
 
 
 
+/*
+	Content-Security-Policy: default-src 'self'; img-src 'self' https://cdn-icons-png.flaticon.com; script-src 'self' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; connect-src 'self' https://glittery-torrone-d1184e.netlify.app https://phone-2cv4.onrender.com https://jlwxkykznyjmstpjcgks.supabase.co
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

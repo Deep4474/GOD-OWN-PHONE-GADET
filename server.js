@@ -1,23 +1,9 @@
-// Simple Node.js/Express backend for registration and code verification
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
-// const fs = require('fs'); // Removed duplicate declaration
 const app = express();
-
-// Configure Nodemailer transporter (use your Gmail and app password)
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'ayomideoluniyi49@gmail.com',
-    pass: 'hkza knts ylut uymy'
-  }
-});
-
-// In-memory store for demo (replace with DB in production)
-const pendingConfirmations = {};
-// CORS middleware for Netlify and local dev
+// CORS middleware for Netlify and local dev (must be before any routes)
 app.use(cors({
   origin: [
     'https://glittery-torrone-d1184e.netlify.app',
@@ -26,36 +12,125 @@ app.use(cors({
   ],
   credentials: true
 }));
-
-// Security headers
-app.use((req, res, next) => {
-  res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
-  res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://glittery-torrone-d1184e.netlify.app https://phone-2cv4.onrender.com https://jlwxkykznyjmstpjcgks.supabase.co;");
-  next();
-});
-
-app.use(bodyParser.json());
-
-// Endpoint to send confirmation email after Google OAuth
-app.post('/api/send-confirmation', async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email required' });
-  const token = Math.random().toString(36).substr(2);
-  pendingConfirmations[token] = email;
-  const confirmUrl = `http://localhost:3000/api/confirm?token=${token}`;
-  const mailOptions = {
-    from: 'Lamar Phone and Gadget <ayomideoluniyi49@gmail.com>',
-    to: email,
-    subject: 'Confirm your registration',
-    html: `<p>Click <a href="${confirmUrl}">here</a> to confirm your registration.</p>`
-  };
+app.use(express.json());
+let notifications = [];
+// ...existing code...
+// Place this after app is initialized and middleware setup
+app.get('/api/order-analysis', async (req, res) => {
   try {
-    await transporter.sendMail(mailOptions);
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const ordersRes = await fetch('https://jlwxkykznyjmstpjcgks.supabase.co/rest/v1/orders', {
+      headers: {
+        apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ',
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ'
+      }
+    });
+    let deliveredCount = 0, pendingCount = 0, shippingCount = 0, completedCount = 0;
+    let orders = [];
+    try {
+      orders = await ordersRes.json();
+    } catch (e) {
+      orders = [];
+    }
+    if (Array.isArray(orders)) {
+      orders.forEach(order => {
+        if (order.status === 'Delivery') deliveredCount++;
+        else if (order.status === 'Pending') pendingCount++;
+        else if (order.status === 'Shipping') shippingCount++;
+        else if (order.status === 'Completed') completedCount++;
+      });
+    }
+    res.json({
+      analysis: {
+        delivered: deliveredCount,
+        pending: pendingCount,
+        shipping: shippingCount,
+        completed: completedCount
+      },
+      notifications: notifications.slice(0, 20)
+    });
+  } catch (err) {
+    res.json({
+      analysis: {
+        delivered: 0,
+        pending: 0,
+        shipping: 0,
+        completed: 0
+      },
+      notifications: notifications.slice(0, 20),
+      error: 'Failed to fetch analysis.'
+    });
   }
 });
+// ...existing code...
+// Endpoint for admin to send a custom email to a user
+// Endpoint for admin to send a custom email to a user
+app.post('/api/send-custom-email', async (req, res) => {
+  console.log('HIT /api/send-custom-email');
+  console.log('Request body:', req.body);
+  const { email, subject, message } = req.body;
+  if (!email || !subject || !message) {
+    console.log('Missing email, subject, or message');
+    return res.json({ success: false, message: 'Email, subject, and message are required.' });
+  }
+  try {
+    const info = await transporter.sendMail({
+      from: 'Lamar Phone and Gadget <ayomideoluniyi49@gmail.com>',
+      to: email,
+      subject,
+      html: `<div style="font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; border-radius: 8px;">
+        <h2 style="color: #2d7efb;">Lamar Phone & Gadget</h2>
+        <p>${message}</p>
+        <hr><div style="font-size: 0.9em; color: #888;">&copy; 2025 Lamar Phone & Gadget</div></div>`
+    });
+    console.log('Custom email sent:', info);
+    // Add notification
+    notifications.unshift(`Email sent to ${email}: ${subject}`);
+    if (notifications.length > 20) notifications.pop();
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Custom email failed:', error);
+    res.json({ success: false, message: 'Failed to send email.', error: error.message });
+  }
+});
+// ...existing code...
+// Test endpoint to send a mock email for debugging using Nodemailer
+app.get('/test-send-email', async (req, res) => {
+  try {
+    const mailOptions = {
+      from: 'Ayomide <ayomideoluniyi49@gmail.com>',
+      to: 'ayomideoluniyi49@gmail.com',
+      subject: 'Test Email from Admin',
+      html: '<h2>This is a test email from your server.js setup.</h2><p>If you receive this, your Nodemailer integration is working.</p>'
+    };
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Test email sent:', info);
+    res.json({ success: true, info });
+  } catch (error) {
+    console.error('Error sending test email:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+// Place this after app is initialized and middleware setup
+// Supabase Admin API for listing users
+const { createClient: createSupabaseClient } = require('@supabase/supabase-js');
+const supabaseAdmin = createSupabaseClient(
+  'https://jlwxkykznyjmstpjcgks.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDMxMDE0MiwiZXhwIjoyMDY5ODg2MTQyfQ.DMN5xWfQ5jRsTYi-BBP5apNUuXhUWU5y80aTHSQeiL4'
+);
+const PORT = process.env.PORT || 3000;
+// Configure Nodemailer transporter (use your Gmail and app password)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'ayomideoluniyi49@gmail.com',
+    pass: 'taqm vuiw bsxc vbal' // Updated app password
+  }
+});
+
+
+// Resend email integration
+const { Resend } = require('resend');
+const resend = new Resend('re_CG4qokFC_5KUhQjpaKGYMincxEpB78b3X');
 
 // Endpoint to confirm registration
 app.get('/api/confirm', (req, res) => {
@@ -87,33 +162,29 @@ app.post('/api/send-welcome', async (req, res) => {
   }
 });
 
-// CORS middleware for Netlify and local dev
-app.use(cors({
-  origin: [
-    'https://glittery-torrone-d1184e.netlify.app',
-    'http://localhost:3000',
-    'http://127.0.0.1:5500'
-  ],
-  credentials: true
-}));
-
-// Security headers
-app.use((req, res, next) => {
-  res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
-  res.setHeader('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://glittery-torrone-d1184e.netlify.app https://phone-2cv4.onrender.com https://jlwxkykznyjmstpjcgks.supabase.co;");
-  next();
+// Endpoint to send email
+app.post('/send-email', async (req, res) => {
+  const { to, subject, html } = req.body;
+  console.log('POST /send-email called with:', { to, subject });
+  try {
+    const data = await resend.emails.send({
+      from: 'Your Name <your@email.com>', // Change to your verified sender
+      to,
+      subject,
+      html
+    });
+    console.log('Resend API response:', data);
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
-app.get('/', (req, res) => {
-  res.send('<h2>Welcome to Lamar Phone and Gadget API!</h2><p>This is the backend server. Use the API endpoints for data access.</p>');
-});
-const PORT = 3000;
-
-
-app.use(bodyParser.json());
 
 // In-memory store for demo (replace with DB in production)
 const codes = {};
+
 // Send order status update email
 app.post('/api/send-status-email', async (req, res) => {
   const { email, status, orderId } = req.body;
@@ -124,7 +195,7 @@ app.post('/api/send-status-email', async (req, res) => {
   }
   try {
     const mailOptions = {
-        from: 'Lamar Phone and Gadget <ayomideoluniyi49@gmail.com>',
+      from: 'Lamar Phone and Gadget <ayomideoluniyi49@gmail.com>',
       to: email,
       subject: `Order Status Update for Order #${orderId}`,
       text: `Your order status has been updated to: ${status}`,
@@ -134,19 +205,19 @@ app.post('/api/send-status-email', async (req, res) => {
           <p>Dear Customer,</p>
           <p>Your order <strong>#${orderId}</strong> status has been updated to:</p>
           <p style="font-size: 1.2em; color: #333; font-weight: bold;">${status}</p>
-          <hr>
+          <hr />
           <p>If you have any questions, please reply to this email.</p>
           <p style="color: #888; font-size: 0.9em;">Thank you for shopping with us!</p>
         </div>
       `
     };
-    console.log('Sending email with options:', mailOptions);
-    await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully');
+    console.log('Sending status email with options:', mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Status email sent:', info);
     res.json({ success: true });
   } catch (error) {
     console.error('Error sending status email:', error);
-    res.json({ success: false, message: 'Failed to send email.' });
+    res.json({ success: false, message: 'Failed to send status email.', error: error.message });
   }
 });
 const users = {};
@@ -263,18 +334,15 @@ app.get('/api/user', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-// Get all users for admin panel
-app.get('/api/user-list', (req, res) => {
-  fs.readFile('user.json', 'utf8', (err, data) => {
-    if (err || !data) return res.json({ success: true, users: [] });
-    try {
-      const userList = JSON.parse(data);
-      res.json({ success: true, users: userList });
-    } catch (e) {
-      res.json({ success: true, users: [] });
-    }
-  });
+// Get all users for admin panel (Supabase Auth)
+app.get('/api/user-list', async (req, res) => {
+  const { data, error } = await supabaseAdmin.auth.admin.listUsers();
+  if (error) {
+    return res.json({ success: false, error: error.message });
+  }
+  res.json({ success: true, users: data.users });
 });
+
+app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

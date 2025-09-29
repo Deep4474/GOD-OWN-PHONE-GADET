@@ -1,479 +1,538 @@
-// Function to send welcome email using EmailJS
-// Always send welcome email (no localStorage check)
-function sendWelcomeEmail(userEmail, userName) {
-  console.log('[DEBUG] sendWelcomeEmail called with:', { userEmail, userName });
-  if (userEmail && typeof userEmail === 'string' && userEmail.includes('@')) {
-    if (typeof emailjs === 'undefined') {
-      console.error('[DEBUG] EmailJS library is not loaded.');
-      alert('EmailJS is not loaded. Please check your script includes.');
+// Mobile menu toggle
+document.addEventListener('DOMContentLoaded', function() {
+  const menuBtn = document.querySelector('.menu-icon');
+  const menu = document.querySelector('.menu');
+  if (menuBtn && menu) {
+    menuBtn.addEventListener('click', function() {
+      menu.classList.toggle('open');
+    });
+  }
+});
+// Mobile menu toggle
+document.addEventListener('DOMContentLoaded', function() {
+  const menuBtn = document.getElementById('mobileMenuBtn');
+  const nav = document.getElementById('mainNav');
+  if (menuBtn && nav) {
+    menuBtn.addEventListener('click', function() {
+      nav.classList.toggle('open');
+    });
+    // Optional: close menu when a link is clicked
+    nav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => nav.classList.remove('open'));
+    });
+  }
+});
+  // Close order list modal when clicking outside modal content
+  document.getElementById('orderListModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.style.display = 'none';
+    }
+  });
+  // Edit Pic button always opens file picker
+  document.getElementById('editPicBtn')?.addEventListener('click', () => {
+    userPicInput.click();
+  });
+  // Settings modal logic
+  const settingsModal = document.getElementById('settingsModal');
+  const closeSettingsModal = document.getElementById('closeSettingsModal');
+  const darkModeToggleUser = document.getElementById('darkModeToggleUser');
+  document.getElementById('settingsBtn')?.addEventListener('click', () => {
+    settingsModal.style.display = 'block';
+    darkModeToggleUser.checked = document.body.classList.contains('dark-mode');
+  });
+  closeSettingsModal.onclick = () => settingsModal.style.display = 'none';
+  darkModeToggleUser.onchange = function() {
+    document.body.classList.toggle('dark-mode', darkModeToggleUser.checked);
+    localStorage.setItem('userDarkMode', darkModeToggleUser.checked);
+  };
+  // Load dark mode preference
+  if (localStorage.getItem('userDarkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+    if (darkModeToggleUser) darkModeToggleUser.checked = true;
+  }
+  // Make user dropdown menu buttons clickable
+  document.getElementById('editPicBtn')?.addEventListener('click', () => {
+    document.getElementById('userIcon').click();
+  });
+  document.getElementById('settingsBtn')?.addEventListener('click', () => {
+    settingsModal.style.display = 'block';
+    darkModeToggleUser.checked = document.body.classList.contains('dark-mode');
+  });
+  // Show user's orders when Order List is clicked
+  document.getElementById('orderListBtn')?.addEventListener('click', async () => {
+    // EmailJS send order details function
+    window.sendOrderEmail = function(order, status) {
+      emailjs.send('service_xuzka4m', 'template_zkv6prt', {
+        user_email: order.email,
+        to_email: order.email,
+        name: order.user_name,
+        product: order.product_id,
+        quantity: order.quantity,
+        total: '₦' + Number(order.order_total).toLocaleString(undefined, {minimumFractionDigits:2}),
+        status: status,
+        address: order.address,
+        phone: order.phone,
+        pick_option: order.pick_option,
+        date: new Date(order.created_at).toLocaleString()
+      }).then(function(response) {
+        console.log('Order email sent!', response);
+      }, function(error) {
+        console.error('Failed to send order email:', error);
+      });
+    };
+    const orderListModal = document.getElementById('orderListModal');
+    const closeOrderListModal = document.getElementById('closeOrderListModal');
+    const userOrdersTable = document.getElementById('userOrdersTable');
+    const userOrdersMsg = document.getElementById('userOrdersMsg');
+    orderListModal.style.display = 'block';
+    userOrdersMsg.textContent = '';
+    // Get user email from localStorage
+    const userEmail = localStorage.getItem('lamar_email');
+    if (!userEmail) {
+      userOrdersMsg.textContent = 'No user email found. Please log in.';
+      userOrdersTable.querySelector('tbody').innerHTML = '';
       return;
     }
-    const emailParams = {
-      user_email: userEmail,
-      user_name: userName
-    };
-    console.log('[DEBUG] Sending welcome email to:', userEmail);
-    emailjs.send('service_xuzka4m', 'template_7wubyku', emailParams)
-      .then(function(response) {
-        console.log('[DEBUG] EmailJS SUCCESS!', response.status, response.text);
-        alert('Welcome email sent successfully!');
-      }, function(error) {
-        console.error('[DEBUG] EmailJS FAILED...', error);
-        alert('Failed to send welcome email. Check console for details.');
-      });
-  } else {
-    console.warn('[DEBUG] No valid user email found, not sending welcome email. userEmail:', userEmail);
+    // Fetch orders from Supabase for this user
+      const { data: orders, error } = await supabase
+        .from('order_sender')
+        .select('product_id,quantity,order_total,status,created_at,email,user_name,address,phone,pick_option,id')
+        .eq('email', userEmail)
+        .order('created_at', { ascending: false });
+    if (error) {
+      userOrdersMsg.textContent = 'Error fetching orders.';
+      userOrdersTable.querySelector('tbody').innerHTML = '';
+      return;
+    }
+    if (!orders || orders.length === 0) {
+      userOrdersMsg.textContent = 'No orders found.';
+      userOrdersTable.querySelector('tbody').innerHTML = '';
+      return;
+    }
+    // Fetch product names for each order
+    const productIds = [...new Set(orders.map(o => o.product_id))];
+    const { data: productsData } = await supabase
+      .from('products')
+      .select('id,name')
+      .in('id', productIds);
+    const productMap = {};
+    (productsData || []).forEach(p => productMap[p.id] = p.name);
+    // Render orders
+    userOrdersTable.querySelector('tbody').innerHTML = orders.map((order) => `
+      <tr>
+        <td>${productMap[order.product_id] || order.product_id}</td>
+        <td>${order.quantity}</td>
+        <td>₦${Number(order.order_total).toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+        <td>${order.status}</td>
+        <td>${new Date(order.created_at).toLocaleString()}</td>
+      </tr>
+    `).join('');
+    closeOrderListModal.onclick = () => orderListModal.style.display = 'none';
+  });
+  // User profile image upload and persistence
+  const userIcon = document.getElementById('userIcon');
+  const userPicInput = document.getElementById('userPicInput');
+  // Load saved image from localStorage
+  const savedUserPic = localStorage.getItem('userProfilePic');
+  if (savedUserPic) userIcon.src = savedUserPic;
+  userIcon.onclick = () => {
+    if (!isLoggedIn()) {
+      showEmailChoiceModal();
+    } else {
+      userPicInput.click();
+    }
+  };
+  userPicInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        userIcon.src = evt.target.result;
+        localStorage.setItem('userProfilePic', evt.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+// Removed MailSlurp email sending. Use backend /send-email endpoint instead.
+// Show email choice modal on load if not logged in
+function isLoggedIn() {
+  // You can check for a valid email or user_name in localStorage
+  return !!localStorage.getItem('lamar_email');
+}
+
+function showEmailChoiceModal() {
+  const modal = document.getElementById('emailChoiceModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.style.display = 'block';
   }
 }
-// Example script: Display a welcome message and current date
-// --- Supabase credentials (for demo/dev only; do not expose in production) ---
+
+function hideEmailChoiceModal() {
+  const modal = document.getElementById('emailChoiceModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+}
+
+function supabaseGoogleSignIn() {
+  supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: 'https://jlwxkykznyjmstpjcgks.supabase.co/auth/v1/callback',
+      queryParams: { prompt: 'select_account' }
+    }
+  });
+}
+// Live advert/featured product logic
+let featuredIndex = 0;
+function showNextFeaturedProduct() {
+  const liveFeatured = document.getElementById('liveFeatured');
+  if (!products || products.length === 0 || !liveFeatured) {
+    if (liveFeatured) liveFeatured.innerHTML = '<div style="padding:2em;text-align:center;">No products available</div>';
+    return;
+  }
+  const product = products[featuredIndex];
+  liveFeatured.innerHTML = `
+    <div class="featured-info">
+      <h1>${product.name}</h1>
+      <p>${product.description || ''}</p>
+      <p class="price">Price: <span>₦${Number(product.price).toLocaleString(undefined, {minimumFractionDigits:2})}</span></p>
+      <a href="#" class="shop-btn" onclick="openBuyModal('${product.id}')">Shop Now</a>
+    </div>
+    <div class="featured-img">
+      <img src="${product.image_url || 'https://placehold.co/220x220'}" alt="${product.name}">
+    </div>
+  `;
+  featuredIndex = (featuredIndex + 1) % products.length;
+}
+
+
+// Supabase credentials
 const supabaseUrl = 'https://jlwxkykznyjmstpjcgks.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsd3hreWt6bnlqbXN0cGpjZ2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMTAxNDIsImV4cCI6MjA2OTg4NjE0Mn0.C86cvOOT5QI0PSHlPMujivWV8NLWMtgNiX8KrglzhIQ';
 
-// Import Supabase client
+// Import Supabase client from CDN
+// EmailJS send function
+function sendWelcomeEmail(name, email) {
+  if (typeof email === 'string') {
+    // Remove invisible characters and trim
+    email = email.replace(/[\u200B-\u200D\uFEFF\n\r\t]/g, '').trim();
+  }
+  console.log('Attempting to send welcome email to:', email, 'Type:', typeof email, 'Length:', email.length);
+  // Simple email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || typeof email !== 'string' || !emailRegex.test(email)) {
+    console.error('No valid email provided for welcome email:', email);
+    return;
+  }
+  function actuallySend() {
+    emailjs.init('7m5xwMHVRwEO-ctv9');
+    emailjs.send('service_xuzka4m', 'template_zkv6prt', {
+      name: name,
+      user_email: email, // For templates expecting user_email
+      to_email: email    // For templates expecting to_email
+    })
+    .then(function(response) {
+      console.log('Welcome email sent!', response);
+    }, function(error) {
+      console.error('Failed to send welcome email:', error);
+      alert('Failed to send welcome email. Please check your EmailJS setup.');
+    });
+  }
+  if (!window.emailjs) {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js';
+    script.onload = actuallySend;
+    document.head.appendChild(script);
+    return;
+  }
+  actuallySend();
+}
+// (for browser usage, this works if you have <script type="module"> or use a bundler)
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-document.addEventListener('DOMContentLoaded', function() {
-  // On page load, show user details from localStorage if available
-  const storedName = localStorage.getItem('lamar_name');
-  const storedEmail = localStorage.getItem('lamar_email');
-  const userNameSpan = document.getElementById('userName');
-  const userEmailSpan = document.getElementById('userEmail');
-  const userIconImg = document.getElementById('userIcon');
-  if (storedName && storedEmail) {
-    if (userNameSpan) {
-      userNameSpan.textContent = storedName;
-      userNameSpan.style.display = 'inline';
-    }
-    if (userEmailSpan) {
-      userEmailSpan.textContent = storedEmail;
-      userEmailSpan.style.display = 'inline';
-    }
-    if (userIconImg) {
-      userIconImg.style.display = 'none';
-    }
-  } else {
-    if (userNameSpan) userNameSpan.style.display = 'none';
-    if (userEmailSpan) userEmailSpan.style.display = 'none';
-    if (userIconImg) userIconImg.style.display = 'inline';
+let products = [];
+
+// Fetch products from Supabase
+async function fetchProducts() {
+  const { data, error } = await supabase.from('products').select('*');
+  if (error) {
+    console.error('Error fetching products:', error);
+    return [];
   }
-  // Example: Trigger Supabase Google OAuth sign-in
-  window.supabaseGoogleSignIn = function() {
-    supabase.auth.signInWithOAuth({ provider: 'google' });
+  return data;
+}
+
+// Render products to #productList
+function renderProducts() {
+  const productList = document.getElementById('productList');
+  if (!productList) return;
+  if (!products || products.length === 0) {
+    productList.innerHTML = '<div style="padding:2em;text-align:center;">No products available</div>';
+    return;
+  }
+  productList.innerHTML = products.map(product => `
+    <div class="product">
+      <img src="${product.image_url || 'https://placehold.co/180x180'}" alt="${product.name}" class="product-img">
+      <h3>${product.name}</h3>
+      <p>${product.description || ''}</p>
+      <p class="price">₦${Number(product.price).toLocaleString(undefined, {minimumFractionDigits:2})}</p>
+      <button onclick="openBuyModal('${product.id}')" class="buy-btn">Buy Now</button>
+    </div>
+  `).join('');
+}
+
+
+// Modal logic
+function openBuyModal(productId) {
+  if (!isLoggedIn()) {
+    showEmailChoiceModal();
+    // Hide the buy modal if not logged in
+    const buyModal = document.getElementById('buyModal');
+    if (buyModal) buyModal.style.display = 'none';
+    return;
+  }
+  const product = products.find(p => String(p.id) === String(productId));
+  if (!product) return;
+  const buyModal = document.getElementById('buyModal');
+  const buyProductName = document.getElementById('buyProductName');
+  const buyPrice = document.getElementById('buyPrice');
+  if (buyProductName) buyProductName.textContent = product.name;
+  if (buyPrice) buyPrice.textContent = '₦' + Number(product.price).toLocaleString(undefined, {minimumFractionDigits:2});
+  // Auto-fill name and email input with registered info
+  const nameInput = document.getElementById('buyUserNameInput');
+  const emailInput = document.getElementById('buyEmail');
+  const regName = localStorage.getItem('lamar_name');
+  const regEmail = localStorage.getItem('lamar_email');
+  if (nameInput && regName) nameInput.value = regName;
+  if (emailInput && regEmail) emailInput.value = regEmail;
+  // Show total amount to pay
+  const quantityInput = document.getElementById('buyQuantity');
+  const totalAmountElem = document.getElementById('buyTotalAmount');
+  function updateTotalAmount() {
+    const qty = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+    const total = qty * Number(product.price);
+    if (totalAmountElem) totalAmountElem.textContent = 'Total: ₦' + total.toLocaleString(undefined, {minimumFractionDigits:2});
+  }
+  if (quantityInput) {
+    quantityInput.addEventListener('input', updateTotalAmount);
+    updateTotalAmount();
+  }
+  buyModal.style.display = 'block';
+  buyModal.setAttribute('data-product-id', product.id);
+}
+// Expose to global for inline onclick
+window.openBuyModal = openBuyModal;
+
+function closeBuyModal() {
+  const buyModal = document.getElementById('buyModal');
+  buyModal.style.display = 'none';
+}
+
+// Handle buy form submit
+async function handleBuySubmit(e) {
+  if (!isLoggedIn()) {
+    showEmailChoiceModal();
+    e.preventDefault();
+    // Hide the buy modal if not logged in
+    const buyModal = document.getElementById('buyModal');
+    if (buyModal) buyModal.style.display = 'none';
+    return false;
+  }
+  e.preventDefault();
+  const buyModal = document.getElementById('buyModal');
+  const productId = buyModal.getAttribute('data-product-id');
+  const product = products.find(p => String(p.id) === String(productId));
+  const nameInput = document.getElementById('buyUserNameInput');
+  const emailInput = document.getElementById('buyEmail');
+  const phoneInput = document.getElementById('buyPhone');
+  const addressInput = document.getElementById('buyAddress');
+  const quantityInput = document.getElementById('buyQuantity');
+  const deliveryOptionInput = document.getElementById('buyDeliveryOption');
+  const userIdInput = document.getElementById('buyUserId');
+  const buyMsg = document.getElementById('buyMsg');
+  if (!nameInput || !emailInput || !phoneInput || !addressInput || !quantityInput || !deliveryOptionInput || !userIdInput) {
+    if (buyMsg) buyMsg.textContent = 'Form error: missing input fields.';
+    return;
+  }
+  const name = nameInput.value;
+  const email = emailInput.value;
+  const phone = phoneInput.value;
+  const address = addressInput.value;
+  const quantity = parseInt(quantityInput.value);
+  const delivery_option = deliveryOptionInput.value;
+  const user_id = userIdInput.value;
+  if (!name || !email || !phone || !address || !quantity || !delivery_option) {
+    if (buyMsg) {
+      buyMsg.style.color = 'red';
+      buyMsg.textContent = 'Please fill all fields.';
+    }
+    return;
+  }
+  // Insert order into Supabase
+  // Only include user_id if it is a valid UUID (36 chars, 4 dashes)
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const order_total = Number(product.price) * quantity;
+  const orderData = {
+    product_id: product.id,
+    user_name: name,
+    email: email,
+    phone: phone,
+    address: address,
+    quantity: quantity,
+    order_total: order_total,
+    pick_option: delivery_option,
+    status: 'pending',
+    created_at: new Date().toISOString()
   };
+  if (user_id && uuidRegex.test(user_id)) {
+    orderData.user_id = user_id;
+  }
+  console.log('Order data to send:', orderData);
+  try {
+    const { data, error } = await supabase.from('orders').insert([orderData]);
+    if (error) {
+      console.error('Supabase error:', error);
+      if (buyMsg) {
+        buyMsg.style.color = 'red';
+        buyMsg.textContent = 'Failed to place order: ' + (error.message || error.details || 'Unknown error');
+      }
+      return;
+    }
+    if (buyMsg) {
+      buyMsg.style.color = 'green';
+      buyMsg.textContent = `Order placed for ${quantity} x ${product.name}!`;
+    }
+    setTimeout(closeBuyModal, 1200);
+  } catch (err) {
+    if (buyMsg) {
+      buyMsg.style.color = 'red';
+      buyMsg.textContent = 'Error placing order.';
+    }
+    console.error('JS error:', err);
+  }
+}
 
-  // User icon click: show email choice modal
+// Simple login/logout using localStorage
+function login() {
+  // Only allow Google sign-in for unregistered users
+  if (!isLoggedIn()) {
+    showEmailChoiceModal();
+    return;
+  }
+  // If already logged in, do nothing or show user info
+}
+
+function logout() {
+  localStorage.removeItem('lamar_name');
+  updateUserUI();
+}
+
+function updateUserUI() {
+  const userNameSpan = document.getElementById('userName');
   const userIcon = document.getElementById('userIcon');
-  const emailChoiceModal = document.getElementById('emailChoiceModal');
-  const closeEmailChoice = document.getElementById('closeEmailChoice');
-  const googleBtn = document.getElementById('google-signin-btn');
+  const userDropdown = document.getElementById('userDropdown');
+  const name = localStorage.getItem('lamar_name');
+  if (userNameSpan) {
+    if (name) {
+      userNameSpan.textContent = name;
+      userNameSpan.style.display = 'inline-block';
+      userNameSpan.style.fontWeight = 'bold';
+      userNameSpan.style.color = '#222';
+      userNameSpan.style.marginRight = '8px';
+    } else {
+      userNameSpan.textContent = '';
+      userNameSpan.style.display = 'none';
+    }
+  }
+  if (userIcon) userIcon.style.display = 'inline-block';
+  if (userDropdown) userDropdown.classList.add('hidden');
+}
 
-  // Make user icon always clickable to open the email choice modal
+// Setup event listeners on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', async function() {
+  // Check for Supabase user session and set Gmail name/email if available
+  const { data: { user: supaUser } } = await supabase.auth.getUser();
+  if (supaUser && supaUser.user_metadata && supaUser.user_metadata.full_name) {
+    localStorage.setItem('lamar_name', supaUser.user_metadata.full_name);
+    if (supaUser.email) localStorage.setItem('lamar_email', supaUser.email);
+    updateUserUI();
+  // sendWelcomeEmail(supaUser.user_metadata.full_name, supaUser.email); // Removed EmailJS call
+  }
+  // Check for Supabase user session and set Gmail name if available
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user && user.user_metadata && user.user_metadata.full_name) {
+    localStorage.setItem('lamar_name', user.user_metadata.full_name);
+    updateUserUI();
+  }
+  // Always show user icon and set up click logic
+  updateUserUI(); // Ensure username is shown on page load
+  const userIcon = document.getElementById('userIcon');
   if (userIcon) {
-    userIcon.style.pointerEvents = 'auto';
-    userIcon.addEventListener('click', function() {
-      if (emailChoiceModal) {
-        emailChoiceModal.classList.remove('hidden');
-        emailChoiceModal.style.display = 'block';
-      }
-      if (googleBtn) googleBtn.style.display = 'inline-block';
-    });
-  }
-
-  // When 'Continue with your email' is clicked, sign in with Google OAuth (redirects to callback)
-  if (googleBtn) {
-    googleBtn.addEventListener('click', function() {
-      supabase.auth.signInWithOAuth({ provider: 'google' });
-    });
-  }
-
-  // Listen for Supabase auth state change to send login notification email
-  supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session && session.user) {
-      const userEmail = session.user.email;
-      const userName = session.user.user_metadata && session.user.user_metadata.full_name ? session.user.user_metadata.full_name : userEmail;
-      // Save to localStorage for persistence
-      localStorage.setItem('lamar_email', userEmail);
-      localStorage.setItem('lamar_name', userName);
-      // Update UI: always show name and email in userIcon title and span
-      if (userNameSpan) {
-        userNameSpan.textContent = userName;
-        userNameSpan.style.display = 'inline';
-      }
-      if (userEmailSpan) {
-        userEmailSpan.textContent = userEmail;
-        userEmailSpan.style.display = 'inline';
-      }
-      if (userIconImg) {
-        userIconImg.style.display = 'none';
-      }
-      // Optionally close the modal
-      if (emailChoiceModal) {
-        emailChoiceModal.classList.add('hidden');
-        emailChoiceModal.style.display = 'none';
-      }
-      // Always send welcome email on sign in
-      // Only send welcome email if not already sent for this user
-      const welcomeEmailKey = 'lamar_welcome_email_sent_' + userEmail;
-      if (!localStorage.getItem(welcomeEmailKey)) {
-        console.log('[DEBUG] Attempting to send welcome email:', { userEmail, userName });
-        if (userEmail && typeof userEmail === 'string' && userEmail.includes('@')) {
-          // Check if EmailJS is loaded
-          if (typeof emailjs === 'undefined') {
-            console.error('[DEBUG] EmailJS library is not loaded.');
-            alert('EmailJS is not loaded. Please check your script includes.');
-            return;
-          }
-          // Log the service and template IDs
-          console.log('[DEBUG] EmailJS service ID:', 'service_xuzka4m');
-          console.log('[DEBUG] EmailJS template ID:', 'template_7wubyku');
-          // Log the parameters being sent
-          const emailParams = {
-            user_email: userEmail,
-            user_name: userName
-          };
-          console.log('[DEBUG] EmailJS parameters:', emailParams);
-          // Extra debug: log recipient email and all params
-          console.log('[DEBUG] Sending email to:', userEmail);
-          console.log('[DEBUG] Full EmailJS send call:', {
-            service: 'service_xuzka4m',
-            template: 'template_7wubyku',
-            params: emailParams
-          });
-          emailjs.send('service_xuzka4m', 'template_7wubyku', emailParams)
-          .then(function(response) {
-             console.log('[DEBUG] EmailJS SUCCESS!', response.status, response.text);
-             alert('Welcome email sent successfully!');
-             localStorage.setItem(welcomeEmailKey, 'true');
-          }, function(error) {
-             console.error('[DEBUG] EmailJS FAILED...', error);
-             alert('Failed to send welcome email. Check console for details.');
-          });
-        } else {
-          console.warn('[DEBUG] No valid user email found, not sending welcome email. userEmail:', userEmail);
+    userIcon.style.display = 'inline';
+    userIcon.onclick = function(e) {
+      const name = localStorage.getItem('lamar_name');
+      const userDropdown = document.getElementById('userDropdown');
+      if (name) {
+        // Toggle dropdown
+        if (userDropdown) {
+          userDropdown.classList.toggle('hidden');
         }
       } else {
-        console.log('[DEBUG] Welcome email already sent for this user:', userEmail);
+        // Prompt for login directly
+        login();
+        // After login, check if name is set
+        // No alert or prompt, Gmail only
+      }
+      e.stopPropagation();
+    };
+  }
+  // Hide dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    const userDropdown = document.getElementById('userDropdown');
+    if (userDropdown && !userDropdown.classList.contains('hidden')) {
+      if (!userDropdown.contains(e.target) && e.target.id !== 'userIcon') {
+        userDropdown.classList.add('hidden');
       }
     }
   });
-
-  if (closeEmailChoice) {
-    closeEmailChoice.addEventListener('click', function() {
-      if (emailChoiceModal) {
-        emailChoiceModal.classList.add('hidden');
-        emailChoiceModal.style.display = 'none';
-      }
-      if (googleBtn) googleBtn.style.display = 'inline-block';
-      if (typeof chooseEmailMsg !== 'undefined') chooseEmailMsg.textContent = '';
-    });
+  // Logout buttons (dropdown and header)
+  // Only declare logoutBtn and logoutHeaderBtn once
+  var logoutBtn = document.getElementById('logoutBtn');
+  var logoutHeaderBtn = document.getElementById('logoutHeaderBtn');
+  if (logoutBtn) logoutBtn.onclick = logout;
+  if (logoutHeaderBtn) logoutHeaderBtn.onclick = logout;
+  // Show email choice modal if not logged in
+  if (!isLoggedIn()) {
+    showEmailChoiceModal();
   }
-  // ...existing code...
-
-
-  // Example: Fetch and log all users (for admin or UI)
-  async function fetchUsers() {
-    const { data, error } = await supabase.from('users').select('*');
-    if (error) {
-      console.error('Error fetching users:', error);
-      return [];
-    }
-    return data;
-  }
-  // Example usage: log users to console
-  fetchUsers().then(users => {
-    console.log('All users:', users);
-  });
-
-  // Global variable to hold the selected product
-  window.selectedProduct = null;
-
-  // Function to open the buy modal for a specific product
-  window.openBuyModal = function(product) {
-    window.selectedProduct = product;
-    const buyModal = document.getElementById('buyModal');
-    const buyUserName = document.getElementById('buyUserName');
-    const buyForm = document.getElementById('buyForm');
-    const buyMsg = document.getElementById('buyMsg');
-    buyUserName.textContent = `Product: ${product.name}`;
-    buyMsg.textContent = '';
-    buyForm.reset();
-    // Always set user-id hidden input from localStorage (force overwrite)
-    const userIdFromStorage = localStorage.getItem('lamar_user_id') || '';
-    document.getElementById('buyUserId').value = userIdFromStorage;
-    buyModal.style.display = 'block';
+  // Email choice modal button
+  const googleBtn = document.getElementById('google-signin-btn');
+  if (googleBtn) googleBtn.onclick = function() {
+    hideEmailChoiceModal();
+    supabaseGoogleSignIn();
   };
-
-  // Attach event handler for buy form submission
+  // Close modal button
+  const closeEmailChoice = document.getElementById('closeEmailChoice');
+  if (closeEmailChoice) closeEmailChoice.onclick = hideEmailChoiceModal;
+  products = await fetchProducts();
+  renderProducts();
+  updateUserUI();
+  // Live advert/featured section
+  showNextFeaturedProduct();
+  setInterval(showNextFeaturedProduct, 3500);
+  // Buy modal close
+  const closeBtn = document.getElementById('closeBuyModal');
+  if (closeBtn) closeBtn.onclick = closeBuyModal;
+  // Buy form submit
   const buyForm = document.getElementById('buyForm');
-  if (buyForm) {
-    buyForm.onsubmit = async function(e) {
-      e.preventDefault();
-      const product = window.selectedProduct;
-      const buyMsg = document.getElementById('buyMsg');
-      if (!product) {
-        alert('No product selected.');
-        return;
-      }
-      const user_name = document.getElementById('buyUserNameInput').value;
-      const email = document.getElementById('buyEmail').value;
-      const phone = document.getElementById('buyPhone').value;
-      const address = document.getElementById('buyAddress').value;
-      const quantity = document.getElementById('buyQuantity').value;
-      const deliveryOption = document.getElementById('buyDeliveryOption').value;
-      // Always get user_id from hidden input (which is set from localStorage)
-      let user_id = document.getElementById('buyUserId').value;
-      // Validate UUID (simple regex)
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (!user_name || !email || !phone || !address || !quantity || !deliveryOption) {
-        buyMsg.style.color = 'red';
-        buyMsg.textContent = 'Please fill all fields.';
-        return;
-      }
-      if (!user_id || !uuidRegex.test(user_id)) {
-        buyMsg.style.color = 'red';
-        buyMsg.textContent = 'User ID missing or invalid. Please log in.';
-        return;
-      }
-      if (!uuidRegex.test(product.id)) {
-        buyMsg.style.color = 'red';
-        buyMsg.textContent = 'Product ID is invalid. Please contact support.';
-        return;
-      }
-      buyMsg.style.color = 'black';
-      buyMsg.textContent = 'Placing order...';
-      // Prepare order data for Supabase
-      const orderData = {
-        product_id: product.id,
-        user_id,
-        user_name,
-        email,
-        phone,
-        address,
-        quantity: Number(quantity),
-        // Calculate total: price * quantity + 5% fee
-        order_total: (() => {
-          let total = Number(product.price) * Number(quantity);
-          // Add delivery/pickup multiplier
-          if (deliveryOption === 'pickup') {
-            total *= 1.4;
-          } else if (deliveryOption === 'delivery') {
-            total *= isFarAddress(address) ? 2.5 : 2;
-          }
-          // Add 5% fee
-          total *= 1.05;
-          return total;
-        })(),
-  delivery_option: deliveryOption,
-  pick_option: deliveryOption,
-  status: 'pending'
-      };
-      try {
-        // Insert order using Supabase client
-        const { data, error } = await supabase
-          .from('orders')
-          .insert([orderData])
-          .select();
-        if (error) {
-          buyMsg.style.color = 'red';
-          buyMsg.textContent = 'Failed to place order: ' + (error.message || 'Unknown error');
-          console.error('Supabase error:', error);
-        } else {
-          buyMsg.style.color = 'green';
-          buyMsg.textContent = 'Order placed successfully!';
-          buyForm.reset();
-          // Hide the buy modal after successful order
-          const buyModal = document.getElementById('buyModal');
-          if (buyModal) {
-            setTimeout(() => {
-              buyModal.style.display = 'none';
-            }, 1000);
-          }
-          // Send welcome email after successful registration/order
-          console.log('[DEBUG] About to call sendWelcomeEmail after order:', { email, user_name });
-          sendWelcomeEmail(email, user_name);
-        }
-      } catch (err) {
-        buyMsg.style.color = 'red';
-        buyMsg.textContent = 'Error placing order.';
-        console.error('Network or JS error:', err);
-      }
-    };
-  }
-
-  // Featured products logic
-  let liveProducts = [];
-  let featuredIndex = 0;
-  const liveFeatured = document.getElementById('liveFeatured');
-  function showNextFeaturedProduct() {
-    if (liveProducts.length > 0 && liveFeatured) {
-      const product = liveProducts[featuredIndex];
-      liveFeatured.innerHTML = `
-        <div class="featured-info">
-          <h1>${product.name}</h1>
-          <p>${product.description || ''}</p>
-          <p class="price">Price: <span>$${Number(product.price).toFixed(2)}</span></p>
-          <a href="#" class="shop-btn">Shop Now</a>
-        </div>
-        <div class="featured-img">
-          <img src="${product.image_url || 'https://placehold.co/220x220'}" alt="${product.name}">
-        </div>
-      `;
-      featuredIndex = (featuredIndex + 1) % liveProducts.length;
-    }
-  }
-  async function fetchProducts() {
-    // Fetch products using Supabase client
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*');
-      if (error) return [];
-      return data;
-    } catch (err) {
-      return [];
-    }
-  }
-  fetchProducts().then(products => {
-    console.log('Fetched products:', products);
-    const productList = document.getElementById('productList');
-    if (!products || !Array.isArray(products) || products.length === 0) {
-      liveProducts = [{name: 'No products available', price: '', description: '', image_url: ''}];
-      if (liveFeatured) {
-        liveFeatured.innerHTML = '<div style="padding:2em;text-align:center;">No products available</div>';
-      }
-      if (productList) {
-        productList.innerHTML = '<div style="padding:2em;text-align:center;">No products available</div>';
-      }
-    } else {
-      liveProducts = products;
-      showNextFeaturedProduct();
-      setInterval(showNextFeaturedProduct, 3500);
-      // Render products in the #productList section
-      if (productList) {
-        productList.innerHTML = products.map(product => `
-          <div class="product-card">
-            <img src="${product.image_url || 'https://placehold.co/180x180'}" alt="${product.name}" class="product-img">
-            <h3>${product.name}</h3>
-            <p>${product.description || ''}</p>
-            <p class="price">$${Number(product.price).toFixed(2)}</p>
-            <button onclick='openBuyModal(${JSON.stringify(product)})' class="buy-btn">Buy Now</button>
-          </div>
-        `).join('');
-      }
-    }
-  });
-
-    // Fetch orders using Supabase client
-    async function fetchOrders() {
-      try {
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*');
-        if (error) return [];
-        return data;
-      } catch (err) {
-        return [];
-      }
-    }
-
-    // Example usage of fetchOrders
-    fetchOrders().then(orders => {
-      console.log('Fetched orders:', orders);
-    });
-
-  // Order modal logic
-  const buyNowBtn = document.getElementById('buyNowBtn');
-  const orderModal = document.getElementById('orderModal');
-  const closeModalBtn = document.getElementById('closeModalBtn');
-  const orderForm = document.getElementById('orderForm');
-
-  if (buyNowBtn) {
-    buyNowBtn.onclick = function() {
-      orderModal.classList.add('show');
-    };
-  }
-  if (closeModalBtn) {
-    closeModalBtn.onclick = function() {
-      orderModal.classList.remove('show');
-    };
-  }
-  if (orderForm) {
-    orderForm.onsubmit = async function(e) {
-      e.preventDefault();
-      const formData = new FormData(orderForm);
-      const name = formData.get('name');
-      const phone = formData.get('phone');
-      const address = formData.get('address');
-      const product_id = formData.get('product_id');
-      const quantity = Number(formData.get('quantity'));
-      const delivery_option = formData.get('delivery_option');
-      if (!name || !phone || !address || !product_id || !quantity || !delivery_option) {
-        alert('Please fill all fields.');
-        return;
-      }
-      // You may want to fetch product price from Supabase, but for now, set total_amount to 0
-      const orderData = {
-        name,
-        phone,
-        address,
-        product_id,
-        quantity,
-        total_amount: 0, // Optionally fetch price and calculate
-        status: 'pending',
-        delivery_option,
-        created_at: new Date().toISOString()
-      };
-      try {
-        const res = await fetch(`${supabaseUrl}/rest/v1/orders`, {
-          method: 'POST',
-          headers: {
-            apikey: supabaseKey,
-            Authorization: `Bearer ${supabaseKey}`,
-            'Content-Type': 'application/json',
-            Prefer: 'return=representation'
-          },
-          body: JSON.stringify(orderData)
-        });
-        const data = await res.json();
-        if (res.ok) {
-          alert('Order placed successfully!');
-          orderModal.classList.remove('show');
-          orderForm.reset();
-        } else {
-          alert('Failed to place order.');
-          console.error('Supabase error:', data);
-        }
-      } catch (err) {
-        alert('Error placing order.');
-        console.error('Network or JS error:', err);
-      }
-    };
-  }
-
-  // User authentication simulation (replace with real logic)
-  function isLoggedIn() {
-    return localStorage.getItem('user') !== null;
-  }
-
-  function getUser() {
-    return JSON.parse(localStorage.getItem('user')) || { name: 'Guest', image: 'https://cdn-icons-png.flaticon.com/512/149/149071.png' };
-  }
-
-  function updateUserUI() {
-  const user = getUser();
-  document.getElementById('userName').textContent = user.name || 'Guest';
-  userIcon.src = user.image || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-  }
-
-  // User icon and registration check (local only)
-  // userIcon already declared above
-  // Optionally, you can still check registration, but always prefer localStorage for display
-  // ...existing code...
-
-  // Removed duplicate googleBtn declaration and event listener
+  if (buyForm) buyForm.onsubmit = handleBuySubmit;
+  // Login/logout
+  const loginBtn = document.getElementById('loginBtn');
+  if (loginBtn) loginBtn.onclick = login;
 });
-
-// Add Supabase client initialization
+    const userIconImg = document.getElementById('userIcon');
 
