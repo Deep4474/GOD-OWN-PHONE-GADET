@@ -1,3 +1,47 @@
+/* Utility classes for modal and table styling (moved from inline styles) */
+.modal-content-wide {
+  max-width: 600px;
+}
+.modal-content-narrow {
+  max-width: 340px;
+}
+.modal-content-centered {
+  margin: auto;
+}
+.modal-content-padded {
+  padding: 2em 1.5em;
+}
+.close-float {
+  float: right;
+}
+.close-pointer {
+  cursor: pointer;
+}
+.close-large {
+  font-size: 1.5em;
+}
+.d-none {
+  display: none !important;
+}
+.table-full {
+  width: 100%;
+}
+.table-collapse {
+  border-collapse: collapse;
+}
+.table-mt {
+  margin-top: 1em;
+}
+.user-orders-msg {
+  margin-top: 1em;
+  color: #e74c3c;
+}
+.settings-label-flex {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
 .menu-icon {
   display: none;
 }

@@ -5,7 +5,7 @@
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm https://smtpjs.com;
-    style-src 'self' 'unsafe-inline';
+    style-src 'self';
     img-src 'self' data: https://cdn-icons-png.flaticon.com https://encrypted-tbn0.gstatic.com;
     connect-src *;
   ">
@@ -13,16 +13,15 @@
   <title>Lamar Phone and Gadget</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <script src="https://smtpjs.com/v3/smtp.js"></script>
 </head>
 <body>
   <!-- Order List Modal -->
-  <div id="orderListModal" class="modal" style="display:none;">
-    <div class="modal-content" style="max-width:600px;margin:auto;padding:2em 1.5em;">
-      <span class="close" id="closeOrderListModal" style="float:right;cursor:pointer;font-size:1.5em;">&times;</span>
+  <div id="orderListModal" class="modal d-none">
+    <div class="modal-content modal-content-wide modal-content-centered modal-content-padded">
+      <span class="close close-float close-pointer close-large" id="closeOrderListModal">&times;</span>
       <h2>My Orders</h2>
       <div id="userOrdersTableArea">
-        <table id="userOrdersTable" style="width:100%;border-collapse:collapse;margin-top:1em;">
+        <table id="userOrdersTable" class="table-full table-collapse table-mt">
           <thead>
             <tr>
               <th>Product</th>
@@ -35,15 +34,15 @@
           <tbody></tbody>
         </table>
       </div>
-      <div id="userOrdersMsg" style="margin-top:1em;color:#e74c3c;"></div>
+  <div id="userOrdersMsg" class="user-orders-msg"></div>
     </div>
   </div>
   <!-- Settings Modal -->
-  <div id="settingsModal" class="modal" style="display:none;">
-    <div class="modal-content" style="max-width:340px;margin:auto;padding:2em 1.5em;">
-      <span class="close" id="closeSettingsModal" style="float:right;cursor:pointer;font-size:1.5em;">&times;</span>
+  <div id="settingsModal" class="modal d-none">
+    <div class="modal-content modal-content-narrow modal-content-centered modal-content-padded">
+      <span class="close close-float close-pointer close-large" id="closeSettingsModal">&times;</span>
       <h2>Settings</h2>
-      <label style="display:flex;align-items:center;gap:10px;margin-top:18px;">
+  <label class="settings-label-flex">
         <input type="checkbox" id="darkModeToggleUser">
         <span>Dark Mode</span>
       </label>
@@ -74,13 +73,13 @@
               <button id="settingsBtn" class="user-action-btn">Settings</button>
               <button id="orderListBtn" class="user-action-btn">Order List</button>
             </div>
-            <span id="userEmail" class="user-email" style="display:none;"></span>
-            <input type="file" id="userPicInput" accept="image/*" style="display:none">
+            <span id="userEmail" class="user-email d-none"></span>
+            <input type="file" id="userPicInput" accept="image/*" class="d-none">
           </div>
         </div>
       </div>
       <!-- Mobile user actions in menu -->
-      <div class="mobile-user-actions" style="display:none;">
+  <div class="mobile-user-actions d-none">
         <button id="editPicBtnMobile" class="user-action-btn">Edit Pic</button>
         <button id="settingsBtnMobile" class="user-action-btn">Settings</button>
         <button id="orderListBtnMobile" class="user-action-btn">Order List</button>
@@ -172,7 +171,7 @@
   <!-- Login Modal -->
   <div id="loginModal" class="modal">
     <div class="modal-content">
-      <span class="close" id="closeLogin">&times;</span>
+  <span class="close" id="closeLogin">&times;</span>
       <script>
         document.addEventListener('DOMContentLoaded', function() {
           // Modal logic for Login only
