@@ -1,3 +1,10 @@
+/* Ensure product name is visible in light mode */
+.product h3 {
+  color: #232b43;
+}
+.dark-mode .product h3 {
+  color: #fff !important;
+}
 /* Utility classes for modal and table styling (moved from inline styles) */
 .modal-content-wide {
   max-width: 600px;
@@ -430,8 +437,8 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  background: #232b43;
-  border-radius: 0 0 12px 12px;
+
+  
   padding: 0.3rem 1.2rem;
   margin: 0 0 1.5rem 0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.07);
